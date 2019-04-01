@@ -1,0 +1,23 @@
+{
+  "name": "vocabbie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laphinisee/vocabbie.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/laphinisee/vocabbie/issues"
+  },
+  "homepage": "https://github.com/laphinisee/vocabbie#readme",
+  "dependencies": {
+    "@google-cloud/translate": "^2.1.4",
+    "wink-tokenizer": "^5.2.0"
+  }
+}
