@@ -18,6 +18,7 @@
   "homepage": "https://github.com/laphinisee/vocabbie#readme",
   "dependencies": {
     "@google-cloud/translate": "^2.1.4",
+    "cjk-tokenizer": "^0.1.0",
     "wink-tokenizer": "^5.2.0"
   }
 }
