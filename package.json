@@ -19,6 +19,9 @@
   "dependencies": {
     "@google-cloud/translate": "^2.1.4",
     "cjk-tokenizer": "^0.1.0",
+    "hogan": "^1.0.2",
+    "mustache": "^3.0.1",
+    "react-router-dom": "^5.0.0",
     "wink-tokenizer": "^5.2.0"
   }
 }
