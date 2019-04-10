@@ -3,7 +3,7 @@ const apiKey = require('./googleTranslateAPIKey');
 
 const translationClient = new TranslationServiceClient();
 
-function detectLanguage(text) {
+module.exports.detectLanguage = function detectLanguage(text) {
 	const request = {
 		parent: translationClient.locationPath(apiKey.projectId, 'global'),
 		contents: text

@@ -3,7 +3,7 @@ const apiKey = require('./googleTranslateAPIKey');
 
 const translationClient = new TranslationServiceClient();
 
-function translateText(tokenizedText, sourceLanguage, targetLanguage='en-US') {
+module.exports.translateText = function translateText(tokenizedText, sourceLanguage, targetLanguage='en-US') {
 	const request = {
 		parent: translationClient.locationPath(apiKey.projectId, 'global'),
 		contents: tokenizedText,
