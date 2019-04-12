@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import "./App.css";
+import { Grommet } from 'grommet';
 
 import Home from "./Home";
 import Navbar from "./Navbar";
@@ -8,9 +8,19 @@ import Navbar from "./Navbar";
 class App extends React.Component {
 
   render() {
+    const theme = {
+      global: {
+        font: {
+          family: 'Roboto',
+          size: '14px',
+          height: '20px',
+        },
+      },
+    };
+
     return (
       <BrowserRouter>
-        <div>
+        <Grommet theme={theme}>
           <Navbar />
           <Switch>
             <Route exact path='/' component={Home} />
@@ -22,7 +32,7 @@ class App extends React.Component {
             <Route path='/display' component={Home} />
 
           </Switch>
-        </div>
+        </Grommet>
       </BrowserRouter>
     )
   }
