@@ -1,6 +1,8 @@
 import React from "react";
-import { Box, Heading, Button } from 'grommet';
+import { Box, Heading, Button, Image } from 'grommet';
 import { Notification } from 'grommet-icons';
+import logo from './images/logo-dark.png';
+
 
 const Bar = (props) => (
   <Box
@@ -18,9 +20,8 @@ const Bar = (props) => (
 class Navbar extends React.Component {
     render() {
       return (
-        <Bar>
-           <Heading level='3' margin='none'>My App</Heading>
-            {/* Put more navigation bar items here... */}
+        <Bar justify='center'>
+            <Image width={150} src={logo} alt="Vocabbie" />
         </Bar>
       )
     }

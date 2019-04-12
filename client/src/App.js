@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { Grommet, Box } from 'grommet';
 
 import Home from "./Home";
+import Login from "./Login";
 import Navbar from "./Navbar";
 
 class App extends React.Component {
@@ -27,18 +28,16 @@ class App extends React.Component {
         <Grommet theme={theme} full>
           <Box fill>
             <Navbar />
-            <Box direction='row' flex overflow={{ horizontal: 'hidden' }} pad={{ left: 'medium', right: 'medium', top: 'medium'}}>
-              <Box flex align='left'>
-                <Switch>
-                  <Route exact path='/' component={Home} />
-                  <Route path='/create' component={Home} />
-                  <Route path='/login' component={Home} />
-                  <Route path='/signup' component={Home} />
-                  <Route path='/settings' component={Home} />
-                  <Route path='/:id/sheets' component={Home} />
-                  <Route path='/display' component={Home} />
-                </Switch>
-              </Box>
+            <Box flex align='left'>
+              <Switch>
+                <Route exact path='/' component={Home} />
+                <Route path='/create' component={Home} />
+                <Route path='/login' component={Login} />
+                <Route path='/signup' component={Home} />
+                <Route path='/settings' component={Home} />
+                <Route path='/:id/sheets' component={Home} />
+                <Route path='/display' component={Home} />
+              </Switch>
             </Box>
           </Box>
         </Grommet>
