@@ -1,14 +1,27 @@
 import React from "react";
-import { Box, Grommet } from 'grommet';
+import { Box, Heading, Button } from 'grommet';
+import { Notification } from 'grommet-icons';
+
+const Bar = (props) => (
+  <Box
+      tag='header'
+      direction='row'
+      align='center'
+      justify='between'
+      background='neutral-2'
+      pad={{ left: 'medium', right: 'medium', vertical: 'small' }}
+      style={{ zIndex: '1' }}
+      {...props}
+    />
+)
 
 class Navbar extends React.Component {
     render() {
       return (
-        <Box direction="row" pad={{ between: 'medium' }}>
-          <Box pad="small" colorIndex="neutral-1">A</Box>
-          <Box pad="small" colorIndex="neutral-2">B</Box>
-          <Box pad="small" colorIndex="neutral-3">C</Box>
-      </Box>
+        <Bar>
+           <Heading level='3' margin='none'>My App</Heading>
+            {/* Put more navigation bar items here... */}
+        </Bar>
       )
     }
   }

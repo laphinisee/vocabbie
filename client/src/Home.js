@@ -9,7 +9,7 @@ class Home extends React.Component {
 
     render() {
       return (
-        <p>welcome</p>
+        <p>welcome to the homepage</p>
       )
     }
   }
