@@ -1,6 +1,5 @@
 import React from "react";
-import { Box, Heading, Button, Image } from 'grommet';
-import { Notification } from 'grommet-icons';
+import { Box, Image } from 'grommet';
 import logo from './images/logo-dark.png';
 
 

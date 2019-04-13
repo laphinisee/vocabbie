@@ -5,6 +5,9 @@ import { Grommet, Box } from 'grommet';
 import Home from "./Home";
 import Login from "./Login";
 import Navbar from "./Navbar";
+import Sheet from "./Sheet";
+import Upload from "./Upload";
+
 
 class App extends React.Component {
 
@@ -31,11 +34,11 @@ class App extends React.Component {
             <Box flex align='left'>
               <Switch>
                 <Route exact path='/' component={Home} />
-                <Route path='/create' component={Home} />
+                <Route path='/create' component={Upload} />
                 <Route path='/login' component={Login} />
                 <Route path='/signup' component={Home} />
                 <Route path='/settings' component={Home} />
-                <Route path='/:id/sheets' component={Home} />
+                <Route path='/:id/sheets' component={Sheet} />
                 <Route path='/display' component={Home} />
               </Switch>
             </Box>
