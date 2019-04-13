@@ -12,7 +12,7 @@ class Container extends React.Component {
             <Box direction='row' 
                 flex 
                 overflow={{ horizontal: 'hidden' }} 
-                pad={{ left: 'medium', right: 'medium', top: 'medium'}} {...props}/>
+                pad={{ left: 'xlarge', right: 'xlarge', top: 'medium'}} {...props}/>
         </div>
       )
     }

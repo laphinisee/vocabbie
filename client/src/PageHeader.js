@@ -9,7 +9,7 @@ const PageHeader = (props) => (
       align='left'
       justify='left'
       background='neutral-2'
-      pad={{ left: 'medium', right: 'medium', vertical: 'large' }}>
+      pad={{ left: 'xlarge', right: 'xlarge', vertical: 'large' }}>
       <Heading margin="none" level={2}>{props.title}</Heading>
       <Paragraph margin="none">{props.description}</Paragraph>
    </Box>
