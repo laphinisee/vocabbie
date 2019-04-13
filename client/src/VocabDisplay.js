@@ -1,5 +1,4 @@
 import React from "react";
-import Container from './Container';
 import {Box} from 'grommet';
 
 class VocabDisplay extends React.Component {
