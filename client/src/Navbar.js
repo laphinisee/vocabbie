@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image } from 'grommet';
+import { Box, Image, Anchor, Grid } from 'grommet';
 import logo from './images/logo-dark.png';
 
 
@@ -10,7 +10,7 @@ const Bar = (props) => (
       align='center'
       justify='between'
       background='neutral-2'
-      pad={{ left: 'medium', right: 'medium', vertical: 'small' }}
+      pad={{ left: 'xlarge', right: 'xlarge', vertical: 'small' }}
       style={{ zIndex: '1' }}
       {...props}
     />
@@ -19,8 +19,16 @@ const Bar = (props) => (
 class Navbar extends React.Component {
     render() {
       return (
-        <Bar justify='center'>
-            <Image width={150} src={logo} alt="Vocabbie" />
+        <Bar >
+            <Box direction="row" gap="medium">
+              <Box><Anchor color="white" href="/articles" primary label="My Articles" /></Box>
+              <Box><Anchor color="white" href="/create" primary label="Upload" /></Box>
+            </Box>
+            <a href="/"><Image width={150} src={logo} alt="Vocabbie" /></a>
+            <Box direction="row" gap="medium">
+              <Box><Anchor color="white" href="/login" primary label="Login" /></Box>
+              <Box><Anchor color="white" href="/signup" primary label="Signup" /></Box>
+            </Box>
         </Bar>
       )
     }
