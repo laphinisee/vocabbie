@@ -5,6 +5,26 @@ import VocabDisplay from './VocabDisplay';
 import {Grid, Box} from 'grommet';
 
 class Sheet extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+    componentWillMount() {
+      this.getArticle();
+      this.getVocab();
+    }
+
+    getArticle() {
+      this.setState({article: "I mangered my food and I touchered my blanket."})
+      // Should set this up mad lib style so that we can connect words in article with
+      // vocab row entries.
+    }
+
+    getVocab() {
+      this.setState({vocabRows: [{original: "manger", partOfSpeech: "verb", translated: "to eat"},
+      {original: "toucher", partOfSpeech: "verb", translated: "to touch"}]})
+    }
 
     render() {
       return (
@@ -19,10 +39,11 @@ class Sheet extends React.Component {
             { name: 'vocab', start: [1, 0], end: [1, 0] },
           ]}
         >
-            <Box gridArea="article" background="light-2"/>
-              <ArticleDisplay />
+            <Box gridArea="article" background="light-2">
+              <ArticleDisplay content={this.state.article} />
+            </Box>
             <Box gridArea="vocab" background="light-5">
-              <VocabDisplay />
+              <VocabDisplay vocabRows={this.state.vocabRows} />
             </Box>
           </Grid>
          </Container>

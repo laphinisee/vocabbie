@@ -1,18 +1,21 @@
 import React from "react";
-import {Box } from 'grommet';
+import {Box} from 'grommet';
 
-class VocabDisplay extends React.Component {
+class ArticleDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+    }
 
     render() {
       return (
         <Box pad="medium">
-          Article Display
-            {/* Render each VocabRow */}
+            {this.props.content}
         </Box>
       )
     }
   }
 
-  export default VocabDisplay;
+  export default ArticleDisplay;
 
 

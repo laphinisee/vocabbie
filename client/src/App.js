@@ -38,8 +38,8 @@ class App extends React.Component {
                 <Route path='/login' component={Login} />
                 <Route path='/signup' component={Home} />
                 <Route path='/settings' component={Home} />
-                <Route path='/:id/sheets' component={Sheet} />
-                <Route path='/display' component={Home} />
+                <Route path='/:id/sheets' component={Home} />
+                <Route path='/display' component={Sheet} />
               </Switch>
             </Box>
           </Box>
