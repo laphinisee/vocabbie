@@ -24,6 +24,7 @@
     "hogan": "^1.0.2",
     "mustache": "^3.0.1",
     "react-router-dom": "^5.0.0",
+    "stopword": "^0.2.4",
     "storybook": "^1.0.0",
     "styled-components": "^4.2.0",
     "wink-tokenizer": "^5.2.0"

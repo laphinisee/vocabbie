@@ -1,5 +1,6 @@
 const translate = require('./translation');
 const tokenize = require('./tokenizer');
+const sw = require('stopword');
 
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
@@ -17,9 +18,19 @@ function processText(text, targetLanguage='en') {
 		[ sourceLanguage, tokens, translationResult ] = result;
 
 		const translations = translationResult[0];
+		const stopwords = sw[sourceLanguage];
 
+		let word, isPunctuation;
 		for (i = 0 ; i < tokens.length; i++) {
 			tokens[i]['translation'] = translations[i];
+
+			if (stopwords) {
+				lemma = tokens[i]['lemma'];
+				isPunctuation = tokens[i]['partOfSpeech']['tag']
+				tokens[i]['isStopword'] = stopwords.includes(lemma) || isPunctuation === 'PUNCT';
+
+				console.log(lemma, isPunctuation, tokens[i]['isStopword']);
+			}
 		}
 
 		return [sourceLanguage, tokens];
@@ -27,3 +38,7 @@ function processText(text, targetLanguage='en') {
 }
 
 module.exports.processText = processText;
+
+// let translation = processText('我是一個漂亮的蝴蝶。')
+let translation = processText('hola.\ncomo estas?')
+translation.then(result => console.log(result[1]));
