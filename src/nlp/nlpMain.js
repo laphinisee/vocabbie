@@ -1,7 +1,6 @@
 const translate = require('./translation');
 const tokenize = require('./tokenizer');
 
-
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
@@ -11,7 +10,7 @@ function processText(text, targetLanguage='en') {
 
 		const tokenList = tokens.map(token => token['text']['content']);
 
-		const translations = translate.translateText(tokenList);
+		const translations = translate.translateText(tokenList, sourceLanguage);
 
 		return Promise.all([sourceLanguage, tokens, translations]);
 	}).then(result => {

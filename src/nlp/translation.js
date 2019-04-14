@@ -5,8 +5,13 @@ const translate = new Translate({
 	projectId: apiKey.projectId
 });
 
-function translateText(tokenizedText, targetLanguage='en') {
-	return translate.translate(tokenizedText, targetLanguage);
+function translateText(tokenizedText, sourceLanguage, targetLanguage='en') {
+	const options = {
+		from: sourceLanguage,
+		to: targetLanguage
+	};
+	
+	return translate.translate(tokenizedText, options);
 }
 
 module.exports.translateText = translateText;

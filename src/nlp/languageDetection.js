@@ -10,7 +10,3 @@ function detectLanguage(text) {
 }
 
 module.exports.detectLanguage = detectLanguage;
-
-// console.log('hello');
-// const detection = detectLanguage('hello how are you hola como estas');
-// detection.then(data => console.log(data[0]));
