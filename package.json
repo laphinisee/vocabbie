@@ -17,8 +17,9 @@
   },
   "homepage": "https://github.com/laphinisee/vocabbie#readme",
   "dependencies": {
+    "@google-cloud/language": "^2.1.0",
     "@google-cloud/translate": "^2.1.4",
-    "cjk-tokenizer": "^0.1.0",
+    "bluebird": "^3.5.4",
     "hogan": "^1.0.2",
     "mustache": "^3.0.1",
     "react-router-dom": "^5.0.0",
