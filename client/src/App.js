@@ -16,8 +16,8 @@ class App extends React.Component {
     const theme = {
       global: {
         colors: {
-          brand: '#228BE6',
-          'neutral-2': '#3D138D',
+          brand: '#3498db',
+          'neutral-2': '#1845b2',
         },
         font: {
           family: 'Roboto',
