@@ -13,5 +13,3 @@ module.exports.tokenize = function tokenize(str) {
 		'word_tokens': wordTokens
 	}
 }
-
-// export tokenize;
