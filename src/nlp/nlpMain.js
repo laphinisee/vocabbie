@@ -40,5 +40,5 @@ function processText(text, targetLanguage='en') {
 module.exports.processText = processText;
 
 // let translation = processText('我是一個漂亮的蝴蝶。')
-let translation = processText('hola.\ncomo estas?')
-translation.then(result => console.log(result[1]));
+// let translation = processText('hola.\ncomo estas?')
+// translation.then(result => console.log(result[1]));
