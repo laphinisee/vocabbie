@@ -19,10 +19,13 @@
   "dependencies": {
     "@google-cloud/language": "^2.1.0",
     "@google-cloud/translate": "^2.1.4",
-    "bluebird": "^3.5.4",
+    "classnames": "^2.2.6",
+    "grommet": "^2.6.5",
     "hogan": "^1.0.2",
     "mustache": "^3.0.1",
     "react-router-dom": "^5.0.0",
+    "storybook": "^1.0.0",
+    "styled-components": "^4.2.0",
     "wink-tokenizer": "^5.2.0"
   }
 }
