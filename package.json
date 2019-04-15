@@ -20,6 +20,7 @@
     "@google-cloud/language": "^2.1.0",
     "@google-cloud/translate": "^2.1.4",
     "bcrypt": "^3.0.6",
+    "cjk-conv": "^1.1.29",
     "classnames": "^2.2.6",
     "crypto": "^1.0.1",
     "grommet": "^2.6.5",

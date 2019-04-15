@@ -1,7 +1,7 @@
-const translate = require('./translation');
-const tokenize = require('./tokenizer');
-const pronunciation = require('./pronunciation');
-const sw = require('stopword');
+const translate = require('./utils/translation');
+const tokenize = require('./utils/tokenizer');
+const pronunciation = require('./utils/pronunciation');
+const stopwords = require('./utils/stopwords');
 
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
@@ -19,7 +19,6 @@ function processText(text, targetLanguage='en') {
 		[ sourceLanguage, tokens, translationResult ] = result;
 
 		const translations = translationResult[0];
-		const stopwords = sw[sourceLanguage];
 		const pronunciations = [];
 
 		let token, word, isPunctuation;
@@ -28,13 +27,11 @@ function processText(text, targetLanguage='en') {
 			word = token['text']['content'];
 			token['translation'] = translations[i];
 
-			if (stopwords) {
-				lemma = token['lemma'];
-				isPunctuation = token['partOfSpeech']['tag']
-				token['isStopword'] = stopwords.includes(lemma) || isPunctuation === 'PUNCT';
+			if (stopwords.languageSupported(sourceLanguage)) {
+				token['isStopword'] = stopwords.isStopword(token, sourceLanguage);
 			}
 
-			if (pronunciation.supportedLanguages.includes(sourceLanguage)) {
+			if (pronunciation.languageSupported(sourceLanguage)) {
 				pronunciations.push(pronunciation.getPronunciation(word, sourceLanguage));
 			}
 		}
@@ -43,20 +40,27 @@ function processText(text, targetLanguage='en') {
 	}).then(result => {
 		[ sourceLanguage, tokens, pronunciations ] = result;
 
-		if (!pronunciation.supportedLanguages.includes(sourceLanguage)) {
+		if (!pronunciation.languageSupported(sourceLanguage)) {
 			return [sourceLanguage, tokens]
 		}
 
 		for (i = 0; i < tokens.length; i++) {
 			tokens[i]['pronunciation'] = pronunciations[i];
 		}
-		
+
 		return [sourceLanguage, tokens];
 	})
 }
 
 module.exports.processText = processText;
 
-let translation = processText('我是一個漂亮的蝴蝶。')
-// let translation = processText('hola.\ncomo estas?')
+let translation 
+translation = processText('我是一個漂亮的蝴蝶。')
 translation.then(result => console.log(result[1]));
+
+// translation = processText('かわいい犬が好き。')
+// translation.then(result => console.log(result[1]));
+
+
+// translation = processText('ブライアンくんは日本に行く。')
+// translation.then(result => console.log(result[1]));

@@ -4,6 +4,11 @@ const _ = require('lodash');
 const Kuroshiro = require('kuroshiro');
 const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
 
+const supportedLanguages = ['zh', 'ja'];
+function languageSupported(language) {
+	return supportedLanguages.includes(language);
+}
+
 function _getPronunciationChinese(word) {
 	const pronunciation = _.flattenDeep(pinyin(word));
 	return Promise.resolve(pronunciation.join(' '));
@@ -30,5 +35,5 @@ function getPronunciation(word, sourceLanguage) {
 	return Promise.resolve(null);
 }
 
-module.exports.supportedLanguages = ['zh', 'ja'];
+module.exports.languageSupported = languageSupported;
 module.exports.getPronunciation = getPronunciation;
