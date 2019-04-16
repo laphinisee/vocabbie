@@ -57,8 +57,8 @@ class Login extends React.Component {
   }
 
   isFormValid = () => {
-      return Object.values(this.state.errors).every(e => e == '') &&
-            Object.values(this.state.values).every(e => e != '')
+      return Object.values(this.state.errors).every(e => e === '') &&
+            Object.values(this.state.values).every(e => e !== '')
   }
 
   onLogin = () => {

@@ -65,8 +65,8 @@ class Signup extends React.Component {
 
 
     isFormValid = () => {
-        return Object.values(this.state.errors).every(e => e == '') &&
-               Object.values(this.state.values).every(e => e != '')
+        return Object.values(this.state.errors).every(e => e === '') &&
+               Object.values(this.state.values).every(e => e !== '')
     }
 
     onSignup = () => {
@@ -81,7 +81,7 @@ class Signup extends React.Component {
             <Row>
                 <Hidden xs sm>
                     <Col md={6}>
-                        <Heading color='neutral-2' level={1}>
+                        <Heading textAlign='left' color='neutral-2' level={1}>
                             <TypeOut caret words={words} />
                         </Heading>
                         <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing 

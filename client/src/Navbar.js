@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image, Anchor, ResponsiveContext, Menu} from 'grommet';
+import { Box, Image, Anchor, ResponsiveContext, Menu, Text} from 'grommet';
 import logo from './images/logo-blue.png';
 
 const Bar = (props) => (
@@ -25,16 +25,12 @@ const MenuBar = (props) => (
 const CollapsedMenu = (props) => (
   <Box direction="row" gap="medium">
     <Menu
-      style={
-        {
-          'text-size': 8,
-        }
-      }
-      label="Menu"
+      size='small'
+      label={<Text size='small' weight='bold' color="neutral-2" href="/articles" primary>Menu</Text>}
       color="neutral-2"
       items={[
-        { label: 'My Articles', onClick: () => {} },
-        { label: 'Upload', onClick: () => {} },
+        { label: 'My Articles', href:'/articles' },
+        { label: 'Upload', href:'/create' },
       ]}
     />
   </Box>
@@ -45,7 +41,7 @@ class Navbar extends React.Component {
       return (
         <Bar >
             <ResponsiveContext.Consumer>
-              {size => size == 'small' ? <CollapsedMenu/> : <MenuBar/>}
+              {size => size === 'small' ? <CollapsedMenu/> : <MenuBar/>}
             </ResponsiveContext.Consumer>
             <a href="/"><Image width={150} src={logo} alt="Vocabbie" /></a>
             <Box direction="row" gap="medium">
