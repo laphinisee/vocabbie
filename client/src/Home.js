@@ -57,7 +57,7 @@ class Home extends React.Component {
                 <Paragraph margin="none">Ready</Paragraph>
               </Box>
               <Box direction="column" fill="true" flex="grow">
-                <Heading level={2}>Vocabbie gets results. </Heading>
+                <Heading level={2}>Why use Vocabbie?</Heading>
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lacinia sapien in lectus pharetra, ut efficitur ligula finibus. Nullam id odio at tellus maximus semper at quis tortor. Nulla id metus vel ante bibendum pretium. Proin a vehicula neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec massa tortor, venenatis id ligula a, pulvinar ullamcorper purus. Quisque tristique enim ac sodales iaculis. Sed vehicula sem non mi rutrum mattis. Etiam pellentesque, arcu a aliquet eleifend, mauris metus imperdiet arcu, et facilisis nibh enim at nunc. Nulla volutpat urna vitae tortor ultrices rutrum. Sed ullamcorper lorem posuere lectus blandit, vitae laoreet massa efficitur. Vivamus dignissim magna nulla, quis tristique lorem porta eget. Fusce mollis tincidunt sem, sed fermentum enim efficitur volutpat.
                 </p>

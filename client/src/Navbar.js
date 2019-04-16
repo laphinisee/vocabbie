@@ -1,7 +1,6 @@
 import React from "react";
-import { Box, Image, Anchor } from 'grommet';
+import { Box, Image, Anchor, ResponsiveContext, Menu} from 'grommet';
 import logo from './images/logo-blue.png';
-
 
 const Bar = (props) => (
   <Box
@@ -16,14 +15,38 @@ const Bar = (props) => (
     />
 )
 
+const MenuBar = (props) => (
+  <Box direction="row" gap="medium">
+    <Box><Anchor color="neutral-2" href="/articles" primary label="My Articles" /></Box>
+    <Box><Anchor color="neutral-2" href="/create" primary label="Upload" /></Box>
+  </Box>
+)
+
+const CollapsedMenu = (props) => (
+  <Box direction="row" gap="medium">
+    <Menu
+      style={
+        {
+          'text-size': 8,
+        }
+      }
+      label="Menu"
+      color="neutral-2"
+      items={[
+        { label: 'My Articles', onClick: () => {} },
+        { label: 'Upload', onClick: () => {} },
+      ]}
+    />
+  </Box>
+)
+
 class Navbar extends React.Component {
     render() {
       return (
         <Bar >
-            <Box direction="row" gap="medium">
-              <Box><Anchor color="neutral-2" href="/articles" primary label="My Articles" /></Box>
-              <Box><Anchor color="neutral-2" href="/create" primary label="Upload" /></Box>
-            </Box>
+            <ResponsiveContext.Consumer>
+              {size => size == 'small' ? <CollapsedMenu/> : <MenuBar/>}
+            </ResponsiveContext.Consumer>
             <a href="/"><Image width={150} src={logo} alt="Vocabbie" /></a>
             <Box direction="row" gap="medium">
               <Box><Anchor color="neutral-2" href="/login" primary label="Login" /></Box>

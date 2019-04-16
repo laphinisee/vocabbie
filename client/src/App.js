@@ -32,9 +32,9 @@ class App extends React.Component {
         <Grommet theme={theme} full>
           <Box fill>
             <Navbar />
-            <Box flex align='left' >
+            <Box flex>
               <Switch>
-                <Route exact path='/' component={Home} />
+                <Route exact path='/' component={Home}/>
                 <Route path='/create' component={Upload} />
                 <Route path='/login' component={Login} />
                 <Route path='/signup' component={Signup} />
