@@ -8,6 +8,7 @@ import Signup from "./Signup";
 import Navbar from "./Navbar";
 import Sheet from "./Sheet";
 import Upload from "./Upload";
+import Settings from "./Settings";
 
 
 class App extends React.Component {
@@ -38,7 +39,7 @@ class App extends React.Component {
                 <Route path='/create' component={Upload} />
                 <Route path='/login' component={Login} />
                 <Route path='/signup' component={Signup} />
-                <Route path='/settings' component={Home} />
+                <Route path='/settings' component={Settings} />
                 <Route path='/:id/sheets' component={Home} />
                 <Route path='/display' component={Sheet} />
               </Switch>

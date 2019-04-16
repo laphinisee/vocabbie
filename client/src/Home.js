@@ -11,7 +11,7 @@ const Header = (props) => (
       justify='center'
       background={`url(${map})`}
       pad={{ left: 'medium', right: 'medium', vertical: 'large' }}>
-      <Heading color='white'>Build language fluency with Vocabbie. </Heading>
+      <Heading textAlign='center' color='white'>Build language fluency with Vocabbie. </Heading>
       <Grid
         rows={['fill']}
         columns={['fill']}
@@ -20,8 +20,8 @@ const Header = (props) => (
           { name: 'one', start: [0, 0], end: [0, 0] },
           { name: 'two', start: [1, 0], end: [1, 0] },
         ]}>
-        <Box gridArea='one'><Button color="white" primary={true} label="Get Started" /></Box>
-        <Box grideArea='two'><Button color="white" primary={true} label="Keep Going" /></Box>
+        <Box gridArea='one'><Button href='/signup' color="white" primary={true} label="Get Started" /></Box>
+        <Box grideArea='two'><Button href='/login' color="white" primary={true} label="Keep Going" /></Box>
       </Grid>
    </Box>
 )
