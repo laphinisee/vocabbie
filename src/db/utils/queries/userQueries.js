@@ -1,12 +1,14 @@
-const users = require('../schemas/userSchema');
+const userSchema = require('../schemas/userSchema');
+
+const Users = userSchema.Users;
 
 function createUser(userInfo) {
 	// See user schema for proper userInfo format
-	users.create(userInfo);
+	Users.create(userInfo);
 }
 
 function getUserStudyMats(userId) {
-	return users.findById(userId, 'studyMats').exec();
+	return Users.findById(userId, 'studyMats').exec();
 }
 
 module.exports.createUser = createUser;

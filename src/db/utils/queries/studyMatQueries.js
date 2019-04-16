@@ -1,11 +1,13 @@
-const studyMats = require('../schemas/studyMatSchema');
+const studyMatSchema = require('../schemas/studyMatSchema');
+
+const StudyMats = StudyMats;
 
 function createStudyMat(userId, studyMatEnum, words) {
 	if (!studyMats.studyMatEnums.includes(studyMatEnum)) {
 		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
 	}
 
-	studyMats.create({
+	StudyMats.create({
 		ownerId: userId,
 		type: studyMatEnum,
 		words: words
@@ -13,7 +15,7 @@ function createStudyMat(userId, studyMatEnum, words) {
 }
 
 function getStudyMat(studyMatId) {
-	return studyMats.findById(studyMatId, 'words').exec();
+	return StudyMats.findById(studyMatId, 'words').exec();
 }
 
 module.exports.createStudyMat = createStudyMat;
