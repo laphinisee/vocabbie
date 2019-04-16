@@ -7,11 +7,13 @@ function createStudyMat(userId, studyMatEnum, words) {
 		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
 	}
 
-	StudyMats.create({
+	const studyMatPayload = {
 		ownerId: userId,
 		type: studyMatEnum,
 		words: words
-	});
+	}
+
+	StudyMats.create(studyMatPayload);
 }
 
 function getStudyMat(studyMatId) {
