@@ -61,8 +61,8 @@ app.get('/sheet/:id', function(request, response){
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
   let id = request.params.id;
-  let studyMats = AlexDatabase.retrieve(id);
-  
+  let studyMats = db.getStudyMat(id);
+  response.json([StudyMats.words, StudyMats.vocab]);
 });
 app.post('/generate/save', function(request, response){
   /*POSTS all vocab cards that a user has selected to save from generation as above JSON.*/
