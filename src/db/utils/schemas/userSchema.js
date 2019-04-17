@@ -9,8 +9,7 @@ const userSchema = new mongoose.Schema({
 	firstName: { type: String, required: true },
 	lastName: { type: String, required: true },
 	birthday: Date,
-	joinDate: { type: Date, default: Date.now },
-	studyMats: [studyMats.schema]
+	joinDate: { type: Date, default: Date.now }
 })
 
 module.exports.schema = userSchema;

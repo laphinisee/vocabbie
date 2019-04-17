@@ -1,4 +1,4 @@
-const db = require('./dbBase');
+const db = require('./db');
 
 const wordQueries = require('./utils/queries/wordQueries');
 const studyMatQueries = require('./utils/queries/studyMatQueries');
