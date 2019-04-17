@@ -62,6 +62,15 @@ app.get('/sheet/:id', function(request, response){
   //vocab _list is mapping of id in Article to saved word cache objects.
   let id = request.params.id;
   let studyMats = db.getStudyMat(id);
+  let allWords = studyMats.allWords;
+  let keyWords = studyMats.keyWords();
+  let article = []
+  for (let i = 0; i < allWords.length(); i++){
+    let hardestIndex = keyWords.indexOf(allWords[i]);
+    if(hardestIndex == -1){
+      article.push({allWords})
+    }
+  }
   response.json([StudyMats.words, StudyMats.vocab]);
 });
 app.post('/generate/save', function(request, response){
