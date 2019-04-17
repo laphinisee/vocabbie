@@ -46,37 +46,49 @@ app.get('/', function(request, response){
   
 });
 
-app.post('/generate', function(request, response) {
-  /*POSTs text to generate vocab from, returns vocab as a JSON 
+app.post('/user/generate-text', function(request, response) {
+  /*POSTs text to generate vocab from, saves vocab as a JSON 
     dict from original word to translated value, along with a 
     string representing the language
   */
-  //TODO: integrate with Alex's parser here
-  let tokenizedLanguage = tokenize(request.body.stringToParse);
-  //TODO: write naive findHardest.
-  let hardestVocab = findHardestVocab(tokenizedLanguage);
-  let translatedJson = {};
-  for(let i = 0; i < hardestVocab.length(); i++){
-    //TODO: integrate with Alex.
-    let language = detectLanguage(hardestVocab[i]);
-    let translatedText = translateText(hardestVocab[i], language);
-   //[{"lettuce", ["esp", "lechuga"]}, {"paper": ["esp", "papel"]}
-   //{
-      // languate : spanish,
-      // words : {
-      //   lettucs : whatver
-      //   water : agua
-      // }
-      // //}
-    translatedJson.append(translatedText+language);
-  }
+  let translatedText = translateText(request.body.hardestVocab);
+  //Save all text as StudyMat in DB
   response.status(200).type('html');
-  response.json(translatedJson);
+  response.json("no err");
 });
-
+app.get('/sheet/:id', function(request, response){
+  //Return JSON of Article, Defintions, Vocab_List
+  //Article is list of all tokens to their definitions and id if they're in hardest.
+  //vocab _list is mapping of id in Article to saved word cache objects.
+  // let id = request.params.id
+});
 app.post('/generate/save', function(request, response){
   /*POSTS all vocab cards that a user has selected to save from generation as above JSON.*/
   let vocabToSave = response.body.vocabToSave;
-  
+  //TODO save in Alex's database lol
+  AlexDatabase.save(vocabToSave);
+  response.status(200).type('html');
 });
+app.get('/*/settings', function(request, response){
+//get the user id and retrieve their settings information.
+  SettingsDatabase.retrieve(id);
+  response.status(200).type('html');
+});
+app.post('/user/vocab', function(request, response){
+  /*Return titles and ids for all StudyMats*/
+  //below should return all studyMats
+  AlexDatabase.retrieve(user+studymats);
+  //now return ids and titles of studymats.
+  response.status(200).type('html');
+});
+
+
+function rankText(text, thresh){
+  let allText = text.split("/\s+/");
+  //Return the longest words as a proxy. 
+  allText.sort(function(a, b){
+    return b.length - a.length;
+  });
+  return allText[0:thresh];
+}
 app.listen(8080)
