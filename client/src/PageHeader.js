@@ -6,8 +6,6 @@ const PageHeader = (props) => (
   <Box
       className='PageHeader'
       direction='column'
-      align='left'
-      justify='left'
       background='neutral-2'
       pad={{ left: 'xlarge', right: 'xlarge', vertical: 'large' }}>
       <Heading margin="none" level={2}>{props.title}</Heading>

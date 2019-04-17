@@ -3,6 +3,8 @@ const tokenize = require('./utils/tokenizer');
 const pronunciation = require('./utils/pronunciation');
 const stopwords = require('./utils/stopwords');
 
+const 
+
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
