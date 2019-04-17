@@ -9,7 +9,7 @@ class Container extends React.Component {
       return (
         <div className="Container">
             {title && <PageHeader title={title} description={description}/>}
-            <Box direction='row' 
+            <Box direction='column' 
                 flex 
                 overflow={{ horizontal: 'hidden' }} 
                 pad={{ left: 'xlarge', right: 'xlarge', top: 'medium'}} {...props}/>

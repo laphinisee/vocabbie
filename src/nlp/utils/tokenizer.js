@@ -1,9 +1,6 @@
 const language = require('@google-cloud/language');
-const apiKey = require('./googleTranslateAPIKey');
 
-const client = new language.LanguageServiceClient({
-	projectId: apiKey.projectId
-});
+const client = new language.LanguageServiceClient();
 
 function tokenizeText(text) {
 	const request = {

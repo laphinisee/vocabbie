@@ -3,6 +3,35 @@ import {Form, Tabs, Tab, Box, Button, TextArea, } from 'grommet';
 
 class ArticleUpload extends React.Component {
 
+    constructor(props) {
+      super(props)
+      this.state = {}
+    }
+
+    submitPlainText(e) {
+      fetch('http://localhost:8888/...', {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        redirect: "follow", // manual, *follow, error
+        body: {
+          text: this.state.plainText
+        }, // body data type must match "Content-Type" header
+    })
+    }
+
+    submitUrl() {
+      console.log("submitting url...")
+    }
+
+    submitPdf() {
+      console.log("submit pdf")
+    }
+
+    plainTextChange(e) {
+      this.setState({
+        plainText: e.target.value,
+      })
+    }
+
     render() {
       return (
         <Box pad="medium">
@@ -10,8 +39,8 @@ class ArticleUpload extends React.Component {
             <Tab title="Plain Text">
               <Box pad="medium">
               <Form>
-                <TextArea placeholder="Type your article here" />
-                <Button type="submit" primary label="Submit" />
+                <TextArea onChange={this.plainTextChange.bind(this)} placeholder="Type your article here" />
+                <Button onClick={this.submitPlainText.bind(this)} type="submit" primary label="Submit" />
               </Form>
               </Box>
             </Tab>
