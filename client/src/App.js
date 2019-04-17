@@ -8,11 +8,9 @@ import Signup from "./Signup";
 import Navbar from "./Navbar";
 import Sheet from "./Sheet";
 import Upload from "./Upload";
-<<<<<<< HEAD
 import UserSheets from "./UserSheets";
-=======
 import Settings from "./Settings";
->>>>>>> 7a3dec4c4d271534141d3a1f2245ed9c7e8f534a
+
 
 
 class App extends React.Component {
