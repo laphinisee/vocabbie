@@ -29,8 +29,8 @@ const CollapsedMenu = (props) => (
       label={<Text size='small' weight='bold' color="neutral-2" href="/articles" primary>Menu</Text>}
       color="neutral-2"
       items={[
-        { label: 'My Articles', href:'/articles' },
-        { label: 'Upload', href:'/create' },
+        { label: <Text size='small' weight='bold' color="neutral-2" href="/articles" primary>My Articles</Text>, href:'/articles' },
+        { label: <Text size='small' weight='bold' color="neutral-2" href="/articles" primary>Upload</Text>, href:'/create' },
       ]}
     />
   </Box>
