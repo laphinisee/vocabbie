@@ -5,7 +5,9 @@ const studyMatEnums = ['flashcard', 'vocabSheet']
 const studyMatSchema = new mongoose.Schema({
 	ownerId: { type: mongoose.Schema.Types.ObjectId, required: true }, 
 	type: { type: String, enum: studyMatEnums, required: true },
-	words: [words.schema]
+	allWords: [words.schema],
+	keyWords: [words.schema],
+	savedWords: [words.schema],
 })
 
 module.exports.studyMatEnums = studyMatEnums;
