@@ -8,7 +8,11 @@ import Signup from "./Signup";
 import Navbar from "./Navbar";
 import Sheet from "./Sheet";
 import Upload from "./Upload";
+<<<<<<< HEAD
 import UserSheets from "./UserSheets";
+=======
+import Settings from "./Settings";
+>>>>>>> 7a3dec4c4d271534141d3a1f2245ed9c7e8f534a
 
 
 class App extends React.Component {
@@ -33,13 +37,13 @@ class App extends React.Component {
         <Grommet theme={theme} full>
           <Box fill>
             <Navbar />
-            <Box flex align='left' >
+            <Box flex>
               <Switch>
-                <Route exact path='/' component={Home} />
+                <Route exact path='/' component={Home}/>
                 <Route path='/create' component={Upload} />
                 <Route path='/login' component={Login} />
                 <Route path='/signup' component={Signup} />
-                <Route path='/settings' component={Home} />
+                <Route path='/settings' component={Settings} />
                 <Route path='/:id/sheets' component={UserSheets} />
                 <Route path='/display/:id' component={Sheet} />
               </Switch>

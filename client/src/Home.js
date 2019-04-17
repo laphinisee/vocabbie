@@ -11,7 +11,7 @@ const Header = (props) => (
       justify='center'
       background={`url(${map})`}
       pad={{ left: 'medium', right: 'medium', vertical: 'large' }}>
-      <Heading color='white'>Build language fluency with Vocabbie. </Heading>
+      <Heading textAlign='center' color='white'>Build language fluency with Vocabbie. </Heading>
       <Grid
         rows={['fill']}
         columns={['fill']}
@@ -20,8 +20,8 @@ const Header = (props) => (
           { name: 'one', start: [0, 0], end: [0, 0] },
           { name: 'two', start: [1, 0], end: [1, 0] },
         ]}>
-        <Box gridArea='one'><Button color="white" primary={true} label="Get Started" /></Box>
-        <Box grideArea='two'><Button color="white" primary={true} label="Keep Going" /></Box>
+        <Box gridArea='one'><Button href='/signup' color="white" primary={true} label="Get Started" /></Box>
+        <Box grideArea='two'><Button href='/login' color="white" primary={true} label="Keep Going" /></Box>
       </Grid>
    </Box>
 )
@@ -57,7 +57,7 @@ class Home extends React.Component {
                 <Paragraph margin="none">Ready</Paragraph>
               </Box>
               <Box direction="column" fill="true" flex="grow">
-                <Heading level={2}>Vocabbie gets results. </Heading>
+                <Heading level={2}>Why use Vocabbie?</Heading>
                 <p>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lacinia sapien in lectus pharetra, ut efficitur ligula finibus. Nullam id odio at tellus maximus semper at quis tortor. Nulla id metus vel ante bibendum pretium. Proin a vehicula neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec massa tortor, venenatis id ligula a, pulvinar ullamcorper purus. Quisque tristique enim ac sodales iaculis. Sed vehicula sem non mi rutrum mattis. Etiam pellentesque, arcu a aliquet eleifend, mauris metus imperdiet arcu, et facilisis nibh enim at nunc. Nulla volutpat urna vitae tortor ultrices rutrum. Sed ullamcorper lorem posuere lectus blandit, vitae laoreet massa efficitur. Vivamus dignissim magna nulla, quis tristique lorem porta eget. Fusce mollis tincidunt sem, sed fermentum enim efficitur volutpat.
                 </p>
