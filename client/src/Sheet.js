@@ -11,6 +11,7 @@ class Sheet extends React.Component {
   }
 
     componentWillMount() {
+      // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
       this.getArticle();
       this.getVocab();
     }
