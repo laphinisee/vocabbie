@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Tabs, Tab, Box, Button, TextArea, } from 'grommet';
+import {Form, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
 
 class ArticleUpload extends React.Component {
 
@@ -73,9 +73,14 @@ class ArticleUpload extends React.Component {
       console.log("submit pdf")
     }
 
+    setLanguage() {
+      console.log("setting language")
+    }
+
     render() {
       return (
         <Box pad="medium">
+          <Select onChange={({option}) => this.setLanguage(option)} value="Choose source language" options={[ 'French', 'Spanish', 'Simplified Chinese', 'Traditional Chinese', 'Japanese', 'German']}/>
           <Tabs>
             <Tab title="Plain Text">
               <Box pad="medium">
@@ -87,12 +92,11 @@ class ArticleUpload extends React.Component {
                   onBlur={this.handleBlur} 
                   value={this.state.values.plainText} 
                   placeholder="Type your article here" />
-                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" primary label="Submit" />
+                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill="true" primary color="accent-1" label="Generate" />
               </Form>
               </Box>
             </Tab>
           </Tabs>
-        <Button label="Detect Language" />
       </Box>
       )
     }

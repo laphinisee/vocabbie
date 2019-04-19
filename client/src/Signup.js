@@ -1,8 +1,8 @@
 import React from "react";
 import Container from './Container';
-import {Form, FormField, Button, Heading, Paragraph, Text} from 'grommet';
+import {Anchor, Box, Form, FormField, Button, Heading, Paragraph, Text} from 'grommet';
 import TypeOut from 'react-typeout';
-import { Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
+import {Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
 
 class Signup extends React.Component {
 
@@ -74,7 +74,7 @@ class Signup extends React.Component {
     }
 
     render() {
-      const words = ['Let\'s learn.', 'Aprendamos.', '让我们来学习', 'Lass uns lernen']
+      const words = ['Let\'s learn.', 'Aprendamos.', '我们来学习', 'Lass uns lernen']
       return (
         <Container title="Sign Up" description="Let's begin your journey with a new language.">
         <GridContainer>
@@ -102,8 +102,11 @@ class Signup extends React.Component {
                         <FormField error={this.state.touched.name && this.state.errors.name} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.name} name="name" type="text" label="Full Name" />
                         <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email Address" />
                         <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
-                        <Button disabled={!this.isFormValid()} onClick={this.onSignup} type="submit" primary label="Sign Up" />
+                        <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Sign Up" fill="true" primary color="accent-1"/> 
                     </Form>
+                    <Box align="center" margin="medium">
+                        <Anchor href="/login" color="accent-1">Already have an account?</Anchor>
+                    </Box>
                 </Col>
             </Row>
         </GridContainer>

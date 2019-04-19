@@ -1,6 +1,6 @@
 import React from "react";
 import Container from './Container';
-import {Form, FormField, Button} from 'grommet';
+import {Form, FormField, Anchor, Box, Button} from 'grommet';
 
 class Login extends React.Component {
 
@@ -68,10 +68,13 @@ class Login extends React.Component {
     return (
       <Container title="Login" description="Login!">
           <Form>
-              <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email" />
-              <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
-              <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" primary label="Login" />
+            <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email" />
+            <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
+            <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Login" fill="true" primary color="accent-1"/> 
           </Form>
+          <Box align="center" margin="medium">
+              <Anchor href="/signup" color="accent-1">Create an account</Anchor>
+          </Box>
       </Container>
     )
   }
