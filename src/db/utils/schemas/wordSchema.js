@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const wordSchema = new mongoose.Schema({
-	id: { type: String, required: true }, 
+	id: { type: String, required: true, unique: true }, 
 	sourceLanguage: { type: String, required: true },
 	targetLanguage: { type: String, required: true },
 	originalText: { type: String, required: true },

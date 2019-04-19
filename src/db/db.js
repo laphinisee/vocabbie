@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dbAuth = require('./dbAuth');
 
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
@@ -16,4 +17,5 @@ process.on('SIGINT', function() {
 	});
 });
 
-const mongoUrl = '' // TODO
+const mongoUrl = 'mongodb+srv://' + dbAuth.username + ':' + dbAuth.password + '@cluster0-cso4e.mongodb.net/test?retryWrites=true';
+mongoose.connect(mongoUrl, {useNewUrlParser: true});
