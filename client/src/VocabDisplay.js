@@ -12,22 +12,23 @@ class VocabDisplay extends React.Component {
       return (
         <Box pad="medium">
           <Table>
-            {this.props.vocabRows.map( (vocab, i) => (
-              <TableRow>
-                <TableCell scope="row">
-                  {vocab.original}
-                </TableCell>
-                <TableCell>
-                  {vocab.originalDetail}
-                </TableCell>
-                <TableCell>
-                  {vocab.partOfSpeech}
-                </TableCell>
-                <TableCell>
-                  {vocab.translated}
-                </TableCell>
-              </TableRow>
-            ))}
+            {Object.keys(this.props.vocabRows).map( (k) => {
+              const vocab = this.props.vocabRows[k]
+              console.log(vocab)
+              return (
+                <TableRow>
+                  <TableCell scope="row">
+                    {vocab.str}
+                  </TableCell>
+                  <TableCell>
+                    {vocab.pos}
+                  </TableCell>
+                  <TableCell>
+                    {vocab.translated}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </Table>
         </Box>
       )
