@@ -17,13 +17,13 @@ class VocabDisplay extends React.Component {
               console.log(vocab)
               return (
                 <TableRow>
-                  <TableCell scope="row">
+                  <TableCell scope="row" border="bottom">
                     {vocab.str}
                   </TableCell>
-                  <TableCell>
+                  <TableCell border="bottom">
                     {vocab.pos}
                   </TableCell>
-                  <TableCell>
+                  <TableCell border="bottom">
                     {vocab.translated}
                   </TableCell>
                 </TableRow>

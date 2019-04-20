@@ -2,7 +2,9 @@ import React from "react";
 import ArticleDisplay from './ArticleDisplay';
 import Container from './Container';
 import VocabDisplay from './VocabDisplay';
-import {Grid, Box} from 'grommet';
+import ReactTooltip from 'react-tooltip'
+import {Button, Grid, Box} from 'grommet';
+import {Download, Trash, Edit} from 'grommet-icons'
 
 class Sheet extends React.Component {
   constructor(props) {
@@ -50,15 +52,17 @@ class Sheet extends React.Component {
             }
           ]
         ],
+        title: "My First Article",
         article: 'je manger. \n\n\n\n je toucher'
       }
       // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
-      this.getArticle(getData.article, getData.tokens, getData.language);
+      this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
       this.getVocabSheet(getData.vocabList);
     }
 
-    getArticle(article, tokens, language) {
+    getArticle(title, article, tokens, language) {
       this.setState({
+        title: title,
         article: article,
         tokens: tokens,
         language: language
@@ -73,16 +77,22 @@ class Sheet extends React.Component {
 
     render() {
       return (
-        <Container title="Your Vocabulary" description="Your generated vocab sheet">
+        <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid
-          rows={['full']}
+          rows={['xxsmall','small' ]}
           columns={['1/2', '1/2']}
           gap="small"
           areas={[
-            { name: 'article', start: [0, 0], end: [1, 0] },
-            { name: 'vocab', start: [1, 0], end: [1, 0] },
+            { name: 'menu', start: [0,0], end:[1,0]},
+            { name: 'article', start: [0, 1], end: [1, 1] },
+            { name: 'vocab', start: [1, 1], end: [1, 1] },
           ]}
         >
+            <Box gridArea="menu" alignContent="end" direction="row-reverse">
+              <Button data-tip="Delete Sheet" icon={<Trash />} disabled color="black"/>
+              <Button data-tip="Edit Sheet" icon={<Edit />} disabled color="black"/>
+              <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
+            </Box>
             <Box gridArea="article" background="light-2">
               <ArticleDisplay 
                 article={this.state.article} 
@@ -95,6 +105,7 @@ class Sheet extends React.Component {
                 />
             </Box>
           </Grid>
+          <ReactTooltip />
          </Container>
       )
     }

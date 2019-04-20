@@ -34,8 +34,8 @@ class VocabDisplay extends React.Component {
                 <TableCell scope="row" size="1/2">
                   <Heading size="small"><Anchor href={"/display/" + article.id} color="neutral-2">{article.title}</Anchor></Heading>
                 </TableCell>
-                <TableCell size="1/2" round="small" background="light-3">
-                  <Box pad="small" round="small" background="white" margin="xsmall">
+                <TableCell size="1/2" round="small" background="light-2">
+                  <Box elevation="xsmall" pad="small" round="small" background="white" margin="xxsmall">
                     <TextTruncate text={article.text} line={3} className="article-excerpt-text"/>
                   </Box>
                 </TableCell>

@@ -8,12 +8,15 @@ class ArticleUpload extends React.Component {
     this.state = {
       values: {
           plainText: '',
+          language: '',
       },
       errors: {
           plaintText: '',
+          language: ''
       },
       touched: {
-          plainText: false
+          plainText: false,
+          langage: false
       }
     }
   }
@@ -73,15 +76,24 @@ class ArticleUpload extends React.Component {
       console.log("submit pdf")
     }
 
-    setLanguage() {
-      console.log("setting language")
+    setLanguage(l) {
+      this.setState(prevState => ({
+        values: {
+          ...prevState.values,
+          language: l}
+      }))
     }
 
     render() {
       return (
         <Box pad="medium">
-          <Select onChange={({option}) => this.setLanguage(option)} value="Choose source language" options={[ 'French', 'Spanish', 'Simplified Chinese', 'Traditional Chinese', 'Japanese', 'German']}/>
-          <Tabs>
+          <Select alignSelf="end"
+                  onChange={({option}) => this.setLanguage(option)} 
+                  value={this.state.values.language || "Choose your language"} 
+                  labelKey={(opt) => opt.label} 
+                  valueKey={(opt) => opt.value} 
+                  options={[ {value: "fr", label:"French"},  {value: "sp", label:"Spanish"}]}/>
+          <Tabs margin="medium">
             <Tab title="Plain Text">
               <Box pad="medium">
               <Form>
@@ -92,7 +104,7 @@ class ArticleUpload extends React.Component {
                   onBlur={this.handleBlur} 
                   value={this.state.values.plainText} 
                   placeholder="Type your article here" />
-                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill="true" primary color="accent-1" label="Generate" />
+                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
               </Form>
               </Box>
             </Tab>
