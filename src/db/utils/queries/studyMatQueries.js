@@ -1,8 +1,10 @@
 const studyMatSchema = require('../schemas/studyMatSchema');
+const documentSchema = require('../schemas/documentSchema');
 
 const StudyMats = studyMatSchema.StudyMats;
+const Documents = documentSchema.Documents;
 
-function createStudyMat(userId, studyMatEnum, allWords, keyWords, savedWords) {
+function createStudyMat(documentId, userId, studyMatEnum, allWords, keyWords, savedWords) {
 	if (!studyMats.studyMatEnums.includes(studyMatEnum)) {
 		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
 	}
@@ -15,7 +17,13 @@ function createStudyMat(userId, studyMatEnum, allWords, keyWords, savedWords) {
 		savedWords: savedWords
 	}
 
-	return StudyMats.create(payload);
+	return Documents.findById(documentId).exec().then(document => {
+		StudyMats.create(payload).then(sm => {
+			document.studyMats.push(sm);
+			document.save();
+			return sm;
+		})
+	})
 }
 
 function getStudyMat(studyMatId) {
