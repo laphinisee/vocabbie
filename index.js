@@ -4,17 +4,14 @@ const app = express();
 
 const path = require('path'); //for pathing
 app.use(express.static('client/public')); 
-
-const uuidv1 = require('uuid/v1'); //used to randomly generate ids
-
 app.set('view engine', 'html');
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-const nlp = require('src/nlp/nlpMain.js');
-const querydb = require('src/db/query.js');
+const nlp = require('./src/nlp/nlpMain');
+const querydb = require('./src/db/query');
 const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
@@ -73,8 +70,12 @@ app.post('/generate-text', function(request, response) {
   	}
   });
   // call db function to save all words.
-  querydb.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
-  response.status(200).send();
+  const promise = querydb.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
+  promise.then(result => {
+    const id = result[0]['_id'];
+    response.status(200).type('html');
+    response.json(id);
+  });
 });
 
 app.post('/:userid/vocab', function(request, response){
