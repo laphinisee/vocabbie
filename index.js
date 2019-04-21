@@ -52,44 +52,40 @@ app.get('/document/:id', function(request, response){
   response.status(200).type('html');
   response.json(toReturn);
 });
+
 app.post('/generate-text', function(request, response) {
-  const keyWords = rankText(request.body.text);
-  const paragraphs = request.body.text.split('[\r\n]+');
-  let srclanguage = "";
-  const vocabList = {};
+  const topWords = rankText(request.body.text);
   const allWords = [];
-  paragraphs.forEach(function(p){
-  	const translatedJson = processText(p);
-  	srclanguage = translatedJson[0];
-    const translatedWords = translatedJson[1];
-    allWords.push(translatedWords);
-    translatedWords.forEach(function(w){
-      let hardId = "";
-      if(topWords.indexOf(w.lemma) !== -1) {
-        hardId = topWords.indexOf(w.lemma);
-        vocab_list[hardId] = w;
-      }
-    });
+  const keywords = [];
+  const translatedJson = processText(request.body.text);
+  const srclanguage = translatedJson[0];
+  const translatedWords = translatedJson[1];
+  allWords.push(translatedWords);
+  translatedWords.forEach(function(w){
+  	let hardId = "";
+  	if(topWords.indexOf(w.lemma) !== -1) {
+  		hardId = topWords.indexOf(w.lemma);
+  		keywords[hardId] = w;
+  	}
   });
-  //TODO communicate with Alex/Lucy/Jacob how we'll get the rest of the information. (title, uuid, etc.)
-  const DocumentTextToSave = {
-    hash: ,//What to doAlex?,
-    plaintext: ,//What to doAlex?,
+
+  const newDocumentText = {
+    plaintext : request.body.text,
     sourceLanguage : srclanguage,
-    targetLanguage : "en", //TODO maybe come back to this?
-    allWords: allWords,
-    keyWords : vocabList
+    targetLanguage : "en",
+    allWords : allWords,
+    keyWords : keywords
   }
-  const documentToSave = {
-  	text: DocumentTextToSave,
-  	name : ,//How to get title from Jacob/Lucy?,
-  	owner : ,//How to get uuid from Jacob/Lucy
-    sharedUsers : , //What to do Alex?
+  // get user information from session token
+  const newDocument = {
+  	text: newDocumentText,
+  	name : ,
+  	owner : ,
+    sharedUsers : ,
     StudyMats: {}
   };
-  //TODO: call db function to save all words.
-
-  response.status(200).type('html');
+  // call db function to save all words.
+  response.status(200).send();
 });
 
 app.post('/:userid/vocab', function(request, response){
@@ -100,6 +96,7 @@ app.post('/:userid/vocab', function(request, response){
 	response.status(200).type('html');
 	response.json(toReturn);
 });
+
 app.get('/*/settings', function(request, response){
 //get the user id and retrieve their settings information.
   SettingsDatabase.retrieve(id);
@@ -118,4 +115,5 @@ function rankText(text, thresh){
   const hardestWords = allText[0:thresh];
   return list(set(hardestWords));
 }
-app.listen(8080)
+
+app.listen(8080);
