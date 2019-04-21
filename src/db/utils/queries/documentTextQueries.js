@@ -13,3 +13,5 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 
 	return DocumentTexts.create(payload);
 }
+
+module.exports.createDocumentText = createDocumentText;
