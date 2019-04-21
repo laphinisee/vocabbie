@@ -24,16 +24,15 @@ app.get('/', function(request, response){
 });
 
 app.post('/generate-text', function(request, response) {
-  // POSTs text to generate vocab from, returns vocab as a JSON 
-  // dict from original word to translated value, along with a 
-  // string representing the language
-
   const article = [];
   const	vocab_list = {}
   const topWords = rankText(request.body.text);
   const paragraphs = request.body.text.split('[\r\n]+');
+  let srclanguage = "";
   paragraphs.forEach(function(p){
-  	const translatedWords = processText(p)[1];
+  	const translatedJson = processText(p);
+  	srclanguage = translatedJson[0];
+  	const translatedWords = translatedJson[1];
   	const new_paragraph = [];
   	translatedWords.forEach(function(w){
   		let hardId = "";
@@ -47,17 +46,20 @@ app.post('/generate-text', function(request, response) {
 
   const toReturn = {
   	article : article,
-  	vocab_list : vocab_list;
+  	vocab_list : vocab_list,
+  	language : srclanguage
   };
+  // call db function to save all words?
 
-  response.status(200).type('html');
-  response.json(toReturn);
+  response.status(200).send();
 });
 
 app.post('/:userid/vocab', function(request, response){
-  /*POSTS all vocab cards that a user has selected to save from generation as above JSON.*/
-  let vocabToSave = response.body.vocabToSave;
-  
+	const usedid = request.params.userid;
+	let vocabToSave = response.body.vocabToSave;
+	// call db function to get a list of documents (title + preview) associated with this user 
+	response.status(200).type('html');
+	response.json(toReturn);
 });
 
 
