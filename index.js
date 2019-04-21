@@ -70,7 +70,7 @@ app.post('/generate-text', function(request, response) {
   	}
   });
   // call db function to save all words.
-  const promise = querydb.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
+  const promise = querydb.createDocument(/*name*/ title, /*ownerId*/ "steve reiss", request.body.text, srcLanguage, "en", allWords, keywords);
   promise.then(result => {
     const id = result[0]['_id'];
     response.status(200).type('html');
