@@ -1,4 +1,4 @@
-////////////////////// Begin Boilerplate ///////////////////////////
+////////////////////// Begin Boilerplate //////////////////////
 const express = require('express');
 const app = express();
 
@@ -13,48 +13,14 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-const mongoose = require('mongoose');
-const db = mongoose.connection;
+const nlp = require('src/nlp')
+////////////////////// End boilerplate //////////////////////
 
-db.on('error', console.error); // log any errors that occur
 
-// bind a function to perform when the database has been opened
-db.once('open', function() {
-  // perform any queries here, more on this later
-  console.log("Connected to DB!");
-});
-
-// process is a global object referring to the system process running this
-// code, when you press CTRL-C to stop Node, this closes the connection
-process.on('SIGINT', function() {
-   db.close(function () {
-       console.log('DB connection closed by Node process ending');
-       process.exit(0);
-   });
-});
-
-//TODO: Replace this with Alex's database
-const url = //'mongodb+srv://brian_oppenheim:Resonance9!@cluster0-oatb9.mongodb.net/test?retryWrites=true';
-mongoose.connect(url, {useNewUrlParser: true});
-//TODO: Add Alex's Schema here
-
-////////////////////////// End boilerplate //////////////////////////////
-//Homepage
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
   
-});
-
-app.post('/user/generate-text', function(request, response) {
-  /*POSTs text to generate vocab from, saves vocab as a JSON 
-    dict from original word to translated value, along with a 
-    string representing the language
-  */
-  let translatedText = translateText(request.body.hardestVocab);
-  //Save all text as StudyMat in DB
-  response.status(200).type('html');
-  response.json("no err");
 });
 app.get('/sheet/:id', function(request, response){
   //Return JSON of Article, Defintions, Vocab_List
@@ -62,18 +28,40 @@ app.get('/sheet/:id', function(request, response){
   //vocab _list is mapping of id in Article to saved word cache objects.
   let id = request.params.id;
   let studyMats = db.getStudyMat(id);
-  let allWords = studyMats.allWords;
-  let keyWords = studyMats.keyWords();
-  let article = []
-  for (let i = 0; i < allWords.length(); i++){
-    let hardestIndex = keyWords.indexOf(allWords[i]);
-    if(hardestIndex == -1){
-      article.push({allWords})
-    }
-  }
   response.json([StudyMats.words, StudyMats.vocab]);
 });
-app.post('/generate/save', function(request, response){
+app.post('/generate-text', function(request, response) {
+  // POSTs text to generate vocab from, returns vocab as a JSON 
+  // dict from original word to translated value, along with a 
+  // string representing the language
+
+  const article = [];
+  const	vocab_list = {}
+  const topWords = rankText(request.body.text);
+  const paragraphs = request.body.text.split('[\r\n]+');
+  paragraphs.forEach(function(p){
+  	const translatedWords = processText(p)[1];
+  	const new_paragraph = [];
+  	translatedWords.forEach(function(w){
+  		let hardId = "";
+  		if(topWords.indexOf(w.lemma) !== -1) {
+  			hardId = topWords.indexOf(w.lemma);
+  			vocab_list[hardId] = w;
+  		}
+  		new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
+  	});
+  });
+
+  const toReturn = {
+  	article : article,
+  	vocab_list : vocab_list;
+  };
+
+  response.status(200).type('html');
+  response.json(toReturn);
+});
+
+app.post('/:userid/vocab', function(request, response){
   /*POSTS all vocab cards that a user has selected to save from generation as above JSON.*/
   let vocabToSave = response.body.vocabToSave;
   //TODO save in Alex's database lol
@@ -83,13 +71,6 @@ app.post('/generate/save', function(request, response){
 app.get('/*/settings', function(request, response){
 //get the user id and retrieve their settings information.
   SettingsDatabase.retrieve(id);
-  response.status(200).type('html');
-});
-app.post('/user/vocab', function(request, response){
-  /*Return titles and ids for all StudyMats*/
-  //below should return all studyMats
-  AlexDatabase.retrieve(user+studymats);
-  //now return ids and titles of studymats.
   response.status(200).type('html');
 });
 
