@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dbAuth = require('./dbAuth');
+const dbAuth = require('../../keys/dbAuth');
 
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
