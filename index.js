@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 const nlp = require('src/nlpMain');
+const querydb = require('src/db/query.js');
 const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
@@ -70,33 +71,25 @@ app.post('/generate-text', function(request, response) {
   		keywords[hardId] = w;
   	}
   });
-
-  const newDocumentText = {
-    plaintext : request.body.text,
-    sourceLanguage : srclanguage,
-    targetLanguage : "en",
-    allWords : allWords,
-    keyWords : keywords
-  }
-  // get user information from session token
-  const newDocument = {
-  	text: newDocumentText,
-  	name : ,
-  	owner : ,
-    sharedUsers : ,
-    StudyMats: {}
-  };
   // call db function to save all words.
+  querydb.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
   response.status(200).send();
 });
 
 app.post('/:userid/vocab', function(request, response){
-
-	const userdid = request.params.userid;
-	const vocabToSave = response.body.vocabToSave;
-	// call db function to get a list of documents (title + preview) associated with this user 
+	const titles = [];
+	const ids = [];
+	const previews = [];
+	querydb.getUserDocuments(request.params.userid)
+	.then(result => (){
+		// list of {name : ?, _id : ?, text.plaintext : ?}
+		titles.push(result.name);
+		ids.push(result._id);
+		let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
+		previews.push(result.text.plaintext.substring(0, len));
+	});
 	response.status(200).type('html');
-	response.json(toReturn);
+	response.json({titles : titles, ids : ids, previews : previews});
 });
 app.post('/login', function(request, response){
   //TODO do passport stuff :3. 
