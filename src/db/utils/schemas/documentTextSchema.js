@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const words = require('./wordSchema');
 
 const documentTextSchema = new mongoose.Schema({
-	hash: { type: String, required: true, unique: true },
-	plaintext: String,
+	plaintext: { type: String, required: true, unique: true },
 	sourceLanguage: { type: String, required: true },
 	targetLanguage: { type: String, required: true },
 	allWords: [words.schema],
