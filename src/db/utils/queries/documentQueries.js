@@ -2,7 +2,6 @@ const documentSchema = require('../schemas/documentSchema');
 const documentTextQueries = require('./documentTextQueries');
 
 const Documents = documentSchema.Documents;
-const DocumentTexts = documentTextSchema.DocumentTexts;
 
 function createDocument(name, ownerId, plaintext, sourceLanguage, targetLanguage, allWords, keyWords) {
 	return documentTextQueries.createDocumentText(

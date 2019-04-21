@@ -7,7 +7,7 @@ app.use(express.static('client/public'));
 app.set('view engine', 'html');
 
 const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 const nlp = require('./src/nlp/nlpMain');
@@ -58,24 +58,34 @@ app.post('/generate-text', function(request, response) {
   const title = request.body.title
   const allWords = [];
   const keywords = [];
-  const translatedJson = processText(request.body.text);
-  const srclanguage = translatedJson[0];
-  const translatedWords = translatedJson[1];
-  allWords.push(translatedWords);
-  translatedWords.forEach(function(w){
-  	let hardId = "";
-  	if(topWords.indexOf(w.lemma) !== -1) {
-  		hardId = topWords.indexOf(w.lemma);
-  		keywords[hardId] = w;
-  	}
-  });
-  // call db function to save all words.
-  const promise = querydb.createDocument(/*name*/ title, /*ownerId*/ "steve reiss", request.body.text, srcLanguage, "en", allWords, keywords);
-  promise.then(result => {
-    const id = result[0]['_id'];
-    response.status(200).type('html');
-    response.json(id);
-  });
+  const translatedJson = nlp.processText(request.body.text);
+  translatedJson.then(result => {
+    [ srcLanguage, translatedWords ] = result;
+    allWords.push(translatedWords);
+    translatedWords.forEach(function(w){
+      let hardId = "";
+      if(topWords.indexOf(w.lemma) !== -1) {
+        hardId = topWords.indexOf(w.lemma);
+        keywords[hardId] = w;
+      }
+    });
+    // call db function to save all words.
+    const promise = querydb.document.createDocument(request.body.title, /*ownerId*/ {
+      id: 0,
+    }, request.body.text, srcLanguage, "en", allWords, keywords);
+    
+    /**
+     * TODO: all promises need catches that gracefully return
+     * error messages to users.
+     */
+
+    promise.then(result => {
+      const id = result[0]['_id'];
+      response.status(200).type('html');
+      response.json(id);
+    });
+  })
+
 });
 
 app.post('/:userid/vocab', function(request, response){
@@ -104,7 +114,7 @@ function rankText(text, thresh){
     return b.length - a.length;
   });
   const hardestWords = allKeyWords.splice(0, thresh);
-  return list(set(hardestWords));
+  return Array.from(new Set(hardestWords))
 }
 
 function keywords(text) {

@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
+import {Form, FormField, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
 
 class ArticleUpload extends React.Component {
 
@@ -8,14 +8,17 @@ class ArticleUpload extends React.Component {
     this.state = {
       values: {
           plainText: '',
+          title: '',
           language: '',
       },
       errors: {
           plaintText: '',
+          title: '',
           language: ''
       },
       touched: {
           plainText: false,
+          title: false,
           langage: false
       }
     }
@@ -34,10 +37,12 @@ class ArticleUpload extends React.Component {
 
   validateInputs = () => {
   const PLAIN_TEXT_ERROR = 'Please enter non-empty article.'
+  const TITLE_ERROR = 'Please enter non-empty title.'
 
   this.setState(prevState => ({
       ...prevState,
       errors: {
+          title: (prevState.values.title.length < 1) ? TITLE_ERROR : '',
           plainText: (prevState.values.plainText.length < 1) ? PLAIN_TEXT_ERROR : '',
       }
   }))
@@ -59,12 +64,17 @@ class ArticleUpload extends React.Component {
     }
 
   submitPlainText = (e) => {
-        fetch('/generate', {
+
+        fetch('/generate-text', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
+          headers: {"Content-Type": "application/json"},
           redirect: "follow", // manual, *follow, error
-          body: {
-            text: this.state.plainText
-          }, // body data type must match "Content-Type" header
+          body: JSON.stringify({
+            text: this.state.values.plainText,
+            title: this.state.values.title
+          }), // body data type must match "Content-Type" header
+      }, (res) => {
+        console.log(res)
       })
     }
 
@@ -97,6 +107,7 @@ class ArticleUpload extends React.Component {
             <Tab title="Plain Text">
               <Box pad="medium">
               <Form>
+                <FormField error={this.state.touched.title && this.state.errors.title} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.title} name="title" type="text" label="Title" />
                 <TextArea 
                   name='plainText' 
                   error={this.state.touched.plainText && this.state.errors.plainText} 
