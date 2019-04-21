@@ -29,9 +29,9 @@ app.get('/document/:id', function(request, response){
   const documentID = response.body.id;
   const Document = AlexDB.getDocument(documentID); //TODO replace with real code.
   const article = [];
-  const vocab_list = {}//TODO check if its from token id to word schema with Jacob Lucy
+  const vocab_list = {};
   const srclanguage = Document.text.sourceLanguage;
-  let paragraphs = Document.text.allWords;
+  const paragraphs = Document.text.allWords;
   const keyWords = Document.text.keyWords;
   paragraphs.forEach(function(p){
     const new_paragraph = [];
@@ -41,12 +41,16 @@ app.get('/document/:id', function(request, response){
     });
     article.push(new_paragraph);
   });
-  //TODO: need to change keywords to vocab_list of ok to send as is bc token_id is just the index? check w/ Lucy Jacob 
+  for(let i = 0 ; i < keyWords.length; i++){
+    vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
+  }
   const toReturn = {
     article : article,
     vocab_list : vocab_list,
     language : srclanguage
   };
+  response.status(200).type('html');
+  response.json(toReturn);
 });
 
 app.post('/generate-text', function(request, response) {
