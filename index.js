@@ -56,7 +56,7 @@ app.get('/document/:id', function(request, response){
   });
 
 app.post('/generate-text', function(request, response) {
-  const topWords = rankText(request.body.text);
+  const topWords = rankText(request.body.text, 20);
   const allWords = [];
   const keywords = [];
   const translatedJson = processText(request.body.text);
@@ -103,12 +103,12 @@ app.post('/login', function(request, response){
 })
 
 function rankText(text, thresh){
-  const allText = text.split("/\s+/");
+  const allKeyWords = keywords(text);
   //Return the longest words as a proxy. 
-  allText.sort(function(a, b){
+  allKeyWords.sort(function(a, b){
     return b.length - a.length;
   });
-  const hardestWords = allText[0:thresh];
+  const hardestWords = allKeyWords[0:thresh];
   return list(set(hardestWords));
 }
 
