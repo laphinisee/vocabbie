@@ -105,7 +105,9 @@ app.get('/*/settings', function(request, response){
   SettingsDatabase.retrieve(id);
   response.status(200).type('html');
 });
-
+app.post('/login', function(request, response){
+  //TODO do passport stuff :3. 
+})
 
 function rankText(text, thresh){
   const allText = text.split("/\s+/");
