@@ -58,6 +58,7 @@ app.get('/document/:id', function(request, response){
 
 app.post('/generate-text', function(request, response) {
   const topWords = rankText(request.body.text, 20);
+  const title = request.body.title
   const allWords = [];
   const keywords = [];
   const translatedJson = processText(request.body.text);
@@ -81,7 +82,7 @@ app.post('/:userid/vocab', function(request, response){
 	const ids = [];
 	const previews = [];
 	querydb.getUserDocuments(request.params.userid)
-	.then(result => (){
+	.then(result => {
 		// list of {name : ?, _id : ?, text.plaintext : ?}
 		titles.push(result.name);
 		ids.push(result._id);
@@ -101,7 +102,7 @@ function rankText(text, thresh){
   allKeyWords.sort(function(a, b){
     return b.length - a.length;
   });
-  const hardestWords = allKeyWords[0:thresh];
+  const hardestWords = allKeyWords.splice(0, thresh);
   return list(set(hardestWords));
 }
 
