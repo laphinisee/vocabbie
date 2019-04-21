@@ -8,10 +8,10 @@ const documentText = required('./documentTextSchema');
 const documentSchema = new mongoose.Schema({
 	text: documentText.schema,
 	name: { type: String, required: true },
-	owner: { type: users.schema, required: true },
-	sharedUsers: [users.schema],
+	owner: { type: mongoose.Schema.Types.ObjectId, required: true },
+	sharedUsers: [mongoose.Schema.Types.ObjectId],
 	creationTime: { type: Date, default: Date.now },
-	studyMats: { type: Map, of: studyMat.schema }
+	studyMats: { type: Map, of: studyMat.schema, default: {} }
 })
 
 module.exports.schema = documentSchema;
