@@ -13,7 +13,8 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-const nlp = require('src/nlp')
+const nlp = require('src/nlpMain');
+const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
 
@@ -112,6 +113,15 @@ function rankText(text, thresh){
   });
   const hardestWords = allText[0:thresh];
   return list(set(hardestWords));
+}
+
+function keywords(text) {
+  return keyword_extractor.extract(text, {
+    language: 'english',
+    remove_digits: true,
+    return_changed_case: false,
+    remove_duplicates: true
+  })
 }
 
 app.listen(8080);
