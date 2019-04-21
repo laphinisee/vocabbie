@@ -35,8 +35,6 @@ function createWord(token, sourceLanguage, targetLanguage) {
 			if (!result) { Words.create(wordPayload); }
 		}
 	)
-
-	
 }
 
 function _updateCounts(wordIds) {
