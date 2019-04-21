@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Tabs, Tab, Box, Button, TextArea, } from 'grommet';
+import {Form, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
 
 class ArticleUpload extends React.Component {
 
@@ -8,12 +8,15 @@ class ArticleUpload extends React.Component {
     this.state = {
       values: {
           plainText: '',
+          language: '',
       },
       errors: {
           plaintText: '',
+          language: ''
       },
       touched: {
-          plainText: false
+          plainText: false,
+          langage: false
       }
     }
   }
@@ -73,10 +76,24 @@ class ArticleUpload extends React.Component {
       console.log("submit pdf")
     }
 
+    setLanguage(l) {
+      this.setState(prevState => ({
+        values: {
+          ...prevState.values,
+          language: l}
+      }))
+    }
+
     render() {
       return (
         <Box pad="medium">
-          <Tabs>
+          <Select alignSelf="end"
+                  onChange={({option}) => this.setLanguage(option)} 
+                  value={this.state.values.language || "Choose your language"} 
+                  labelKey={(opt) => opt.label} 
+                  valueKey={(opt) => opt.value} 
+                  options={[ {value: "fr", label:"French"},  {value: "sp", label:"Spanish"}]}/>
+          <Tabs margin="medium">
             <Tab title="Plain Text">
               <Box pad="medium">
               <Form>
@@ -87,12 +104,11 @@ class ArticleUpload extends React.Component {
                   onBlur={this.handleBlur} 
                   value={this.state.values.plainText} 
                   placeholder="Type your article here" />
-                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" primary label="Submit" />
+                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
               </Form>
               </Box>
             </Tab>
           </Tabs>
-        <Button label="Detect Language" />
       </Box>
       )
     }

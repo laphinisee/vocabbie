@@ -2,14 +2,14 @@ const wordSchema = require('../schemas/wordSchema');
 
 const Words = wordSchema.Words;
 
-function _wordId(token, sourceLanguage, targetLanguage) {
-	const word = token['text']['content'];
+function _wordId(word, sourceLanguage, targetLanguage) {
 	return [sourceLanguage, targetLanguage, word].join('_');
 }
 
 const extraKeys = ['pronunciation'];
 function createWord(token, sourceLanguage, targetLanguage) {
-	const wordId = _wordId(token, sourceLanguage, targetLanguage);
+	const word = token['text']['content'];
+	const wordId = _wordId(word, sourceLanguage, targetLanguage);
 
 	const wordPayload = {
 		id: wordId,
@@ -24,40 +24,45 @@ function createWord(token, sourceLanguage, targetLanguage) {
 	};
 
 	extraKeys.forEach(key => {
-		if (token['pronunciation']) {
-			wordPayload['pronunciation'] = token['pronunciation'];
+		if (token[key]) {
+			wordPayload[key] = token[key];
 		}
 	});
 
-	Words.create(wordPayload);
+	Words.findOne(
+		{ id: wordId },
+		(err, result) => {
+			if (!result) { Words.create(wordPayload); }
+		}
+	)
+
+	
 }
 
 function _updateCounts(wordIds) {
 	wordIds.forEach(wordId => {
 		Words.updateOne(
 			{ id: wordId },
-			{ $inc: { count: 1 } }
+			{ $inc: { count: 1 } },
+			(err, result) => { if (err) console.log(err + '***') }
 		);
 	})
 
 	Words.updateMany(
 		{ id: { $in: wordIds } },
-		{ $inc: { num_documents: 1 } }
+		{ $inc: { num_documents: 1 } },
+		(err, result) => { if (err) console.log(err + '&&&') }
 	);
 }
 
 function getTranslations(tokens, sourceLanguage, targetLanguage) {
-	const wordIds = tokens.map(token => _wordId(token, sourceLanguage, targetLanguage));
+	const wordIds = tokens.map(token => _wordId(token['text']['content'], sourceLanguage, targetLanguage));
 
 	_updateCounts(wordIds);
 
-	return Words.find()
-		.where('id')
-			.in(wordIds)
-		.select('id translatedText')
-		.exec(function(err, result) {
-			if (err) return console.error(err);
-
+	return Words.find({ id: {$in: wordIds} }, 'id translatedText')
+		.exec()
+		.then(result => {
 			const translations = {};
 			result.forEach(translation => {
 				translations[translation['id']] = translation['translatedText'];
@@ -67,3 +72,5 @@ function getTranslations(tokens, sourceLanguage, targetLanguage) {
 		});
 }
 
+module.exports.createWord = createWord;
+module.exports.getTranslations = getTranslations;

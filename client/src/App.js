@@ -21,12 +21,21 @@ class App extends React.Component {
         colors: {
           brand: '#3498db',
           'neutral-2': '#1845b2',
+          'accent-1': '#1845b2',
         },
         font: {
           family: 'Roboto',
           size: '14px',
           height: '20px',
         },
+        button: {
+          color: "light"
+        },
+        focus: {
+          border: {
+            color: '#1845b2'
+          }
+        }
       },
     };
 

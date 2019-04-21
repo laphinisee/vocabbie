@@ -2,7 +2,9 @@ import React from "react";
 import ArticleDisplay from './ArticleDisplay';
 import Container from './Container';
 import VocabDisplay from './VocabDisplay';
-import {Grid, Box} from 'grommet';
+import ReactTooltip from 'react-tooltip'
+import {Button, Grid, Box} from 'grommet';
+import {Download, Trash, Edit} from 'grommet-icons'
 
 class Sheet extends React.Component {
   constructor(props) {
@@ -11,42 +13,99 @@ class Sheet extends React.Component {
   }
 
     componentWillMount() {
+
+      const getData = {
+        language: 'fr',
+        vocabList: {
+          1: {
+            str: 'je',
+            translated: 'i',
+            pos: 'pronoun'
+          },
+        },
+        tokens: [
+          [ // Paragraph 1
+            { // word 1
+              str: 'je',
+              translated: 'i',
+              token_id: 1,
+            },
+            { // word 2
+              str: 'manger',
+              translated: 'to eat',
+              token_id: 2,
+            },
+            { // word 3
+              str: '.'
+            }
+          ],
+          [ // Paragraph 2
+            { // word 1
+              str: 'je',
+              translated: 'i',
+              token_id: 3,
+            },
+            { // word not in vocab sheet
+              str: 'toucher',
+              translated: 'to touch',
+              token_id: 4,
+            }
+          ]
+        ],
+        title: "My First Article",
+        article: 'je manger. \n\n\n\n je toucher'
+      }
       // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
-      this.getArticle();
-      this.getVocab();
+      this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
+      this.getVocabSheet(getData.vocabList);
     }
 
-    getArticle() {
-      this.setState({article: "I mangered my food and I touchered my blanket."})
+    getArticle(title, article, tokens, language) {
+      this.setState({
+        title: title,
+        article: article,
+        tokens: tokens,
+        language: language
+      })
       // Should set this up mad lib style so that we can connect words in article with
       // vocab row entries.
     }
 
-    getVocab() {
-      this.setState({vocabRows: [{original: "manger", partOfSpeech: "verb", translated: "to eat"},
-      {original: "toucher", partOfSpeech: "verb", translated: "to touch"}]})
+    getVocabSheet(vocabRows) {
+      this.setState({vocabRows})
     }
 
     render() {
       return (
-        <Container title="Your Vocabulary" description="Your generated vocab sheet">
+        <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid
-          rows={['full']}
+          rows={['xxsmall','small' ]}
           columns={['1/2', '1/2']}
           gap="small"
-          fill="true"
           areas={[
-            { name: 'article', start: [0, 0], end: [1, 0] },
-            { name: 'vocab', start: [1, 0], end: [1, 0] },
+            { name: 'menu', start: [0,0], end:[1,0]},
+            { name: 'article', start: [0, 1], end: [1, 1] },
+            { name: 'vocab', start: [1, 1], end: [1, 1] },
           ]}
         >
+            <Box gridArea="menu" alignContent="end" direction="row-reverse">
+              <Button data-tip="Delete Sheet" icon={<Trash />} disabled color="black"/>
+              <Button data-tip="Edit Sheet" icon={<Edit />} disabled color="black"/>
+              <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
+            </Box>
             <Box gridArea="article" background="light-2">
-              <ArticleDisplay content={this.state.article} />
+              <ArticleDisplay 
+                article={this.state.article} 
+                tokens={this.state.tokens.flat()}
+                />
             </Box>
             <Box gridArea="vocab" background="light-5">
-              <VocabDisplay vocabRows={this.state.vocabRows} />
+              <VocabDisplay 
+                vocabRows={this.state.vocabRows} 
+                />
             </Box>
           </Grid>
+          <ReactTooltip />
          </Container>
       )
     }

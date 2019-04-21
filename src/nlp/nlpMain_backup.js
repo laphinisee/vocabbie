@@ -9,28 +9,12 @@ function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
 	}).then(result => {
-		const sourceLanguage = result['language'],
-			tokens = result['tokens'],
-			cachedTranslations = query.word.getTranslations(tokens, sourceLanguage, targetLanguage);
+		const sourceLanguage = result['language'];
+		const tokens = result['tokens'];
 
-		return Promise.all([sourceLanguage, tokens, cachedTranslations]);
-	}).then(result => {
-		[ sourceLanguage, tokens, cachedTranslations ] = result;
+		const tokenList = tokens.map(token => token['text']['content']);
 
-		const untranslatedWordList = [];
-		let token, translation;
-		for (i = 0; i < tokens.length; i++) {
-			token = tokens[i]
-			translation = cachedTranslations[i];
-
-			if (translation) {
-				token['translation'] = translation;
-			} else {
-				untranslatedWordList.push(token['text']['content']);
-			}
-		}
-
-		const translations = translate.translateText(untranslatedWordList, sourceLanguage);
+		const translations = translate.translateText(tokenList, sourceLanguage);
 
 		return Promise.all([sourceLanguage, tokens, translations]);
 	}).then(result => {
@@ -40,14 +24,10 @@ function processText(text, targetLanguage='en') {
 		const pronunciations = [];
 
 		let token, word, isPunctuation;
-		let translationIndex = 0;
 		for (i = 0; i < tokens.length; i++) {
 			token = tokens[i];
 			word = token['text']['content'];
-
-			if (!token['translation']) {
-				token['translation'] = translations[translationIndex++];
-			}
+			token['translation'] = translations[i];
 
 			if (stopwords.languageSupported(sourceLanguage)) {
 				token['isStopword'] = stopwords.isStopword(token, sourceLanguage);
@@ -75,14 +55,14 @@ function processText(text, targetLanguage='en') {
 		});
 
 		return [sourceLanguage, tokens];
-	});
+	})
 }
 
 module.exports.processText = processText;
 
 let translation 
-translation = processText('大象是一個漂亮的大象') //我是一個漂亮的蝴蝶。
-translation.then(result => console.log(result[1]));
+translation = processText('我')
+// translation.then(result => console.log(result[1]));
 
 // translation = processText('かわいい犬が好き。')
 // translation.then(result => console.log(result[1]));
