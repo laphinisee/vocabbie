@@ -4,9 +4,6 @@ const app = express();
 
 const path = require('path'); //for pathing
 app.use(express.static('client/public')); 
-
-const uuidv1 = require('uuid/v1'); //used to randomly generate ids
-
 app.set('view engine', 'html');
 
 const bodyParser = require('body-parser')
@@ -62,7 +59,6 @@ app.post('/generate-text', function(request, response) {
   const allWords = [];
   const keywords = [];
   const translatedJson = nlp.processText(request.body.text);
-
   translatedJson.then(result => {
     [ srcLanguage, translatedWords ] = result;
     allWords.push(translatedWords);
@@ -74,8 +70,20 @@ app.post('/generate-text', function(request, response) {
       }
     });
     // call db function to save all words.
-    querydb.document.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
-    response.status(200).send();
+    const promise = querydb.document.createDocument(request.body.title, /*ownerId*/ {
+      id: 0,
+    }, request.body.text, srcLanguage, "en", allWords, keywords);
+    
+    /**
+     * TODO: all promises need catches that gracefully return
+     * error messages to users.
+     */
+
+    promise.then(result => {
+      const id = result[0]['_id'];
+      response.status(200).type('html');
+      response.json(id);
+    });
   })
 
 });

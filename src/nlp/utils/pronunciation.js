@@ -4,7 +4,12 @@ const _ = require('lodash');
 const Kuroshiro = require('kuroshiro');
 const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
 
-const supportedLanguages = ['zh', 'ja'];
+/**
+ * TODO: add error message when language is not supported.
+ * 		 currently fails and hangs. 
+ */
+
+const supportedLanguages = ['zh', 'ja', 'es', 'fr', 'de'];
 function languageSupported(language) {
 	return supportedLanguages.includes(language);
 }
