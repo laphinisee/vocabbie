@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 const nlp = require('src/nlpMain');
+const querydb = require('src/db/query.js');
 const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
@@ -28,34 +29,36 @@ app.get('/document/:id', function(request, response){
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
   const documentID = response.body.id;
-  const Document = AlexDB.getDocument(documentID); //TODO replace with real code.
-  const article = [];
-  const vocab_list = {};
-  const srclanguage = Document.text.sourceLanguage;
-  const paragraphs = Document.text.allWords;
-  const keyWords = Document.text.keyWords;
-  paragraphs.forEach(function(p){
-    const new_paragraph = [];
-    p.forEach(function(w){
-      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
+  queryDB.getDocument(documentID).then(result =>{
+    const article = [];
+    const vocab_list = {};
+    const srclanguage = result.text.sourceLanguage;
+    const paragraphs = result.text.allWords;
+    const keyWords = result.text.keyWords;
+    paragraphs.forEach(function(p){
+      const new_paragraph = [];
+      p.forEach(function(w){
+        let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+        new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
+      });
+      article.push(new_paragraph);
     });
-    article.push(new_paragraph);
+    for(let i = 0 ; i < keyWords.length; i++){
+      vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
+    }
+    const toReturn = {
+      article : article,
+      vocab_list : vocab_list,
+      language : srclanguage
+    };
+    response.status(200).type('html');
+    response.json(toReturn);
   });
-  for(let i = 0 ; i < keyWords.length; i++){
-    vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
-  }
-  const toReturn = {
-    article : article,
-    vocab_list : vocab_list,
-    language : srclanguage
-  };
-  response.status(200).type('html');
-  response.json(toReturn);
-});
+  });
 
 app.post('/generate-text', function(request, response) {
-  const topWords = rankText(request.body.text);
+  const topWords = rankText(request.body.text, 20);
+  const title = request.body.title
   const allWords = [];
   const keywords = [];
   const translatedJson = processText(request.body.text);
@@ -69,49 +72,37 @@ app.post('/generate-text', function(request, response) {
   		keywords[hardId] = w;
   	}
   });
-
-  const newDocumentText = {
-    plaintext : request.body.text,
-    sourceLanguage : srclanguage,
-    targetLanguage : "en",
-    allWords : allWords,
-    keyWords : keywords
-  }
-  // get user information from session token
-  const newDocument = {
-  	text: newDocumentText,
-  	name : ,
-  	owner : ,
-    sharedUsers : ,
-    StudyMats: {}
-  };
   // call db function to save all words.
+  querydb.createDocument(/*name*/ "", /*ownerId*/ "", request.body.text, srcLanguage, "en", allWords, keywords);
   response.status(200).send();
 });
 
 app.post('/:userid/vocab', function(request, response){
-
-	const userdid = request.params.userid;
-	let vocabToSave = response.body.vocabToSave;
-	// call db function to get a list of documents (title + preview) associated with this user 
+	const titles = [];
+	const ids = [];
+	const previews = [];
+	querydb.getUserDocuments(request.params.userid)
+	.then(result => {
+		// list of {name : ?, _id : ?, text.plaintext : ?}
+		titles.push(result.name);
+		ids.push(result._id);
+		let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
+		previews.push(result.text.plaintext.substring(0, len));
+	});
 	response.status(200).type('html');
-	response.json(toReturn);
+	response.json({titles : titles, ids : ids, previews : previews});
 });
-
-app.get('/*/settings', function(request, response){
-//get the user id and retrieve their settings information.
-  SettingsDatabase.retrieve(id);
-  response.status(200).type('html');
-});
-
+app.post('/login', function(request, response){
+  //TODO do passport stuff :3. 
+})
 
 function rankText(text, thresh){
-  const allText = text.split("/\s+/");
+  const allKeyWords = keywords(text);
   //Return the longest words as a proxy. 
-  allText.sort(function(a, b){
+  allKeyWords.sort(function(a, b){
     return b.length - a.length;
   });
-  const hardestWords = allText[0:thresh];
+  const hardestWords = allKeyWords.splice(0, thresh);
   return list(set(hardestWords));
 }
 
