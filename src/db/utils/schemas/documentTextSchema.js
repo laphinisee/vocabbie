@@ -7,7 +7,7 @@ const documentTextSchema = new mongoose.Schema({
 	plaintext: String,
 	sourceLanguage: { type: String, required: true },
 	targetLanguage: { type: String, required: true },
-	allWords: [words.schema],
+	allWords: [[words.schema]],
 	keyWords: [words.schema]
 })
 
