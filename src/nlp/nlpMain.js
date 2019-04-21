@@ -80,9 +80,12 @@ function processText(text, targetLanguage='en') {
 
 module.exports.processText = processText;
 
-// let translation 
-// translation = processText('大象是一個漂亮的大象') //我是一個漂亮的蝴蝶。
-// translation.then(result => console.log(result[1]));
+let text
+text = '大象是一個漂亮的大象'
+
+let translation 
+translation = processText(text) //我是一個漂亮的蝴蝶。
+translation.then(result => console.log(result[1]));
 
 // translation = processText('かわいい犬が好き。')
 // translation.then(result => console.log(result[1]));

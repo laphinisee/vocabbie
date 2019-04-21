@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const words = require('./wordSchema');
 const users = require('./userSchema');
 const studyMat = require('./studyMatSchema');
-const documentText = required('./documentTextSchema');
+const documentText = require('./documentTextSchema');
 
 const documentSchema = new mongoose.Schema({
 	text: documentText.schema,
