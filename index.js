@@ -27,31 +27,32 @@ app.get('/document/:id', function(request, response){
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
   const documentID = response.body.id;
-  const Document = AlexDB.getDocument(documentID); //TODO replace with real code.
-  const article = [];
-  const vocab_list = {};
-  const srclanguage = Document.text.sourceLanguage;
-  const paragraphs = Document.text.allWords;
-  const keyWords = Document.text.keyWords;
-  paragraphs.forEach(function(p){
-    const new_paragraph = [];
-    p.forEach(function(w){
-      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
+  queryDB.getDocument(documentID).then(result =>{
+    const article = [];
+    const vocab_list = {};
+    const srclanguage = result.text.sourceLanguage;
+    const paragraphs = result.text.allWords;
+    const keyWords = result.text.keyWords;
+    paragraphs.forEach(function(p){
+      const new_paragraph = [];
+      p.forEach(function(w){
+        let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+        new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
+      });
+      article.push(new_paragraph);
     });
-    article.push(new_paragraph);
+    for(let i = 0 ; i < keyWords.length; i++){
+      vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
+    }
+    const toReturn = {
+      article : article,
+      vocab_list : vocab_list,
+      language : srclanguage
+    };
+    response.status(200).type('html');
+    response.json(toReturn);
   });
-  for(let i = 0 ; i < keyWords.length; i++){
-    vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
-  }
-  const toReturn = {
-    article : article,
-    vocab_list : vocab_list,
-    language : srclanguage
-  };
-  response.status(200).type('html');
-  response.json(toReturn);
-});
+  });
 
 app.post('/generate-text', function(request, response) {
   const topWords = rankText(request.body.text);
@@ -91,16 +92,10 @@ app.post('/generate-text', function(request, response) {
 app.post('/:userid/vocab', function(request, response){
 
 	const userdid = request.params.userid;
-	let vocabToSave = response.body.vocabToSave;
+	const vocabToSave = response.body.vocabToSave;
 	// call db function to get a list of documents (title + preview) associated with this user 
 	response.status(200).type('html');
 	response.json(toReturn);
-});
-
-app.get('/*/settings', function(request, response){
-//get the user id and retrieve their settings information.
-  SettingsDatabase.retrieve(id);
-  response.status(200).type('html');
 });
 app.post('/login', function(request, response){
   //TODO do passport stuff :3. 
