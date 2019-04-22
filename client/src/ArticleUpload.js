@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, FormField, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
+import {Form, FormField, Grid, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
 
 class ArticleUpload extends React.Component {
 
@@ -87,6 +87,7 @@ class ArticleUpload extends React.Component {
     }
 
     setLanguage(l) {
+      console.log(l)
       this.setState(prevState => ({
         values: {
           ...prevState.values,
@@ -97,29 +98,49 @@ class ArticleUpload extends React.Component {
     render() {
       return (
         <Box pad="medium">
-          <Select alignSelf="end"
-                  onChange={({option}) => this.setLanguage(option)} 
-                  value={this.state.values.language || "Choose your language"} 
-                  labelKey={(opt) => opt.label} 
-                  valueKey={(opt) => opt.value} 
-                  options={[ {value: "fr", label:"French"},  {value: "sp", label:"Spanish"}]}/>
-          <Tabs margin="medium">
-            <Tab title="Plain Text">
-              <Box pad="medium">
-              <Form>
-                <FormField error={this.state.touched.title && this.state.errors.title} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.title} name="title" type="text" label="Title" />
-                <TextArea 
-                  name='plainText' 
-                  error={this.state.touched.plainText && this.state.errors.plainText} 
-                  onChange={this.handleUserInput} 
-                  onBlur={this.handleBlur} 
-                  value={this.state.values.plainText} 
-                  placeholder="Type your article here" />
-                <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
-              </Form>
+          <Form>
+            <Grid
+            rows={['fit']}
+            columns={['3/4', '1/4']}
+            gap="small"
+            areas={[
+              { name: 'title', start: [0,0], end:[1,0]},
+              { name: 'lang', start: [1, 0], end: [1, 0] },
+            ]}
+            >
+              <Box gridArea="title" alignContent="start">
+                  <FormField 
+                            error={this.state.touched.title && this.state.errors.title} 
+                            onChange={this.handleUserInput} 
+                            onBlur={this.handleBlur} 
+                            value={this.state.values.title} 
+                            name="title" 
+                            type="text" 
+                            label="Title"/>
               </Box>
-            </Tab>
-          </Tabs>
+              <Box gridArea="lang" alignContent="end" alignSelf="center">
+              <Select onChange={({option}) => this.setLanguage(option)} 
+                      value={this.state.values.language || "Choose your language"} 
+                      labelKey={(opt) => opt.label} 
+                      valueKey={(opt) => opt.value} 
+                      options={[ {value: "fr", label:"French"},  {value: "sp", label:"Spanish"}]}/>
+              </Box>
+            </Grid>
+            <Tabs margin="medium">
+              <Tab title="Plain Text">
+                <Box pad="medium">
+                  <TextArea 
+                    name='plainText' 
+                    error={this.state.touched.plainText && this.state.errors.plainText} 
+                    onChange={this.handleUserInput} 
+                    onBlur={this.handleBlur} 
+                    value={this.state.values.plainText} 
+                    placeholder="Type your article here" />
+                  <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                </Box>
+              </Tab>
+            </Tabs>
+          </Form>
       </Box>
       )
     }
