@@ -91,20 +91,20 @@ function processText(text, targetLanguage='en') {
 
 module.exports.processText = processText;
 
-let text
-text = '大象是一個漂亮的大象'
-text = 'Hola cómo estás'
+// let text
+// text = '大象是一個漂亮的大象'
+// text = 'Hola cómo estás'
 
-let translation 
-translation = processText(text) //我是一個漂亮的蝴蝶。
-translation.then(result => {
-	console.log('===== SOURCE LANGUAGE =====')
-	console.log(result[0])
-	console.log('===== TOKENS =====')
-	console.log(result[1])
-	console.log('===== MONGO WORDS =====')
-	console.log(result[2])
-});
+// let translation 
+// translation = processText(text) //我是一個漂亮的蝴蝶。
+// translation.then(result => {
+// 	console.log('===== SOURCE LANGUAGE =====')
+// 	console.log(result[0])
+// 	console.log('===== TOKENS =====')
+// 	console.log(result[1])
+// 	console.log('===== MONGO WORDS =====')
+// 	console.log(result[2])
+// });
 
 // translation = processText('かわいい犬が好き。')
 // translation.then(result => console.log(result[1]));

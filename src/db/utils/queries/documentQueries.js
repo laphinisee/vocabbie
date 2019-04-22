@@ -17,7 +17,8 @@ function createDocument(name, ownerId, plaintext, sourceLanguage, targetLanguage
 			owner: ownerId
 		}
 
-		return Documents.create(payload);
+		const doc = new Documents(payload);
+		return doc.save();
 	})
 }
 

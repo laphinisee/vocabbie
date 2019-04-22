@@ -10,11 +10,20 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
 const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
+function getKeywords(text) {
+  return new Set(keyword_extractor.extract(text, {
+    language: 'english',
+    remove_digits: true,
+    return_changed_case: false,
+    remove_duplicates: true
+  }));
+}
 
 app.get('/', function(request, response){
   response.status(200).type('html');
@@ -54,9 +63,9 @@ app.get('/document/:id', function(request, response){
   });
 
 app.post('/generate-text', function(request, response) {
-  const topWords = rankText(request.body.text, 20);
+  // const topWords = rankText(request.body.text, 20);
   const title = request.body.title
-  const keywords = [];
+  let keywords;
   const text = request.body.text
   const translatedJson = nlp.processText(text);
   translatedJson.then(result => {
@@ -70,13 +79,12 @@ app.post('/generate-text', function(request, response) {
     //   }
     // });
 
-    const keywordsPlaintext = keywords(text);
-    keywords = new Set(allWords).filter(word => keywordsPlaintext.has(word['text']['content']));
+    const keywordsPlaintext = getKeywords(text);
+    console.log(allWords);
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
     // call db function to save all words.
-    const promise = querydb.document.createDocument(title, /*ownerId*/ {
-      id: 0,
-    }, request.body.text, srcLanguage, "en", allWords, keywords);
+    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
     
     /**
      * TODO: all promises need catches that gracefully return
@@ -84,6 +92,7 @@ app.post('/generate-text', function(request, response) {
      */
 
     promise.then(result => {
+      // console.log(result);
       const id = result[0]['_id'];
       response.status(200).type('html');
       response.json(id);
@@ -119,15 +128,6 @@ function rankText(text, thresh){
   });
   const hardestWords = allKeyWords.splice(0, thresh);
   return Array.from(new Set(hardestWords))
-}
-
-function keywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
 }
 
 app.listen(8080);

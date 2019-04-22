@@ -11,7 +11,16 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 		keyWords: keyWords
 	}
 
-	return DocumentTexts.create(payload);
+	const query = DocumentTexts.findOne({ plaintext: plaintext });
+
+	return query.then(result => {
+		if (result) {
+			return result;
+		} else {
+			const mongoDocumentText = new DocumentTexts(payload);
+			return mongoDocumentText.save();
+		}
+	});
 }
 
 module.exports.createDocumentText = createDocumentText;

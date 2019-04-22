@@ -23,6 +23,7 @@
     "cjk-conv": "^1.1.29",
     "classnames": "^2.2.6",
     "crypto": "^1.0.1",
+    "express": "^4.16.4",
     "grommet": "^2.6.5",
     "hogan": "^1.0.2",
     "keyword-extractor": "0.0.16",
