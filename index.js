@@ -56,12 +56,11 @@ app.get('/document/:id', function(request, response){
 app.post('/generate-text', function(request, response) {
   const topWords = rankText(request.body.text, 20);
   const title = request.body.title
-  const allWords = [];
   const keywords = [];
   const translatedJson = nlp.processText(request.body.text);
   translatedJson.then(result => {
-    [ srcLanguage, translatedWords ] = result;
-    allWords.push(translatedWords);
+    [ srcLanguage, translatedWords, allWords ] = result;
+
     translatedWords.forEach(function(w){
       let hardId = "";
       if(topWords.indexOf(w.lemma) !== -1) {
@@ -69,6 +68,9 @@ app.post('/generate-text', function(request, response) {
         keywords[hardId] = w;
       }
     });
+
+    keywords = allWords
+
     // call db function to save all words.
     const promise = querydb.document.createDocument(request.body.title, /*ownerId*/ {
       id: 0,
