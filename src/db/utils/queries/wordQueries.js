@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const wordSchema = require('../schemas/wordSchema');
 
 const Words = wordSchema.Words;
@@ -29,12 +30,16 @@ function createWord(token, sourceLanguage, targetLanguage) {
 		}
 	});
 
-	Words.findOne(
-		{ id: wordId },
-		(err, result) => {
-			if (!result) { Words.create(wordPayload); }
+	const query = Words.findOne({ id: wordId });
+
+	return query.then(result => {
+		if (result) {
+			return result;
+		} else {
+			const mongoWord = new Words(wordPayload);
+			return mongoWord.save();
 		}
-	)
+	});
 }
 
 function _updateCounts(wordIds) {
@@ -42,14 +47,14 @@ function _updateCounts(wordIds) {
 		Words.updateOne(
 			{ id: wordId },
 			{ $inc: { count: 1 } },
-			(err, result) => { if (err) console.log(err + '***') }
+			(err, result) => { if (err) console.log(err) }
 		);
 	})
 
 	Words.updateMany(
 		{ id: { $in: wordIds } },
 		{ $inc: { num_documents: 1 } },
-		(err, result) => { if (err) console.log(err + '&&&') }
+		(err, result) => { if (err) console.log(err) }
 	);
 }
 
@@ -68,6 +73,12 @@ function getTranslations(tokens, sourceLanguage, targetLanguage) {
 
 			return wordIds.map(wordId => translations[wordId]);
 		});
+}
+
+function getWords(tokens) {
+	const wordIds = tokens.map(token => _wordId(token['text']['content'], sourceLanguage, targetLanguage));
+
+	return Words.find({ id: {$in: wordIds} }).exec();
 }
 
 module.exports.createWord = createWord;

@@ -9,7 +9,7 @@ const KuromojiAnalyzer = require('kuroshiro-analyzer-kuromoji');
  * 		 currently fails and hangs. 
  */
 
-const supportedLanguages = ['zh', 'ja', 'es', 'fr', 'de'];
+const supportedLanguages = ['zh', 'ja'];
 function languageSupported(language) {
 	return supportedLanguages.includes(language);
 }
