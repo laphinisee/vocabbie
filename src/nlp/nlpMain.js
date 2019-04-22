@@ -68,27 +68,25 @@ function processText(text, targetLanguage='en') {
 			}
 		}
 
-		// const mongoWords = [];
-		// tokens.forEach(token => {
-		// 	mongoWords.push(query.word.createWord(token, sourceLanguage, targetLanguage));
-		// });
-
 		const mongoWords = tokens.map(token => query.word.createWord(token, sourceLanguage, targetLanguage));
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
-	})
-	// .then(result => {
-	// 	const sourceLanguage = result[0],
-	// 		tokens = result[1];
+	}).then(result => {
+		[ sourceLanguage, tokens, mongoWords ] = result;
 
-	// 	const mongoWords = query.word.getWords(tokens);
+		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
+			map[word['id']] = word;
+			return map;
+		}, {});
 
-	// 	return Promise.all([sourceLanguage, tokens, mongoWords]);
-	// }).then(result => {
-	// 	[ sourceLanguage, tokens, mongoWords ] = result;
+		let wordId;
+		const orderedMongoWords = tokens.map(token => {
+			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
+			return tokenMongoWordMap[wordId];
+		});
 
-
-	// });
+		return Promise.all([sourceLanguage, tokens, orderedMongoWords]);
+	});
 }
 
 module.exports.processText = processText;
