@@ -57,22 +57,24 @@ app.post('/generate-text', function(request, response) {
   const topWords = rankText(request.body.text, 20);
   const title = request.body.title
   const keywords = [];
-  const translatedJson = nlp.processText(request.body.text);
+  const text = request.body.text
+  const translatedJson = nlp.processText(text);
   translatedJson.then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
 
-    translatedWords.forEach(function(w){
-      let hardId = "";
-      if(topWords.indexOf(w.lemma) !== -1) {
-        hardId = topWords.indexOf(w.lemma);
-        keywords[hardId] = w;
-      }
-    });
+    // translatedWords.forEach(function(w){
+    //   let hardId = "";
+    //   if(topWords.indexOf(w.lemma) !== -1) {
+    //     hardId = topWords.indexOf(w.lemma);
+    //     keywords[hardId] = w;
+    //   }
+    // });
 
-    keywords = allWords
+    const keywordsPlaintext = keywords(text);
+    keywords = new Set(allWords).filter(word => keywordsPlaintext.has(word['text']['content']));
 
     // call db function to save all words.
-    const promise = querydb.document.createDocument(request.body.title, /*ownerId*/ {
+    const promise = querydb.document.createDocument(title, /*ownerId*/ {
       id: 0,
     }, request.body.text, srcLanguage, "en", allWords, keywords);
     
@@ -120,12 +122,12 @@ function rankText(text, thresh){
 }
 
 function keywords(text) {
-  return keyword_extractor.extract(text, {
+  return new Set(keyword_extractor.extract(text, {
     language: 'english',
     remove_digits: true,
     return_changed_case: false,
     remove_duplicates: true
-  })
+  }));
 }
 
 app.listen(8080);
