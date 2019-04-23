@@ -28,3 +28,4 @@ function getDocumentText(documentTextId) {
 	}
 
 module.exports.createDocumentText = createDocumentText;
+module.exports.getDocumentText = getDocumentText;

@@ -34,23 +34,23 @@ app.get('/document/:id', function(request, response){
   //Return JSON of Article, Defintions, Vocab_List
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
-  const documentID = response.body.id;
-  queryDB.getDocument(documentID).then(result =>{
+  const documentID = mongoose.Types.ObjectId(request.params.id);
+  querydb.document.getDocument(documentID).then(result => {
+    console.log(result)
+    const textId = mongoose.Types.ObjectId(result.textId);
+    return querydb.documentText.getDocumentText(textId)
+  }).then(result => {
+    console.log(result)
     const article = [];
     const vocab_list = {};
-    const srclanguage = result.text.sourceLanguage;
-    const paragraphs = result.text.allWords;
-    const keyWords = result.text.keyWords;
-    paragraphs.forEach(function(p){
-      const new_paragraph = [];
-      p.forEach(function(w){
-        let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-        new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
-      });
-      article.push(new_paragraph);
+    const srclanguage = result.sourceLanguage;
+    const keyWords = result.keyWords;
+    result.allWords.forEach(function(w){
+      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+      article.push({token : w.lemma, def : w.translation, id : hardId});
     });
     for(let i = 0 ; i < keyWords.length; i++){
-      vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
+      vocab_list.set(i, {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translation});
     }
     const toReturn = {
       article : article,
@@ -58,8 +58,9 @@ app.get('/document/:id', function(request, response){
       language : srclanguage
     };
     response.status(200).type('html');
+    console.log(toReturn)
     response.json(toReturn);
-  });
+  })
   });
 
 app.post('/generate-text', function(request, response) {

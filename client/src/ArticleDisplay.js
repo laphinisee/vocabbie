@@ -44,11 +44,6 @@ class Token extends React.Component {
 } 
 
 class ArticleDisplay extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
   processArticle = (article, tokens) => {
     const display = []
     let currentText = article
@@ -84,6 +79,8 @@ class ArticleDisplay extends React.Component {
   }
 
   render() {
+    console.log(this.props.article)
+    console.log(this.props.tokens)
     return (
       <Box pad="medium">
         <ReactTooltip html={true} />

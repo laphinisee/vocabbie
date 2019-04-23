@@ -9,55 +9,64 @@ import {Download, Trash, Edit} from 'grommet-icons'
 class Sheet extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      article: '',
+      tokens: [],
+    };
   }
 
     componentWillMount() {
-
-      const getData = {
-        language: 'fr',
-        vocabList: {
-          1: {
-            str: 'je',
-            translated: 'i',
-            pos: 'pronoun'
-          },
-        },
-        tokens: [
-          [ // Paragraph 1
-            { // word 1
-              str: 'je',
-              translated: 'i',
-              token_id: 1,
-            },
-            { // word 2
-              str: 'manger',
-              translated: 'to eat',
-              token_id: 2,
-            },
-            { // word 3
-              str: '.'
-            }
-          ],
-          [ // Paragraph 2
-            { // word 1
-              str: 'je',
-              translated: 'i',
-              token_id: 3,
-            },
-            { // word not in vocab sheet
-              str: 'toucher',
-              translated: 'to touch',
-              token_id: 4,
-            }
-          ]
-        ],
-        title: "My First Article",
-        article: 'je manger. \n\n\n\n je toucher'
-      }
-      // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
-      this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
-      this.getVocabSheet(getData.vocabList);
+      const url = '/document/' + this.props.match.params.id
+      fetch(url, {
+        method: "GET",
+      }, (res) => {
+        console.log(res)
+        const getData = res
+        // const getData = {
+        //   language: 'fr',
+        //   vocabList: {
+        //     1: {
+        //       str: 'je',
+        //       translated: 'i',
+        //       pos: 'pronoun'
+        //     },
+        //   },
+        //   tokens: [
+        //     [ // Paragraph 1
+        //       { // word 1
+        //         str: 'je',
+        //         translated: 'i',
+        //         token_id: 1,
+        //       },
+        //       { // word 2
+        //         str: 'manger',
+        //         translated: 'to eat',
+        //         token_id: 2,
+        //       },
+        //       { // word 3
+        //         str: '.'
+        //       }
+        //     ],
+        //     [ // Paragraph 2
+        //       { // word 1
+        //         str: 'je',
+        //         translated: 'i',
+        //         token_id: 3,
+        //       },
+        //       { // word not in vocab sheet
+        //         str: 'toucher',
+        //         translated: 'to touch',
+        //         token_id: 4,
+        //       }
+        //     ]
+        //   ],
+        //   title: "My First Article",
+        //   article: 'je manger. \n\n\n\n je toucher'
+        // }
+        // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
+        this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
+        this.getVocabSheet(getData.vocabList);
+      })
     }
 
     getArticle(title, article, tokens, language) {
@@ -96,7 +105,7 @@ class Sheet extends React.Component {
             <Box gridArea="article">
               <ArticleDisplay 
                 article={this.state.article} 
-                tokens={this.state.tokens.flat()}
+                tokens={this.state.tokens}
                 />
             </Box>
             <Box gridArea="vocab" background="light-2">
