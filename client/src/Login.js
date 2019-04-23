@@ -1,6 +1,8 @@
 import React from "react";
 import Container from './Container';
 import {Form, FormField, Anchor, Box, Button} from 'grommet';
+import axios from 'axios';
+import { Redirect } from 'react-router-dom'
 
 class Login extends React.Component {
 
@@ -18,8 +20,10 @@ class Login extends React.Component {
         touched: {
             email: false,
             password: false,
-        }
+        },
+        redirect: localStorage.getItem('JWT') !== null
     }
+    console.log(this.state)
   }
 
   handleUserInput = (e) => {
@@ -62,11 +66,26 @@ class Login extends React.Component {
   }
 
   onLogin = () => {
-      console.log(this.state.values)
+    axios.post('/login', {
+      email: this.state.values.email,
+      password: this.state.values.password,
+    })
+    .then(res => {
+      if(res.data.error) {
+        console.log("form error!")
+      } else {
+        this.props.onLogin(res.data.token)
+        localStorage.setItem('JWT', res.data.token);        
+        this.setState({
+          redirect: true,
+        })
+      }
+    })
   }
   render() {
     return (
       <Container title="Login" description="Login!">
+          {this.state.redirect && <Redirect to='/sheets' />}
           <Form>
             <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email" />
             <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
