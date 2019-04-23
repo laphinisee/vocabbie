@@ -12,6 +12,7 @@ class Sheet extends React.Component {
     this.state = {
       article: '',
       tokens: [],
+      vocabRows: [],
     };
   }
 
