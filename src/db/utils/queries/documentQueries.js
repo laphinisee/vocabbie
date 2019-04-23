@@ -10,9 +10,9 @@ function createDocument(name, ownerId, plaintext, sourceLanguage, targetLanguage
 		targetLanguage, 
 		allWords, 
 		keyWords
-	).then(text => {
+	).then(result => {
 		const payload = {
-			text: text,
+			textId: result['_id'],
 			name: name,
 			owner: ownerId
 		}

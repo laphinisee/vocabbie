@@ -6,7 +6,7 @@ const studyMat = require('./studyMatSchema');
 const documentText = require('./documentTextSchema');
 
 const documentSchema = new mongoose.Schema({
-	text: documentText.schema,
+	textId: mongoose.Schema.Types.ObjectId,
 	name: { type: String, required: true },
 	owner: { type: mongoose.Schema.Types.ObjectId, required: true },
 	sharedUsers: [mongoose.Schema.Types.ObjectId],
