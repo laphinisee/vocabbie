@@ -26,4 +26,8 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 	});
 }
 
+function getDocumentText(documentTextId) {
+		return DocumentTexts.findById(documentTextId).exec();
+	}
+
 module.exports.createDocumentText = createDocumentText;
