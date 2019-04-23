@@ -224,11 +224,6 @@ app.post('/login', function(req, res){
   });
 })
 
-
-
-
-
-
 function rankText(text, thresh){
   const allKeyWords = keywords(text);
   //Return the longest words as a proxy. 

@@ -12,4 +12,8 @@ function createUser(name, email, password) {
 	return newUser.save();
 }
 
+function deleteUser(userId) {
+	return Users.findByIdAndDelete(userId).exec();
+}
+
 module.exports.createUser = createUser;

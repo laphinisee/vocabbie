@@ -40,6 +40,10 @@ function getDocument(documentId) {
 	return Documents.findById(documentId).exec();
 }
 
+function deleteDocument(documentId) {
+	return Documents.findByIdAndDelete(documentId).exec();
+}
+
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getAllUserDocuments = getAllUserDocuments;
