@@ -9,55 +9,23 @@ import {Download, Trash, Edit} from 'grommet-icons'
 class Sheet extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      article: '',
+      tokens: [],
+      vocabRows: [],
+      selected: null,
+    };
   }
 
     componentWillMount() {
-
-      const getData = {
-        language: 'fr',
-        vocabList: {
-          1: {
-            str: 'je',
-            translated: 'i',
-            pos: 'pronoun'
-          },
-        },
-        tokens: [
-          [ // Paragraph 1
-            { // word 1
-              str: 'je',
-              translated: 'i',
-              token_id: 1,
-            },
-            { // word 2
-              str: 'manger',
-              translated: 'to eat',
-              token_id: 2,
-            },
-            { // word 3
-              str: '.'
-            }
-          ],
-          [ // Paragraph 2
-            { // word 1
-              str: 'je',
-              translated: 'i',
-              token_id: 3,
-            },
-            { // word not in vocab sheet
-              str: 'toucher',
-              translated: 'to touch',
-              token_id: 4,
-            }
-          ]
-        ],
-        title: "My First Article",
-        article: 'je manger. \n\n\n\n je toucher'
-      }
-      // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
-      this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
-      this.getVocabSheet(getData.vocabList);
+      const url = '/document/' + this.props.match.params.id
+      console.log('betch')
+      fetch(url).then( (res) => res.json()).then((res) => {
+        const getData = res
+        console.log(getData)
+        this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
+        this.getVocabSheet(getData.vocab_list);
+      })
     }
 
     getArticle(title, article, tokens, language) {
@@ -76,6 +44,7 @@ class Sheet extends React.Component {
     }
 
     render() {
+      console.log("vocabRows:", this.state.vocabRows)
       return (
         <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid
@@ -96,8 +65,10 @@ class Sheet extends React.Component {
             <Box gridArea="article">
               <ArticleDisplay 
                 article={this.state.article} 
-                tokens={this.state.tokens.flat()}
-                />
+                tokens={this.state.tokens}
+                onWordHover={(t) => this.setState({selected: t})}
+                offWordHover={(t) => this.setState({selected: null})}
+/>
             </Box>
             <Box gridArea="vocab" background="light-2">
               <VocabDisplay 

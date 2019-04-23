@@ -32,7 +32,7 @@ class Token extends React.Component {
         key={this.props.token_id}
         style={
           {
-            "white-space": "pre"
+            "whiteSpace": "pre"
           }
         }
         data-tip={this.props.translated ? `${this.props.translated}` : ''}
@@ -44,22 +44,25 @@ class Token extends React.Component {
 } 
 
 class ArticleDisplay extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
+
+  componentDidUpdate () {
+    ReactTooltip.rebuild()
   }
 
-  processArticle = (article, tokens) => {
+  processArticle = (article, t) => {
+    const tokens = t.slice(0) 
     const display = []
     let currentText = article
     let currentToken = tokens.shift()
+
     while(currentToken) { 
       if(currentText.startsWith(currentToken.str)) {
         display.push(
           <Token 
             str={currentToken.str} 
-            token_id={currentToken.token_id} 
-            translated={currentToken.translated} 
+            token_id={currentToken.id} 
+            key={display}
+            translated={currentToken.def} 
             onHover={this.props.onWordHover}
             offHover={this.props.offWordHover}
           />
@@ -79,7 +82,6 @@ class ArticleDisplay extends React.Component {
         currentText = currentText.substring(nextTokenLocation)
       }
     }
-
     return display
   }
 

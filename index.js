@@ -27,32 +27,41 @@ app.get('/document/:id', function(request, response){
   //Return JSON of Article, Defintions, Vocab_List
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
-  const documentID = response.body.id;
-  queryDB.getDocument(documentID).then(result =>{
+  const documentID = mongoose.Types.ObjectId(request.params.id);
+  let title = "";
+  querydb.document.getDocument(documentID).then(doc => {
+    console.log(doc)
+    title = doc.name;
+    const textId = mongoose.Types.ObjectId(doc.textId);
+    return querydb.documentText.getDocumentText(textId)
+  }).then(result => {
+    console.log(result)
     const article = [];
     const vocab_list = {};
-    const srclanguage = result.text.sourceLanguage;
-    const paragraphs = result.text.allWords;
-    const keyWords = result.text.keyWords;
-    paragraphs.forEach(function(p){
-      const new_paragraph = [];
-      p.forEach(function(w){
-        let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-        new_paragraph.push({token : w.lemma, def : w.translation, id : hardId});
-      });
-      article.push(new_paragraph);
+    const srclanguage = result.sourceLanguage;
+    const keyWords = result.keyWords;
+    result.allWords.forEach(function(w){
+      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
     });
     for(let i = 0 ; i < keyWords.length; i++){
-      vocab_list.set(i, {"text": w.lemma, "pos": w.partOfSpeech, "translation": w.translation});
+      vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
     }
     const toReturn = {
+      title : title,
+      plaintext : result.plaintext,	
       article : article,
       vocab_list : vocab_list,
       language : srclanguage
     };
-    response.status(200).type('html');
+    response.status(200).type('application/json');
+    // console.log("==========")
+    // console.log(keyWords)
+    console.log("==========")
+    console.log(toReturn)
     response.json(toReturn);
-  });
+    console.log("heheheheheh!")
+  })
   });
 
 app.post('/generate-text', function(request, response) {

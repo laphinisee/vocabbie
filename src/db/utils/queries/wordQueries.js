@@ -75,8 +75,14 @@ function getTranslations(tokens, sourceLanguage, targetLanguage) {
 		});
 }
 
-function getWords(tokens) {
-	const wordIds = tokens.map(token => _wordId(token['text']['content'], sourceLanguage, targetLanguage));
+function getWords(words, sourceLanguage, targetLanguage) {
+	let wordIds;
+
+	if (typeof words[0] === 'string') {
+		wordIds = words.map(word => _wordId(word, sourceLanguage, targetLanguage));
+	} else {
+		wordIds = words.map(word => _wordId(word['text']['content'], word['sourceLanguage'], word['targetLanguage']));
+	}
 
 	return Words.find({ id: {$in: wordIds} }).exec();
 }
