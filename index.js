@@ -14,16 +14,9 @@ const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
 const keyword_extractor = require("keyword-extractor");
+const cheerio = require('cheerio');
+const axios = require('axios');
 ////////////////////// End boilerplate //////////////////////
-
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
-}
 
 app.get('/', function(request, response){
   response.status(200).type('html');
@@ -65,43 +58,15 @@ app.get('/document/:id', function(request, response){
 app.post('/generate-text', function(request, response) {
   // const topWords = rankText(request.body.text, 20);
   const title = request.body.title
-  let keywords;
   const text = request.body.text
-  const translatedJson = nlp.processText(text);
-  translatedJson.then(result => {
-    [ srcLanguage, translatedWords, allWords ] = result;
+  processAndSaveText(text, title, response);
 
-    // translatedWords.forEach(function(w){
-    //   let hardId = "";
-    //   if(topWords.indexOf(w.lemma) !== -1) {
-    //     hardId = topWords.indexOf(w.lemma);
-    //     keywords[hardId] = w;
-    //   }
-    // });
+});
 
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
-
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
-
-    // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
-    
-    /**
-     * TODO: all promises need catches that gracefully return
-     * error messages to users.
-     */
-
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('html');
-      response.json(id);
-    });
-  })
-
+app.post('/generate-url', function(request, response){
+  const title = request.body.title;
+  const text = scrapeURL(request.body.url);
+  processAndSaveText(text, title, response);
 });
 
 app.post('/:userid/vocab', function(request, response){
@@ -201,10 +166,60 @@ app.post('/login', function(req, res){
   });
 })
 
+function processAndSaveText(text, title, response){
+  let keywords;
+  const translatedJson = nlp.processText(text);
+  translatedJson.then(result => {
+    [ srcLanguage, translatedWords, allWords ] = result;
 
+    // translatedWords.forEach(function(w){
+    //   let hardId = "";
+    //   if(topWords.indexOf(w.lemma) !== -1) {
+    //     hardId = topWords.indexOf(w.lemma);
+    //     keywords[hardId] = w;
+    //   }
+    // });
 
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
+    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
 
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+
+    // call db function to save all words.
+    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
+    
+    /**
+     * TODO: all promises need catches that gracefully return
+     * error messages to users.
+     */
+
+    promise.then(result => {
+      console.log(result);
+      const id = result['_id'];
+      console.log(id);
+      response.status(200).type('html');
+      response.json(id);
+    });
+  });
+}
+function scrapeURL(url){
+  axios.get('https://en.wikipedia.org/wiki/List_of_Presidents_of_the_United_States').then((response) => {
+    //TODO check promise rejection
+    // Load the web page source code into a cheerio instance
+    const $ = cheerio.load(response.data);
+    const allText = $('p').text() + " " + $('h1').text() + " " + $('h2').text() + " " + $('h3').text() + " " + $('h4').text() + " " +$('h5').text() + " " + $('h6').text();
+    return allText
+  });
+}
+function getKeywords(text) {
+  return new Set(keyword_extractor.extract(text, {
+    // language: 'english',
+    remove_digits: true,
+    return_changed_case: false,
+    remove_duplicates: true
+  }));
+}
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);
