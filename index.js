@@ -64,10 +64,7 @@ app.get('/document/:id', function(request, response){
     response.status(200).type('application/json');
     // console.log("==========")
     // console.log(keyWords)
-    console.log("==========")
-    console.log(toReturn)
     response.json(toReturn);
-    console.log("heheheheheh!")
   })
   });
 
@@ -106,27 +103,44 @@ app.post('/generate-text', function(request, response) {
       console.log(result);
       const id = result['_id'];
       console.log(id);
-      response.status(200).type('html');
+      response.status(200).type('application/json');
       response.json(id);
     });
   })
 
 });
 
-app.post('/:userid/vocab', function(request, response){
-	const titles = [];
-	const ids = [];
-	const previews = [];
-	querydb.getUserDocuments(request.params.userid)
+app.get('/:userid/vocab', function(request, response){
+	// const titles = [];
+	// const ids = [];
+  // const previews = [];
+  const docs = []
+  querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
+  // querydb.document.getUserDocuments(mongoose.Types.ObjectId(request.params.userid))
 	.then(result => {
+    /**
+     * TODO: Error checking - len variable line fails if there are no resulting documents.
+     */
 		// list of {name : ?, _id : ?, text.plaintext : ?}
-		titles.push(result.name);
-		ids.push(result._id);
-		let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
-		previews.push(result.text.plaintext.substring(0, len));
+		// titles.push(result.name);
+    // ids.push(result._id);
+    result.forEach((d) => {
+      let doc = {}
+      if (d.text) {
+        const len = d.text.plaintext.length > 100 ? 100 : d.text.plaintext.length;
+        doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
+      } else {
+        doc = {title: d.name, id: d._id}
+      }
+      docs.push(doc)
+      response.status(200).type('application/json');
+      // response.json({titles : titles, ids : ids, previews : previews});
+      console.log(docs)
+      response.json(docs)
+    })
+		// previews.push(result.text.plaintext.substring(0, len));
 	});
-	response.status(200).type('html');
-	response.json({titles : titles, ids : ids, previews : previews});
+	
 });
 
 
@@ -218,11 +232,6 @@ app.get("/authenticated", function(req, res, next) {
     res.status(500).send('ayyy')
   })(req, res, next);
 });
-
-
-
-
-
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);

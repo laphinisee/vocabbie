@@ -29,10 +29,22 @@ function getUserDocuments(userId) {
 	).exec();
 }
 
+function getAllUserDocuments(userId) {
+	return Documents.find(
+		{},
+		'name _id text.plaintext'
+	).exec();
+}
+
 function getDocument(documentId) {
 	return Documents.findById(documentId).exec();
 }
 
+function deleteDocument(documentId) {
+	return Documents.findByIdAndDelete(documentId).exec();
+}
+
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
+module.exports.getAllUserDocuments = getAllUserDocuments;
 module.exports.getDocument = getDocument;
