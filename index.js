@@ -89,9 +89,7 @@ app.post('/generate-text', function(request, response) {
     // });
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
     const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
-
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
     // call db function to save all words.
