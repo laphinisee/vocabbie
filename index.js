@@ -35,9 +35,11 @@ app.get('/document/:id', function(request, response){
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
   const documentID = mongoose.Types.ObjectId(request.params.id);
-  querydb.document.getDocument(documentID).then(result => {
-    console.log(result)
-    const textId = mongoose.Types.ObjectId(result.textId);
+  let title = "";
+  querydb.document.getDocument(documentID).then(doc => {
+    console.log(doc)
+    title = doc.name;
+    const textId = mongoose.Types.ObjectId(doc.textId);
     return querydb.documentText.getDocumentText(textId)
   }).then(result => {
     console.log(result)
@@ -53,6 +55,8 @@ app.get('/document/:id', function(request, response){
       vocab_list.set(i, {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translation});
     }
     const toReturn = {
+      title : title,
+      plaintext : result.plaintext,	
       article : article,
       vocab_list : vocab_list,
       language : srclanguage
