@@ -13,6 +13,7 @@ class Sheet extends React.Component {
       article: '',
       tokens: [],
       vocabRows: [],
+      selected: null,
     };
   }
 
@@ -43,6 +44,7 @@ class Sheet extends React.Component {
     }
 
     render() {
+      console.log("vocabRows:", this.state.vocabRows)
       return (
         <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid
@@ -64,7 +66,9 @@ class Sheet extends React.Component {
               <ArticleDisplay 
                 article={this.state.article} 
                 tokens={this.state.tokens}
-                />
+                onWordHover={(t) => this.setState({selected: t})}
+                offWordHover={(t) => this.setState({selected: null})}
+/>
             </Box>
             <Box gridArea="vocab" background="light-2">
               <VocabDisplay 

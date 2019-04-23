@@ -28,7 +28,6 @@ class App extends React.Component {
 
   onLogout = () => {
     this.setState({token: null}, localStorage.removeItem('JWT'))
-    debugger;
   }
 
   render() {
