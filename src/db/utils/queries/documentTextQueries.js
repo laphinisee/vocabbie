@@ -13,13 +13,10 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 
 	const query = DocumentTexts.findOne({ plaintext: plaintext });
 
-	console.log('hello')
 	return query.then(result => {
 		if (result) {
-			console.log('bye')
 			return result;
 		} else {
-			console.log('oops')
 			const mongoDocumentText = new DocumentTexts(payload);
 			return mongoDocumentText.save();
 		}

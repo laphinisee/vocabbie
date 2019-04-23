@@ -18,7 +18,7 @@ const keyword_extractor = require("keyword-extractor");
 
 function getKeywords(text) {
   return new Set(keyword_extractor.extract(text, {
-    language: 'english',
+    // language: 'english',
     remove_digits: true,
     return_changed_case: false,
     remove_duplicates: true
@@ -79,8 +79,10 @@ app.post('/generate-text', function(request, response) {
     //   }
     // });
 
-    const keywordsPlaintext = getKeywords(text);
-    console.log(allWords);
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+
+    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
     // call db function to save all words.
