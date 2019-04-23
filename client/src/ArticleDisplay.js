@@ -12,7 +12,7 @@ class Token extends React.Component {
 
   onMouseEnter = () => {
     this.setState({hovered: true})
-    if(this.props.onHover) {
+    if (this.props.onHover) {
       this.props.onHover(this.props.token_id)
     }
   }

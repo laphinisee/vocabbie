@@ -62,27 +62,49 @@ function processText(text, targetLanguage='en') {
 	}).then(result => {
 		[ sourceLanguage, tokens, pronunciations ] = result;
 
-		if (!pronunciation.languageSupported(sourceLanguage)) {
-			return [sourceLanguage, tokens]
+		if (pronunciation.languageSupported(sourceLanguage)) {
+			for (i = 0; i < tokens.length; i++) {
+				tokens[i]['pronunciation'] = pronunciations[i];
+			}
 		}
 
-		for (i = 0; i < tokens.length; i++) {
-			tokens[i]['pronunciation'] = pronunciations[i];
-		}
+		const mongoWords = tokens.map(token => query.word.createWord(token, sourceLanguage, targetLanguage));
 
-		tokens.forEach(token => {
-			query.word.createWord(token, sourceLanguage, targetLanguage);
+		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
+	}).then(result => {
+		[ sourceLanguage, tokens, mongoWords ] = result;
+
+		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
+			map[word['id']] = word;
+			return map;
+		}, {});
+
+		let wordId;
+		const orderedMongoWords = tokens.map(token => {
+			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
+			return tokenMongoWordMap[wordId];
 		});
 
-		return [sourceLanguage, tokens];
+		return Promise.all([sourceLanguage, tokens, orderedMongoWords]);
 	});
 }
 
 module.exports.processText = processText;
 
+// let text
+// text = '大象是一個漂亮的大象'
+// text = 'Hola cómo estás'
+
 // let translation 
-// translation = processText('大象是一個漂亮的大象') //我是一個漂亮的蝴蝶。
-// translation.then(result => console.log(result[1]));
+// translation = processText(text) //我是一個漂亮的蝴蝶。
+// translation.then(result => {
+// 	console.log('===== SOURCE LANGUAGE =====')
+// 	console.log(result[0])
+// 	console.log('===== TOKENS =====')
+// 	console.log(result[1])
+// 	console.log('===== MONGO WORDS =====')
+// 	console.log(result[2])
+// });
 
 // translation = processText('かわいい犬が好き。')
 // translation.then(result => console.log(result[1]));

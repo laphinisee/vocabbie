@@ -10,14 +10,15 @@ function createDocument(name, ownerId, plaintext, sourceLanguage, targetLanguage
 		targetLanguage, 
 		allWords, 
 		keyWords
-	).then(text => {
+	).then(result => {
 		const payload = {
-			text: text,
+			textId: result['_id'],
 			name: name,
 			owner: ownerId
 		}
 
-		return Documents.create(payload);
+		const doc = new Documents(payload);
+		return doc.save();
 	})
 }
 

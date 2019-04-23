@@ -6,7 +6,7 @@ const wordSchema = new mongoose.Schema({
 	targetLanguage: { type: String, required: true },
 	originalText: { type: String, required: true },
 	translatedText: { type: String, required: true },
-	partOfSpeech: String,
+	partOfSpeech: { type: String, required: true },
 	lemma: String,
 	isStopword: { type: Boolean, default: false },
 	count: { type: Number, required: true, default: 1 },
