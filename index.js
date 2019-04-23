@@ -49,7 +49,7 @@ app.get('/document/:id', function(request, response){
     const keyWords = result.keyWords;
     result.allWords.forEach(function(w){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      article.push({token : w.lemma, def : w.translatedText, id : hardId});
+      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
     });
     for(let i = 0 ; i < keyWords.length; i++){
       vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};

@@ -19,57 +19,11 @@ class Sheet extends React.Component {
     componentWillMount() {
       const url = '/document/' + this.props.match.params.id
       console.log('betch')
-      fetch(url, {
-        method: "GET",
-      
-      }, (res) => {
-        console.log(res)
-        console.log("lool what111")
+      fetch(url).then( (res) => res.json()).then((res) => {
         const getData = res
-        // const getData = {
-        //   language: 'fr',
-        //   vocabList: {
-        //     1: {
-        //       str: 'je',
-        //       translated: 'i',
-        //       pos: 'pronoun'
-        //     },
-        //   },
-        //   tokens: [
-        //     [ // Paragraph 1
-        //       { // word 1
-        //         str: 'je',
-        //         translated: 'i',
-        //         token_id: 1,
-        //       },
-        //       { // word 2
-        //         str: 'manger',
-        //         translated: 'to eat',
-        //         token_id: 2,
-        //       },
-        //       { // word 3
-        //         str: '.'
-        //       }
-        //     ],
-        //     [ // Paragraph 2
-        //       { // word 1
-        //         str: 'je',
-        //         translated: 'i',
-        //         token_id: 3,
-        //       },
-        //       { // word not in vocab sheet
-        //         str: 'toucher',
-        //         translated: 'to touch',
-        //         token_id: 4,
-        //       }
-        //     ]
-        //   ],
-        //   title: "My First Article",
-        //   article: 'je manger. \n\n\n\n je toucher'
-        // }
-        // GET CALL.. SEND ID, USER AUTH DETAILS, and GET JSON with Article and Vocab
-        this.getArticle(getData.title, getData.article, getData.tokens, getData.language);
-        this.getVocabSheet(getData.vocabList);
+        console.log(getData)
+        this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
+        this.getVocabSheet(getData.vocab_list);
       })
     }
 
