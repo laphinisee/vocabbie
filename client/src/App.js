@@ -10,18 +10,22 @@ import Sheet from "./Sheet";
 import Upload from "./Upload";
 import UserSheets from "./UserSheets";
 import Settings from "./Settings";
+import jwt_decode from 'jwt-decode';
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
+    const token = localStorage.getItem('JWT')
     this.state = {
-      token: localStorage.getItem('JWT'),
+      token: token,
+      user: token ? jwt_decode(localStorage.getItem('JWT')) : null,
     }
   };
 
   onLogin = (token) => {
-    this.setState({token}, () => {
+    const user = jwt_decode(token);
+    this.setState({token, user}, () => {
       console.log("token updated:", this.state.token)
     })
   }
@@ -54,11 +58,13 @@ class App extends React.Component {
       },
     };
 
+
+  
     return (
       <BrowserRouter>
         <Grommet theme={theme} full>
           <Box fill>
-            <Navbar loggedIn={this.state.token !== null} onLogout={this.onLogout} />
+            <Navbar loggedIn={this.state.token !== null} user={this.state.user} onLogout={this.onLogout} />
             <Box flex>
               <Switch>
                 <Route exact path='/' component={Home}/>
