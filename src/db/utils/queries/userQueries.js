@@ -2,7 +2,7 @@ const userSchema = require('../schemas/userSchema');
 
 const Users = userSchema.Users;
 
-function createUser(userInfo) {
+function createUser(name, email, password) {
 	return Users.create(userInfo);
 }
 

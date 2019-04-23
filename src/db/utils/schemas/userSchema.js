@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const studyMats = require('./studyMatSchema');
 
 const userSchema = new mongoose.Schema({
 	name: { type: String, required: true },
