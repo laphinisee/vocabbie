@@ -49,10 +49,10 @@ app.get('/document/:id', function(request, response){
     const keyWords = result.keyWords;
     result.allWords.forEach(function(w){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      article.push({token : w.lemma, def : w.translation, id : hardId});
+      article.push({token : w.lemma, def : w.translatedText, id : hardId});
     });
     for(let i = 0 ; i < keyWords.length; i++){
-      vocab_list.set(i, {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translation});
+      vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
     }
     const toReturn = {
       title : title,
@@ -61,9 +61,13 @@ app.get('/document/:id', function(request, response){
       vocab_list : vocab_list,
       language : srclanguage
     };
-    response.status(200).type('html');
+    response.status(200).type('application/json');
+    // console.log("==========")
+    // console.log(keyWords)
+    console.log("==========")
     console.log(toReturn)
     response.json(toReturn);
+    console.log("heheheheheh!")
   })
   });
 

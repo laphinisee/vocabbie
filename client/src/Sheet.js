@@ -18,10 +18,13 @@ class Sheet extends React.Component {
 
     componentWillMount() {
       const url = '/document/' + this.props.match.params.id
+      console.log('betch')
       fetch(url, {
         method: "GET",
+      
       }, (res) => {
         console.log(res)
+        console.log("lool what111")
         const getData = res
         // const getData = {
         //   language: 'fr',
