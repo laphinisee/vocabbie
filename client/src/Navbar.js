@@ -17,7 +17,7 @@ const Bar = (props) => (
 
 const MenuBar = (props) => (
   <Box direction="row" gap="medium">
-    <Box><Anchor color="neutral-2" href="/usrId/sheets" primary label="My Articles" /></Box>
+    <Box><Anchor color="neutral-2" href="/sheets" primary label="My Articles" /></Box>
     <Box><Anchor color="neutral-2" href="/create" primary label="Upload" /></Box>
   </Box>
 )
@@ -36,6 +36,28 @@ const CollapsedMenu = (props) => (
   </Box>
 )
 
+class UserMenu extends React.Component {
+
+  render() {
+    console.log("props:", this.props.loggedIn)
+    if(this.props.loggedIn) {
+      return (
+        <Box direction="row" gap="medium">
+          <Box><Anchor color="neutral-2" href="/settings" primary label="Hi Name" /></Box>
+          <Box><Anchor color="neutral-2" onClick={this.props.onLogout} primary label="Logout" /></Box>
+        </Box>
+      )
+    } else {
+      return (
+        <Box direction="row" gap="medium">
+          <Box><Anchor color="neutral-2" href="/login" primary label="Login" /></Box>
+          <Box><Anchor color="neutral-2" href="/signup" primary label="Signup" /></Box>
+        </Box>
+      )
+    }
+  }
+}
+
 class Navbar extends React.Component {
     render() {
       return (
@@ -44,10 +66,7 @@ class Navbar extends React.Component {
               {size => size === 'small' ? <CollapsedMenu/> : <MenuBar/>}
             </ResponsiveContext.Consumer>
             <a href="/"><Image width={150} src={logo} alt="Vocabbie" /></a>
-            <Box direction="row" gap="medium">
-              <Box><Anchor color="neutral-2" href="/login" primary label="Login" /></Box>
-              <Box><Anchor color="neutral-2" href="/signup" primary label="Signup" /></Box>
-            </Box>
+            <UserMenu loggedIn={this.props.loggedIn} onLogout={this.props.onLogout}/>
         </Bar>
       )
     }

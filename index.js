@@ -119,9 +119,92 @@ app.post('/:userid/vocab', function(request, response){
 	response.status(200).type('html');
 	response.json({titles : titles, ids : ids, previews : previews});
 });
-app.post('/login', function(request, response){
-  //TODO do passport stuff :3. 
+
+
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const keys = require("./keys/keys");
+
+
+const Users = require('./src/db/utils/schemas/userSchema').Users;
+
+app.post('/register', function(req, res) {
+  Users.findOne({ email: req.body.email }).then(user => {
+    if (user) {
+      return res.status(200).json({ error: "Email already exists" });
+    } 
+
+    console.log("req.body", req.body)
+
+    const newUser = new Users({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password
+    });
+
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.password, salt, (err, hash) => {
+        if (err) {
+          throw err;
+        }
+        newUser.password = hash;
+        newUser
+          .save()
+          .then(user => res.json(user))
+          .catch(err => console.log(err));
+      });
+    });
+  });
+});
+
+const passport = require('passport');
+require('./passport');
+app.use(passport.initialize());
+
+app.post('/login', function(req, res){
+  Users.findOne({ email: req.body.email }).then(user => {
+    if (!user) {
+      return res.status(200).json({ error: "Incorrect email and/or password." });
+    }
+
+    bcrypt.compare(req.body.password, user.password).then(isMatch => {
+      if (isMatch) {
+        const payload = {
+          id: user.id,
+          name: user.name
+        };
+
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          {
+            expiresIn: 31556926 // 1 year in seconds
+          },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token,
+              name: user.name,
+              email: user.email,
+              id: user.id,
+            });
+          }
+        );
+
+      } else {
+        return res
+          .status(200)
+          .json({ error: "Incorrect email and/or password." });
+      }
+    });
+  });
 })
+
+
+
+
+
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);

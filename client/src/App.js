@@ -11,9 +11,25 @@ import Upload from "./Upload";
 import UserSheets from "./UserSheets";
 import Settings from "./Settings";
 
-
-
 class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      token: localStorage.getItem('JWT'),
+    }
+  };
+
+  onLogin = (token) => {
+    this.setState({token}, () => {
+      console.log("token updated:", this.state.token)
+    })
+  }
+
+  onLogout = () => {
+    this.setState({token: null}, localStorage.removeItem('JWT'))
+    debugger;
+  }
 
   render() {
     const theme = {
@@ -43,15 +59,17 @@ class App extends React.Component {
       <BrowserRouter>
         <Grommet theme={theme} full>
           <Box fill>
-            <Navbar />
+            <Navbar loggedIn={this.state.token !== null} onLogout={this.onLogout} />
             <Box flex>
               <Switch>
                 <Route exact path='/' component={Home}/>
                 <Route path='/create' component={Upload} />
-                <Route path='/login' component={Login} />
+                <Route path='/login' render={(routeProps) => (
+                  <Login {...routeProps} onLogin={this.onLogin} />
+                )} />
                 <Route path='/signup' component={Signup} />
                 <Route path='/settings' component={Settings} />
-                <Route path='/:id/sheets' component={UserSheets} />
+                <Route path='/sheets' component={UserSheets} />
                 <Route path='/display/:id' component={Sheet} />
               </Switch>
             </Box>
