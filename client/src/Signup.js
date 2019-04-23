@@ -81,7 +81,7 @@ class Signup extends React.Component {
             <Row>
                 <Hidden xs sm>
                     <Col md={6}>
-                        <Heading textAlign='left' color='neutral-2' level={1}>
+                        <Heading textAlign='start' color='neutral-2' level={1}>
                             <TypeOut caret words={words} />
                         </Heading>
                         <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing 
@@ -102,7 +102,7 @@ class Signup extends React.Component {
                         <FormField error={this.state.touched.name && this.state.errors.name} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.name} name="name" type="text" label="Full Name" />
                         <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email Address" />
                         <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
-                        <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Sign Up" fill="true" primary color="accent-1"/> 
+                        <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Sign Up" fill={true} primary color="accent-1"/> 
                     </Form>
                     <Box align="center" margin="medium">
                         <Anchor href="/login" color="accent-1">Already have an account?</Anchor>

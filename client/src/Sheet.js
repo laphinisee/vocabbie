@@ -93,13 +93,13 @@ class Sheet extends React.Component {
               <Button data-tip="Edit Sheet" icon={<Edit />} disabled color="black"/>
               <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
             </Box>
-            <Box gridArea="article" background="light-2">
+            <Box gridArea="article">
               <ArticleDisplay 
                 article={this.state.article} 
                 tokens={this.state.tokens.flat()}
                 />
             </Box>
-            <Box gridArea="vocab" background="light-5">
+            <Box gridArea="vocab" background="light-2">
               <VocabDisplay 
                 vocabRows={this.state.vocabRows} 
                 />
