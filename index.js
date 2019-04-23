@@ -94,6 +94,7 @@ app.post('/generate-text', function(request, response) {
     promise.then(result => {
       console.log(result);
       const id = result['_id'];
+      console.log(id);
       response.status(200).type('html');
       response.json(id);
     });
