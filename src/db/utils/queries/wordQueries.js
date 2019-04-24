@@ -42,26 +42,8 @@ function createWord(token, sourceLanguage, targetLanguage) {
 	});
 }
 
-function _updateCounts(wordIds) {
-	wordIds.forEach(wordId => {
-		Words.updateOne(
-			{ id: wordId },
-			{ $inc: { count: 1 } },
-			(err, result) => { if (err) console.log(err) }
-		);
-	})
-
-	Words.updateMany(
-		{ id: { $in: wordIds } },
-		{ $inc: { num_documents: 1 } },
-		(err, result) => { if (err) console.log(err) }
-	);
-}
-
 function getTranslations(tokens, sourceLanguage, targetLanguage) {
 	const wordIds = tokens.map(token => _wordId(token['text']['content'], sourceLanguage, targetLanguage));
-
-	_updateCounts(wordIds);
 
 	return Words.find({ id: {$in: wordIds} }, 'id translatedText')
 		.exec()

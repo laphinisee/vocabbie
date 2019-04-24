@@ -9,8 +9,6 @@ const wordSchema = new mongoose.Schema({
 	partOfSpeech: { type: String, required: true },
 	lemma: String,
 	isStopword: { type: Boolean, default: false },
-	count: { type: Number, required: true, default: 1 },
-	num_documents: { type: Number, required: true, default: 1 },
 	pronunciation: String,
 	other: String,
 	json: { type: Object, required: true }
