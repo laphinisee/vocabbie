@@ -16,4 +16,12 @@ function deleteUser(userId) {
 	return Users.findByIdAndDelete(userId).exec();
 }
 
-module.exports.createUser = createUser;
+function getUserByEmail(email) {
+	return Users.findOne({ email: email }).exec();	
+}
+
+module.exports = {
+	createUser,
+	deleteUser,
+	getUserByEmail
+};
