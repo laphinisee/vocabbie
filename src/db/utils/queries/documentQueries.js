@@ -4,7 +4,7 @@ const documentTextQueries = require('./documentTextQueries');
 const Documents = documentSchema.Documents;
 
 function createDocument(documentTitle, owner, text, sourceLanguage, targetLanguage, allWords, keyWords) {
-	documentTextQueries.then(result =>
+	documentTextQueries.createDocumentText(text, sourceLanguage, targetLanguage, allWords, keyWords).then(result =>
 			const payload = {
 				textId: result['_id'],
 				name: documentTitle,

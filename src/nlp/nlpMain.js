@@ -7,8 +7,6 @@ const query = require('../db/query');
 
 var Promise = require('bluebird');
 
-// Error.stackTraceLimit = Infinity;
-
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
