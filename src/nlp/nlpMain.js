@@ -100,15 +100,15 @@ text = '我是一個漂亮的蝴蝶'
 // tokenize.tokenizeText(text).then(r => console.log(r))
 
 // let translation 
-translation = processText(text) //我是一個漂亮的蝴蝶。
-translation.then(result => {
-	console.log('===== SOURCE LANGUAGE =====')
-	console.log(result[0])
-	console.log('===== TOKENS =====')
-	console.log(result[1])
-	console.log('===== MONGO WORDS =====')
-	console.log(result[2])
-}).catch();
+// translation = processText(text) //我是一個漂亮的蝴蝶。
+// translation.then(result => {
+// 	console.log('===== SOURCE LANGUAGE =====')
+// 	console.log(result[0])
+// 	console.log('===== TOKENS =====')
+// 	console.log(result[1])
+// 	console.log('===== MONGO WORDS =====')
+// 	console.log(result[2])
+// }).catch();
 
 // translation = processText('かわいい犬が好き。')
 // translation.then(result => console.log(result[1]));

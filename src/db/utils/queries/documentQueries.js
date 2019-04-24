@@ -3,15 +3,16 @@ const documentTextQueries = require('./documentTextQueries');
 
 const Documents = documentSchema.Documents;
 
-function createDocument(documentTextId, name, owner) {
-	const payload = {
-		textId: documentTextId,
-		name: name,
-		owner: owner
-	}
-
-	const newDocument = new Documents(payload);
-	return newDocument.save();
+function createDocument(documentTitle, owner, text, sourceLanguage, targetLanguage, allWords, keyWords) {
+	documentTextQueries.then(result =>
+			const payload = {
+				textId: result['_id'],
+				name: documentTitle,
+				owner: owner
+			}
+		const newDocument = new Documents(payload);
+		return newDocument.save();
+	)
 }
 
 function getUserDocuments(userId) {
