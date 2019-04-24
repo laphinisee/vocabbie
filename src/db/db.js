@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const dbAuth = require('../../keys/dbAuth');
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = require('bluebird');
 const db = mongoose.connection;
 
 db.on('error', console.error);
