@@ -1,5 +1,6 @@
 import React from "react";
 import {Form, FormField, Grid, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
+import { withRouter } from "react-router";
 
 class ArticleUpload extends React.Component {
 
@@ -64,8 +65,7 @@ class ArticleUpload extends React.Component {
     }
 
   submitPlainText = (e) => {
-
-        fetch('/generate-text', {
+      fetch('/generate-text', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {"Content-Type": "application/json"},
           redirect: "follow", // manual, *follow, error
@@ -73,9 +73,9 @@ class ArticleUpload extends React.Component {
             text: this.state.values.plainText,
             title: this.state.values.title
           }), // body data type must match "Content-Type" header
-      }, (res) => {
-        console.log(res)
       })
+      .then(res => res.json())
+      .then(data => this.props.history.push(`/display/${data.id}`))
     }
 
     submitUrl() {
@@ -146,6 +146,6 @@ class ArticleUpload extends React.Component {
     }
   }
 
-  export default ArticleUpload;
+  export default withRouter(ArticleUpload);
 
 

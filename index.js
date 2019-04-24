@@ -104,7 +104,7 @@ app.post('/generate-text', function(request, response) {
       const id = result['_id'];
       console.log(id);
       response.status(200).type('application/json');
-      response.json(id);
+      response.json({id:id});
     });
   })
 
