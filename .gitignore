@@ -1,5 +1,4 @@
 node_modules/
 keys/
 
-dbAuth.js
-googleTranslateAPIKey.js
+.DS_Store
