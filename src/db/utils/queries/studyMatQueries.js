@@ -6,23 +6,20 @@ const wordQuery = require('../queries/wordQueries');
 const StudyMats = studyMatSchema.StudyMats;
 const Documents = documentSchema.Documents;
 
-function createStudyMat(documentId, studyMatEnum, savedWords) {
+function createStudyMat(studyMatEnum, sourceLanguage, targetLanguage, savedWords) {
 	if (!studyMats.studyMatEnums.includes(studyMatEnum)) {
 		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
 	}
 
 	const payload = {
 		type: studyMatEnum,
+		sourceLanguage: sourceLanguage,
+		targetLanguage: targetLanguage,
 		savedWords: savedWords
 	}
 
-	return Documents.findById(documentId).exec().then(document => {
-		StudyMats.create(payload).then(sm => {
-			document.studyMats.push(sm);
-			document.save();
-			return sm;
-		})
-	})
+	const newStudyMat = new StudyMats(payload)
+	return newStudyMat.save();
 }
 
 function getStudyMat(studyMatId) {
