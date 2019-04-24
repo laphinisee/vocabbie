@@ -57,7 +57,7 @@ class UserMenu extends React.Component {
       return (
         <Box direction="row" gap="medium">
           <Box><Anchor color="neutral-2" href="/login" primary label="Login" /></Box>
-          <Box><Anchor color="neutral-2" onClick={(e) => alert("signup!")} primary label="Signup" /></Box>
+          <Box><Anchor color="neutral-2" onClick={() => this.props.history.push('/signup')} primary label="Signup" /></Box>
         </Box>
       )
     }
