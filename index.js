@@ -13,7 +13,6 @@ app.use(bodyParser.json());
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
-const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
 app.get('/', function(request, response){
@@ -117,7 +116,7 @@ app.get('/:userid/vocab', function(request, response){
     result.forEach((d) => {
       let doc = {}
       if (d.text) {
-        const len = d.text.plaintext.length > 100 ? 100 : d.text.plaintext.length;
+        const len = Math.min(d.text.plaintext.length, 100);
         doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
       } else {
         doc = {title: d.name, id: d._id}
