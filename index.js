@@ -16,15 +16,6 @@ const querydb = require('./src/db/query');
 const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
 
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
-}
-
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -70,9 +61,8 @@ app.get('/document/:id', function(request, response){
 
 app.post('/generate-text', function(request, response) {
   // const topWords = rankText(request.body.text, 20);
-  const title = request.body.title
-  let keywords;
-  const text = request.body.text
+  const title = request.body.title;
+  const text = request.body.text;
   const translatedJson = nlp.processText(text);
   translatedJson.then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
@@ -87,9 +77,9 @@ app.post('/generate-text', function(request, response) {
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+    const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
 
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+    const keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
     // call db function to save all words.
     const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
@@ -153,31 +143,12 @@ const keys = require("./keys/keys");
 const Users = require('./src/db/utils/schemas/userSchema').Users;
 
 app.post('/register', function(req, res) {
-  Users.findOne({ email: req.body.email }).then(user => {
+  querydb.user.getUserByEmail(req.body.email).then(user => {
     if (user) {
       return res.status(200).json({ error: "Email already exists" });
     } 
 
-    console.log("req.body", req.body)
-
-    const newUser = new Users({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password
-    });
-
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(newUser.password, salt, (err, hash) => {
-        if (err) {
-          throw err;
-        }
-        newUser.password = hash;
-        newUser
-          .save()
-          .then(user => res.json(user))
-          .catch(err => console.log(err));
-      });
-    });
+    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
   });
 });
 
