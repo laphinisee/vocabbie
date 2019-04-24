@@ -182,7 +182,7 @@ app.post('/register', function(req, res) {
 });
 
 const passport = require('passport');
-require('./passport');
+require('./passport')(passport)
 app.use(passport.initialize());
 
 app.post('/login', function(req, res){
@@ -223,6 +223,15 @@ app.post('/login', function(req, res){
     });
   });
 })
+
+app.get("/authenticated", function(req, res, next) {
+  console.log("get recieved!")
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    console.log("Error:", err)
+    console.log("User:", user)
+    res.status(500).send('ayyy')
+  })(req, res, next);
+});
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);
