@@ -4,7 +4,7 @@ const documentTextQueries = require('./documentTextQueries');
 const Documents = documentSchema.Documents;
 
 function createDocument(documentTitle, owner, text, sourceLanguage, targetLanguage, allWords, keyWords) {
-	documentTextQueries.createDocumentText(text, sourceLanguage, targetLanguage, allWords, keyWords).then(result =>
+	return documentTextQueries.createDocumentText(text, sourceLanguage, targetLanguage, allWords, keyWords).then(result => {
 			const payload = {
 				textId: result['_id'],
 				name: documentTitle,
@@ -12,7 +12,7 @@ function createDocument(documentTitle, owner, text, sourceLanguage, targetLangua
 			}
 		const newDocument = new Documents(payload);
 		return newDocument.save();
-	)
+	})
 }
 
 function getUserDocuments(userId) {
