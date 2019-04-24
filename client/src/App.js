@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import { Grommet, Box } from 'grommet';
 
 import Home from "./Home";
@@ -57,9 +57,15 @@ class App extends React.Component {
         }
       },
     };
-
-
   
+    const PrivateRoute = ({ component: Component, ...rest }) => (
+      <Route {...rest} render={(props) => (
+        this.state.token
+          ? <Component user={this.state.user} {...props} />
+          : <Redirect to='/login' />
+      )} />
+    )
+
     return (
       <BrowserRouter>
         <Grommet theme={theme} full>
@@ -68,14 +74,14 @@ class App extends React.Component {
             <Box flex>
               <Switch>
                 <Route exact path='/' component={Home}/>
-                <Route path='/create' component={Upload} />
+                <PrivateRoute path='/create' component={Upload} />
                 <Route path='/login' render={(routeProps) => (
                   <Login {...routeProps} onLogin={this.onLogin} />
                 )} />
                 <Route path='/signup' component={Signup} />
-                <Route path='/settings' component={Settings} />
-                <Route path='/sheets' component={UserSheets} />
-                <Route path='/display/:id' component={Sheet} />
+                <PrivateRoute path='/settings' component={Settings} />
+                <PrivateRoute path='/sheets' component={UserSheets} />
+                <PrivateRoute path='/display/:id' component={Sheet} />
               </Switch>
             </Box>
           </Box>
