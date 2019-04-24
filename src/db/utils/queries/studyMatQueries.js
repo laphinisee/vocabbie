@@ -38,23 +38,13 @@ function addWords(studyMatId, words) {
 	).exec();
 }
 
-function _removeWords(studyMatId, words) {
+function removeWords(studyMatId, words) {
 	return StudyMats.findByIdAndUpdate(
 		studyMatId,
 		{ $pullAll: {
 			savedWords: words
 		}}
 	).exec();
-}
-
-// sourceLanguage and targetLanguage only required if words is a list of strings
-function removeWords(studyMatId, words, sourceLanguage, targetLanguage) {
-	if (sourceLanguage && targetLanguage) {
-		const queriesWords = wordQuery.getWords(words, sourceLanguage, targetLanguage);
-		return queriesWords.then(result => _removeWords(studyMatId, result));
-	}
-
-	return _removeWords(studyMatId, words);
 }
 
 module.exports.createStudyMat = createStudyMat;
