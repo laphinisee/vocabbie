@@ -2,6 +2,7 @@ const translate = require('./utils/translation');
 const tokenize = require('./utils/tokenizer');
 const pronunciation = require('./utils/pronunciation');
 const stopwords = require('./utils/stopwords');
+const keywords = require('./utils/keywords');
 
 const query = require('../db/query');
 
@@ -92,6 +93,7 @@ function processText(text, targetLanguage='en') {
 }
 
 module.exports.processText = processText;
+module.exports.getKeywords = keywords.getKeywords;
 
 let text
 text = '我是一個漂亮的蝴蝶'
