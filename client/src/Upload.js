@@ -7,7 +7,7 @@ class Upload extends React.Component {
     render() {
       return (
          <Container title="Content Upload" description="Upload an article">
-          <ArticleUpload />
+          <ArticleUpload user={this.props.user} />
          </Container>
       )
     }

@@ -8,23 +8,31 @@ import TextTruncate from 'react-text-truncate';
 class VocabDisplay extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {articles: []};
-    }
+    this.state = {
+      articles: [],
+      loading: true,
+    };
+  }
 
-    componentWillMount() {
-      const userid = '5cbe5ca7c24928cdc7f0dfc2';
-      const url = '/' + userid + '/vocab';
-      fetch(url).then( (res) => res.json()).then((res) => {
-        console.log(res)
-        const getData = res
-        this.setState({articles: getData})
-      })
-    }
+  componentWillMount() {
+    // const userid = '5cbe5ca7c24928cdc7f0dfc2';
+    // const url = '/' + userid + '/vocab';
+    fetch('/vocab', {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": this.props.user.token,
+      },
+    }).then( (res) => res.json()).then((res) => {
+      console.log(res)
+      const getData = res
+      this.setState({articles: getData, loading: false})
+    })
+  }
 
 
     render() {
       return (
-        <Container title="Your Sheets" description="All the sheets you've generated in the past.">
+        <Container loading={this.state.loading} title="Your Sheets" description="All the sheets you've generated in the past.">
           <Button icon={<AddCircle />} label="New Sheet" href="/create" alignSelf="end" color="white"/>
           <Table>
             <TableBody>

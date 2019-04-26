@@ -7,6 +7,7 @@ import logo from './images/logo-blue.png';
 
 class Container extends React.Component {
     render() {
+      console.log("LOADING:", this.props.loading)
       const {title, description, loading, ...props} = this.props
       if(!loading) {
         return (
@@ -25,6 +26,7 @@ class Container extends React.Component {
             spinnerColor='#324f9c'
             textColor='#676767'
             logoSrc={logo}
+            text="Loading..."
           />
         )
       }

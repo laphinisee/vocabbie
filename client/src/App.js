@@ -19,7 +19,7 @@ class App extends React.Component {
     const token = localStorage.getItem('JWT')
     this.state = {
       token: token,
-      user: token ? jwt_decode(localStorage.getItem('JWT')) : null,
+      user: token ? {token, ...jwt_decode(localStorage.getItem('JWT'))} : null,
     }
   };
 

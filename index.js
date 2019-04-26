@@ -68,79 +68,93 @@ app.get('/document/:id', function(request, response){
   })
   });
 
-app.post('/generate-text', function(request, response) {
-  // const topWords = rankText(request.body.text, 20);
-  const title = request.body.title
-  let keywords;
-  const text = request.body.text
-  const translatedJson = nlp.processText(text);
-  translatedJson.then(result => {
-    [ srcLanguage, translatedWords, allWords ] = result;
+app.post('/generate-text', function(request, response, next) {
 
-    // translatedWords.forEach(function(w){
-    //   let hardId = "";
-    //   if(topWords.indexOf(w.lemma) !== -1) {
-    //     hardId = topWords.indexOf(w.lemma);
-    //     keywords[hardId] = w;
-    //   }
-    // });
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if(err) {
+      res.status(500).send(err.message);
+    } else if (user) {
+      // const topWords = rankText(request.body.text, 20);
+      const title = request.body.title
+      let keywords;
+      const text = request.body.text
+      const translatedJson = nlp.processText(text);
+      translatedJson.then(result => {
+        [ srcLanguage, translatedWords, allWords ] = result;
 
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+        // translatedWords.forEach(function(w){
+        //   let hardId = "";
+        //   if(topWords.indexOf(w.lemma) !== -1) {
+        //     hardId = topWords.indexOf(w.lemma);
+        //     keywords[hardId] = w;
+        //   }
+        // });
 
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+        const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+        const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
 
-    // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
-    
-    /**
-     * TODO: all promises need catches that gracefully return
-     * error messages to users.
-     */
+        keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('application/json');
-      response.json({id:id});
-    });
-  })
+        // call db function to save all words.
+        const promise = querydb.document.createDocument(title, user._id, request.body.text, srcLanguage, "en", allWords, keywords);
+        
+        /**
+         * TODO: all promises need catches that gracefully return
+         * error messages to users.
+         */
+
+        promise.then(result => {
+          console.log(result);
+          const id = result['_id'];
+          console.log(id);
+          response.status(200).type('application/json');
+          response.json({id:id});
+        });
+      })
+    } else {
+      console.log("here!")
+      response.status(401).send()
+    }
+  })(request, response, next);
 
 });
 
-app.get('/:userid/vocab', function(request, response){
-	// const titles = [];
-	// const ids = [];
-  // const previews = [];
-  const docs = []
-  querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
-  // querydb.document.getUserDocuments(mongoose.Types.ObjectId(request.params.userid))
-	.then(result => {
-    /**
-     * TODO: Error checking - len variable line fails if there are no resulting documents.
-     */
-		// list of {name : ?, _id : ?, text.plaintext : ?}
-		// titles.push(result.name);
-    // ids.push(result._id);
-    result.forEach((d) => {
-      let doc = {}
-      if (d.text) {
-        const len = d.text.plaintext.length > 100 ? 100 : d.text.plaintext.length;
-        doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
-      } else {
-        doc = {title: d.name, id: d._id}
-      }
-      docs.push(doc)
-      response.status(200).type('application/json');
-      // response.json({titles : titles, ids : ids, previews : previews});
-      console.log(docs)
-      response.json(docs)
-    })
-		// previews.push(result.text.plaintext.substring(0, len));
-	});
-	
+app.get('/vocab', function(request, response, next){
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if(err) {
+      response.status(500).send(err.message);
+    } else if (user) {
+      const docs = []
+      console.log(user)
+      querydb.document.getAllUserDocuments(user._id)
+      .then(result => {
+        /**
+         * TODO: Error checking - len variable line fails if there are no resulting documents.
+         */
+        // list of {name : ?, _id : ?, text.plaintext : ?}
+        // titles.push(result.name);
+        // ids.push(result._id);
+        result.forEach((d) => {
+          console.log("d", d)
+          let doc = {}
+          if (d.text) {
+            const len = d.text.plaintext.length > 100 ? 100 : d.text.plaintext.length;
+            doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
+          } else {
+            doc = {title: d.name, id: d._id}
+          }
+          docs.push(doc)
+          // response.json({titles : titles, ids : ids, previews : previews});
+        })
+        console.log(docs)
+        response.json(docs)
+        // previews.push(result.text.plaintext.substring(0, len));
+      });
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 
@@ -223,15 +237,6 @@ app.post('/login', function(req, res){
     });
   });
 })
-
-app.get("/authenticated", function(req, res, next) {
-  console.log("get recieved!")
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    console.log("Error:", err)
-    console.log("User:", user)
-    res.status(500).send('ayyy')
-  })(req, res, next);
-});
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);

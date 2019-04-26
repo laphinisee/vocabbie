@@ -67,7 +67,10 @@ class ArticleUpload extends React.Component {
   submitPlainText = (e) => {
       fetch('/generate-text', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
-          headers: {"Content-Type": "application/json"},
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": this.props.user.token,
+          },
           redirect: "follow", // manual, *follow, error
           body: JSON.stringify({
             text: this.state.values.plainText,
