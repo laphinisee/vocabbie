@@ -10,6 +10,17 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+const multer = require('multer');
+let storage = multer.diskStorage({
+	destination: function(req, file, callback) {
+		callback(null, "./uploads");
+	},
+	filename: function(req, file, callback) {
+		callback(null, Date.now() + "_" + file.originalname);
+	}
+});
+let upload = multer({storage : storage});
+
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
@@ -105,6 +116,41 @@ app.post('/generate-text', function(request, response, next) {
     }
   })(request, response, next);
 });
+
+app.post('/generate-pdf', function(request, response){
+	// entry point for uploading a pdf file
+	upload(req, res, function(err){
+		if (err) {
+			return res.end("could not upload the file");
+		}
+		let pdfParser = new PDFParser(this,1);
+		let scrapedText = "";
+	 
+	    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+	    pdfParser.on("pdfParser_dataReady", pdfData => {
+	        scrapedText = pdfParser.getRawTextContent());
+	    	// call generate text helper function l8r
+	    	// return to frontend
+	    });
+		
+	    pdfParser.loadPDF("./uploads/" + req.file.filename);
+	}); 
+});
+
+app.post('/:userid/vocab', function(request, response){
+	const titles = [];
+	const ids = [];
+	const previews = [];
+	querydb.getUserDocuments(request.params.userid)
+	.then(result => {
+		// list of {name : ?, _id : ?, text.plaintext : ?}
+		titles.push(result.name);
+		ids.push(result._id);
+		let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
+		previews.push(result.text.plaintext.substring(0, len));
+	});
+	response.status(200).type('html');
+	response.json({titles : titles, ids : ids, previews : previews});
 
 app.get('/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
