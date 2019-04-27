@@ -85,7 +85,7 @@ app.post('/generate-text', function(request, response, next) {
         const keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
         // call db function to save all words.
-        const promise = querydb.document.createDocument(title, user._id, request.body.text, srcLanguage, "en", allWords, keywords);
+        const promise = querydb.document.createDocument(title, user._id, request.body.text, srcLanguage, "en", allWords.map(word => word.originalText), keywords.map(word => word.originalText));
         
         /**
          * TODO: all promises need catches that gracefully return
