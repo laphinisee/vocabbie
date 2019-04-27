@@ -15,6 +15,14 @@ const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
 ////////////////////// End boilerplate //////////////////////
 
+/* Backend TODOS
+   1. query for allWords with GetWordsQuery from Alex (AllWords is currently a list of strings)
+   2. Revert back and get the processAndSaveText
+   3. Integrate pdf parsing and url parsing methods abstracted out
+   4. set up db auth and test text generation end points. 
+   5. ERROR CHECKING !!!
+*/
+
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -30,7 +38,7 @@ app.get('/document/:id', function(request, response){
     console.log(doc)
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
-    return querydb.documentText.getDocumentText(textId)
+    return querydb.documentText.getDocumentText(textId);
   }).then(result => {
     console.log(result)
     const article = [];
@@ -52,8 +60,6 @@ app.get('/document/:id', function(request, response){
       language : srclanguage
     };
     response.status(200).type('application/json');
-    // console.log("==========")
-    // console.log(keyWords)
     response.json(toReturn);
   })
   });
