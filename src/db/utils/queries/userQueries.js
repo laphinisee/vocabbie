@@ -17,7 +17,7 @@ function createUser(name, email, password) {
 			newUser.password = hash;
 			return newUser.save();
 		})
-	});	   
+	});   
 }
 
 function deleteUser(userId) {
@@ -32,7 +32,17 @@ function updateUser(userId, payload) {
 	const keys = Object.keys(payload).filter(key => (payload[key]))
 	const cleanPayload = keys.map(key => payload[key])
 
-	return Users.findByIdAndUpdate(userId, payload).exec();
+	if (cleanPayload['password']) {
+		return bcrypt.genSalt(10, (err, salt) => {
+			return bcrypt.hash(cleanPayload['password'], salt, (err, hash) => {
+				if (err) { throw err }
+				cleanPayload['password'] = hash;
+				return Users.findByIdAndUpdate(userId, payload).exec();
+			})
+		}); 
+	} else {
+		return Users.findByIdAndUpdate(userId, payload).exec();
+	}
 }
 
 module.exports = {
