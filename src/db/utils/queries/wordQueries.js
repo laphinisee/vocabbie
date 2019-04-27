@@ -71,3 +71,4 @@ function getWords(words, sourceLanguage, targetLanguage) {
 
 module.exports.createWord = createWord;
 module.exports.getTranslations = getTranslations;
+module.exports.getWords = getWords;
