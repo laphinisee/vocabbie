@@ -26,6 +26,14 @@ const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
 ////////////////////// End boilerplate //////////////////////
 
+/* Backend TODOS
+   1. query for allWords with GetWordsQuery from Alex (AllWords is currently a list of strings)
+   2. Revert back and get the processAndSaveText
+   3. Integrate pdf parsing and url parsing methods abstracted out
+   4. set up db auth and test text generation end points. 
+   5. ERROR CHECKING !!!
+*/
+
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -41,31 +49,34 @@ app.get('/document/:id', function(request, response){
     console.log(doc)
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
-    return querydb.documentText.getDocumentText(textId)
+    return querydb.documentText.getDocumentText(textId);
   }).then(result => {
     console.log(result)
     const article = [];
     const vocab_list = {};
     const srclanguage = result.sourceLanguage;
     const keyWords = result.keyWords;
-    result.allWords.forEach(function(w){
-      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-    });
-    for(let i = 0 ; i < keyWords.length; i++){
-      vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
-    }
-    const toReturn = {
-      title : title,
-      plaintext : result.plaintext,	
-      article : article,
-      vocab_list : vocab_list,
-      language : srclanguage
-    };
-    response.status(200).type('application/json');
-    // console.log("==========")
-    // console.log(keyWords)
-    response.json(toReturn);
+    const words = querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
+    words.then(wordPromise => {
+      wordPromise.forEach(function(w){
+        console.log("w:", typeof w, w)
+        let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+        article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+      });
+      for(let i = 0 ; i < keyWords.length; i++){
+        vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+      }
+      const toReturn = {
+        title : title,
+        plaintext : result.plaintext,	
+        article : article,
+        vocab_list : vocab_list,
+        language : srclanguage
+      };
+      response.status(200).type('application/json');
+      response.json(toReturn);
+    })
+    
   })
   });
 
@@ -150,7 +161,8 @@ app.post('/:userid/vocab', function(request, response){
 		previews.push(result.text.plaintext.substring(0, len));
 	});
 	response.status(200).type('html');
-	response.json({titles : titles, ids : ids, previews : previews});
+  response.json({titles : titles, ids : ids, previews : previews});
+});
 
 app.get('/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
