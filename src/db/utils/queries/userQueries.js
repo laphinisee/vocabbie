@@ -28,6 +28,13 @@ function getUserByEmail(email) {
 	return Users.findOne({ email: email }).exec();	
 }
 
+function updateUser(userId, payload) {
+	const keys = Object.keys(payload).filter(key => (payload[key]))
+	const cleanPayload = keys.map(key => payload[key])
+
+	return Users.findByIdAndUpdate(userId, payload).exec();
+}
+
 module.exports = {
 	createUser,
 	deleteUser,

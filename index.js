@@ -128,7 +128,7 @@ app.post('/generate-pdf', function(request, response){
 	 
 	    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
 	    pdfParser.on("pdfParser_dataReady", pdfData => {
-	        scrapedText = pdfParser.getRawTextContent());
+	        scrapedText = pdfParser.getRawTextContent();
 	    	// call generate text helper function l8r
 	    	// return to frontend
 	    });
@@ -250,7 +250,7 @@ app.post('/login', function(req, res){
   });
 })
 
-function rankText(text, thresh){
+function rankText(text, thresh) {
   const allKeyWords = keywords(text);
   //Return the longest words as a proxy. 
   allKeyWords.sort(function(a, b){
