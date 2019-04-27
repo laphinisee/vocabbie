@@ -19,10 +19,8 @@ class Sheet extends React.Component {
 
     componentWillMount() {
       const url = '/document/' + this.props.match.params.id
-      console.log('betch')
       fetch(url).then( (res) => res.json()).then((res) => {
         const getData = res
-        console.log(getData)
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
       })

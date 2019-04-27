@@ -18,14 +18,14 @@ function createDocument(documentTitle, owner, text, sourceLanguage, targetLangua
 function getUserDocuments(userId) {
 	return Documents.find(
 		{ owner: userId },
-		'name _id text.plaintext'
+		'name _id textId'
 	).exec();
 }
 
 function getAllUserDocuments(userId) {
 	return Documents.find(
 		{},
-		'name _id text.plaintext'
+		'name _id textId'
 	).exec();
 }
 

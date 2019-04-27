@@ -113,28 +113,22 @@ app.get('/vocab', function(request, response, next){
     } else if (user) {
       const docs = []
       querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
-      // querydb.document.getUserDocuments(mongoose.Types.ObjectId(request.params.userid))
       .then(result => {
-        /**
-         * TODO: Error checking - len variable line fails if there are no resulting documents.
-         */
-        // list of {name : ?, _id : ?, text.plaintext : ?}
-        // titles.push(result.name);
-        // ids.push(result._id);
+        const allPromises = []
         result.forEach((d) => {
-          let doc = {}
-          if (d.text) {
-            const len = Math.min(d.text.plaintext.length, 100);
-            doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
-          } else {
-            doc = {title: d.name, id: d._id}
-          }
-          docs.push(doc)
+          allPromises.push(querydb.documentText.getDocumentText(mongoose.Types.ObjectId(d.textId)))
+          let doc = {title: d.name, id: d._id}
+            docs.push(doc)  
         })
-        response.status(200).type('application/json');
-        console.log(docs)
-        response.json(docs)
-        // previews.push(result.text.plaintext.substring(0, len));
+        Promise.all(allPromises).then(
+          dts => {
+            dts.forEach((dt, i) => {
+              const len = Math.min(dt.plaintext.length, 100);
+              docs[i].preview = dt.plaintext.substring(0, len)
+            })
+            response.status(200).type('application/json');
+            response.json(docs)
+        })
       });
     } else {
       response.status(401).send()
