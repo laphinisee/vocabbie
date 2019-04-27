@@ -21,6 +21,7 @@
     "@google-cloud/translate": "^2.1.4",
     "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
+    "bluebird": "^3.5.4",
     "cjk-conv": "^1.1.29",
     "classnames": "^2.2.6",
     "crypto": "^1.0.1",

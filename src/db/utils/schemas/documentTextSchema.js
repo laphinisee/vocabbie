@@ -6,8 +6,8 @@ const documentTextSchema = new mongoose.Schema({
 	plaintext: { type: String, required: true, unique: true },
 	sourceLanguage: { type: String, required: true },
 	targetLanguage: { type: String, required: true },
-	allWords: [words.schema],
-	keyWords: [words.schema]
+	allWords: [String],
+	keyWords: [String]
 })
 
 module.exports.schema = documentTextSchema;

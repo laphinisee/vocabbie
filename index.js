@@ -24,17 +24,7 @@ let upload = multer({storage : storage});
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
-const keyword_extractor = require("keyword-extractor");
 ////////////////////// End boilerplate //////////////////////
-
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
-}
 
 app.get('/', function(request, response){
   response.status(200).type('html');
@@ -75,53 +65,56 @@ app.get('/document/:id', function(request, response){
     response.status(200).type('application/json');
     // console.log("==========")
     // console.log(keyWords)
-    console.log("==========")
-    console.log(toReturn)
     response.json(toReturn);
-    console.log("heheheheheh!")
   })
   });
 
-app.post('/generate-text', function(request, response) {
-  // const topWords = rankText(request.body.text, 20);
-  const title = request.body.title
-  let keywords;
-  const text = request.body.text
-  const translatedJson = nlp.processText(text);
-  translatedJson.then(result => {
-    [ srcLanguage, translatedWords, allWords ] = result;
+app.post('/generate-text', function(request, response, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else if (user) {
+      // const topWords = rankText(request.body.text, 20);
+      const title = request.body.title;
+      const text = request.body.text;
+      const translatedJson = nlp.processText(text);
+      translatedJson.then(result => {
+        [ srcLanguage, translatedWords, allWords ] = result;
 
-    // translatedWords.forEach(function(w){
-    //   let hardId = "";
-    //   if(topWords.indexOf(w.lemma) !== -1) {
-    //     hardId = topWords.indexOf(w.lemma);
-    //     keywords[hardId] = w;
-    //   }
-    // });
+        // translatedWords.forEach(function(w){
+        //   let hardId = "";
+        //   if(topWords.indexOf(w.lemma) !== -1) {
+        //     hardId = topWords.indexOf(w.lemma);
+        //     keywords[hardId] = w;
+        //   }
+        // });
 
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+        const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+        const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
 
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+        const keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
-    // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
-    
-    /**
-     * TODO: all promises need catches that gracefully return
-     * error messages to users.
-     */
+        // call db function to save all words.
+        const promise = querydb.document.createDocument(title, user._id, request.body.text, srcLanguage, "en", allWords, keywords);
+        
+        /**
+         * TODO: all promises need catches that gracefully return
+         * error messages to users.
+         */
 
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('html');
-      response.json(id);
-    });
-  })
-
+        promise.then(result => {
+          console.log(result);
+          const id = result['_id'];
+          console.log(id);
+          response.status(200).type('application/json');
+          response.json({id:id});
+        });
+      })
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 app.post('/generate-pdf', function(request, response){
@@ -158,6 +151,41 @@ app.post('/:userid/vocab', function(request, response){
 	});
 	response.status(200).type('html');
 	response.json({titles : titles, ids : ids, previews : previews});
+
+app.get('/vocab', function(request, response, next){
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else if (user) {
+      const docs = []
+      querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
+      // querydb.document.getUserDocuments(mongoose.Types.ObjectId(request.params.userid))
+      .then(result => {
+        /**
+         * TODO: Error checking - len variable line fails if there are no resulting documents.
+         */
+        // list of {name : ?, _id : ?, text.plaintext : ?}
+        // titles.push(result.name);
+        // ids.push(result._id);
+        result.forEach((d) => {
+          let doc = {}
+          if (d.text) {
+            const len = Math.min(d.text.plaintext.length, 100);
+            doc = {title: d.name, id: d._id, preview: d.text.plaintext.substring(0, len)}
+          } else {
+            doc = {title: d.name, id: d._id}
+          }
+          docs.push(doc)
+        })
+        response.status(200).type('application/json');
+        console.log(docs)
+        response.json(docs)
+        // previews.push(result.text.plaintext.substring(0, len));
+      });
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 
@@ -170,36 +198,17 @@ const keys = require("./keys/keys");
 const Users = require('./src/db/utils/schemas/userSchema').Users;
 
 app.post('/register', function(req, res) {
-  Users.findOne({ email: req.body.email }).then(user => {
+  querydb.user.getUserByEmail(req.body.email).then(user => {
     if (user) {
       return res.status(200).json({ error: "Email already exists" });
     } 
 
-    console.log("req.body", req.body)
-
-    const newUser = new Users({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password
-    });
-
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(newUser.password, salt, (err, hash) => {
-        if (err) {
-          throw err;
-        }
-        newUser.password = hash;
-        newUser
-          .save()
-          .then(user => res.json(user))
-          .catch(err => console.log(err));
-      });
-    });
+    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
   });
 });
 
 const passport = require('passport');
-require('./passport');
+require('./passport')(passport)
 app.use(passport.initialize());
 
 app.post('/login', function(req, res){
@@ -240,11 +249,6 @@ app.post('/login', function(req, res){
     });
   });
 })
-
-
-
-
-
 
 function rankText(text, thresh){
   const allKeyWords = keywords(text);

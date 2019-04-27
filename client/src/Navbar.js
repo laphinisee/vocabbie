@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Image, Anchor, ResponsiveContext, Menu, Text} from 'grommet';
 import logo from './images/logo-blue.png';
+import { withRouter } from "react-router";
 
 const Bar = (props) => (
   <Box
@@ -38,20 +39,25 @@ const CollapsedMenu = (props) => (
 
 class UserMenu extends React.Component {
 
+  onLogout = () => {
+    this.props.onLogout()
+    this.props.history.push('/');
+  }
+
   render() {
     console.log("props:", this.props.loggedIn)
     if(this.props.loggedIn) {
       return (
         <Box direction="row" gap="medium">
-          <Box><Anchor color="neutral-2" href="/settings" primary label="Hi Name" /></Box>
-          <Box><Anchor color="neutral-2" onClick={this.props.onLogout} primary label="Logout" /></Box>
+          <Box><Anchor color="neutral-2" href="/settings" primary label={`Hi ${this.props.user.name}`} /></Box>
+          <Box><Anchor color="neutral-2" onClick={this.onLogout} primary label="Logout" /></Box>
         </Box>
       )
     } else {
       return (
         <Box direction="row" gap="medium">
           <Box><Anchor color="neutral-2" href="/login" primary label="Login" /></Box>
-          <Box><Anchor color="neutral-2" onClick={(e) => alert("signup!")} primary label="Signup" /></Box>
+          <Box><Anchor color="neutral-2" onClick={() => this.props.history.push('/signup')} primary label="Signup" /></Box>
         </Box>
       )
     }
@@ -66,10 +72,10 @@ class Navbar extends React.Component {
               {size => size === 'small' ? <CollapsedMenu/> : <MenuBar/>}
             </ResponsiveContext.Consumer>
             <a href="/"><Image width={150} src={logo} alt="Vocabbie" /></a>
-            <UserMenu loggedIn={this.props.loggedIn} onLogout={this.props.onLogout}/>
+            <UserMenu loggedIn={this.props.loggedIn} user={this.props.user} onLogout={this.props.onLogout} history={this.props.history}/>
         </Bar>
       )
     }
   }
 
-  export default Navbar;
+  export default withRouter(Navbar);

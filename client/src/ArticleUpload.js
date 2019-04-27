@@ -1,5 +1,6 @@
 import React from "react";
-import {Form, FormField, Grid, Tabs, Tab, Box, Button, Select, TextArea} from 'grommet';
+import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
+import { withRouter } from "react-router";
 
 class ArticleUpload extends React.Component {
 
@@ -9,17 +10,14 @@ class ArticleUpload extends React.Component {
       values: {
           plainText: '',
           title: '',
-          language: '',
       },
       errors: {
           plaintText: '',
           title: '',
-          language: ''
       },
       touched: {
           plainText: false,
           title: false,
-          langage: false
       }
     }
   }
@@ -64,18 +62,20 @@ class ArticleUpload extends React.Component {
     }
 
   submitPlainText = (e) => {
-
-        fetch('/generate-text', {
+      fetch('/generate-text', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
-          headers: {"Content-Type": "application/json"},
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": this.props.user.token,
+          },
           redirect: "follow", // manual, *follow, error
           body: JSON.stringify({
             text: this.state.values.plainText,
             title: this.state.values.title
           }), // body data type must match "Content-Type" header
-      }, (res) => {
-        console.log(res)
       })
+      .then(res => res.json())
+      .then(data => this.props.history.push(`/display/${data.id}`))
     }
 
     submitUrl() {
@@ -86,29 +86,11 @@ class ArticleUpload extends React.Component {
       console.log("submit pdf")
     }
 
-    setLanguage(l) {
-      console.log(l)
-      this.setState(prevState => ({
-        values: {
-          ...prevState.values,
-          language: l}
-      }))
-    }
-
     render() {
       return (
         <Box pad="medium">
           <Form>
-            <Grid
-            rows={['fit']}
-            columns={['3/4', '1/4']}
-            gap="small"
-            areas={[
-              { name: 'title', start: [0,0], end:[1,0]},
-              { name: 'lang', start: [1, 0], end: [1, 0] },
-            ]}
-            >
-              <Box gridArea="title" alignContent="start">
+            <Box gridArea="title" alignContent="start">
                   <FormField 
                             error={this.state.touched.title && this.state.errors.title} 
                             onChange={this.handleUserInput} 
@@ -118,14 +100,6 @@ class ArticleUpload extends React.Component {
                             type="text" 
                             label="Title"/>
               </Box>
-              <Box gridArea="lang" alignContent="end" alignSelf="center">
-              <Select onChange={({option}) => this.setLanguage(option)} 
-                      value={this.state.values.language || "Choose your language"} 
-                      labelKey={(opt) => opt.label} 
-                      valueKey={(opt) => opt.value} 
-                      options={[ {value: "fr", label:"French"},  {value: "sp", label:"Spanish"}]}/>
-              </Box>
-            </Grid>
             <Tabs margin="medium">
               <Tab title="Plain Text">
                 <Box pad="medium">
@@ -135,9 +109,31 @@ class ArticleUpload extends React.Component {
                     onChange={this.handleUserInput} 
                     onBlur={this.handleBlur} 
                     value={this.state.values.plainText} 
-                    placeholder="Type your article here" />
-                  <Button disabled={!this.isFormValid()} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                    placeholder="Type your article here" /><br/>
+                  <Button disabled={!this.isFormValid('plainText')} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
                 </Box>
+              </Tab>
+              <Tab title="URL">
+                <FormField 
+                  error={this.state.touched.title && this.state.errors.title} 
+                  onChange={this.handleUserInput} 
+                  onBlur={this.handleBlur} 
+                  value={this.state.values.title} 
+                  name="url" 
+                  type="text" 
+                  label="URL"/>
+                  <Button disabled={!this.isFormValid('url')} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label="Generate" />
+              </Tab>
+              <Tab title="File Upload">
+              <FormField 
+                  error={this.state.touched.title && this.state.errors.title} 
+                  onChange={this.handleUserInput} 
+                  onBlur={this.handleBlur} 
+                  value={this.state.values.title} 
+                  name="file" 
+                  type="file" 
+                  label="File Upload"/>
+                  <Button disabled={!this.isFormValid('file')} onClick={this.submitFIle} type="submit" fill={true} primary color="accent-1" label="Generate" />
               </Tab>
             </Tabs>
           </Form>
@@ -146,6 +142,6 @@ class ArticleUpload extends React.Component {
     }
   }
 
-  export default ArticleUpload;
+  export default withRouter(ArticleUpload);
 
 
