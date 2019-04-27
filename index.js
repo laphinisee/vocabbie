@@ -49,6 +49,7 @@ app.get('/document/:id', function(request, response){
     const srclanguage = result.sourceLanguage;
     const keyWords = result.keyWords;
     result.allWords.forEach(function(w){
+      console.log("w:", typeof w, w)
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
       article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
     });
@@ -128,7 +129,7 @@ app.post('/generate-pdf', function(request, response){
 	 
 	    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
 	    pdfParser.on("pdfParser_dataReady", pdfData => {
-	        scrapedText = pdfParser.getRawTextContent());
+	        scrapedText = pdfParser.getRawTextContent();
 	    	// call generate text helper function l8r
 	    	// return to frontend
 	    });
@@ -150,7 +151,8 @@ app.post('/:userid/vocab', function(request, response){
 		previews.push(result.text.plaintext.substring(0, len));
 	});
 	response.status(200).type('html');
-	response.json({titles : titles, ids : ids, previews : previews});
+  response.json({titles : titles, ids : ids, previews : previews});
+});
 
 app.get('/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
