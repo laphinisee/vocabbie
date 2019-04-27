@@ -10,6 +10,17 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+const multer = require('multer');
+let storage = multer.diskStorage({
+	destination: function(req, file, callback) {
+		callback(null, "./uploads");
+	},
+	filename: function(req, file, callback) {
+		callback(null, Date.now() + "_" + file.originalname);
+	}
+});
+let upload = multer({storage : storage});
+
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
@@ -111,6 +122,26 @@ app.post('/generate-text', function(request, response) {
     });
   })
 
+});
+
+app.post('/generate-pdf', function(request, response){
+	// entry point for uploading a pdf file
+	upload(req, res, function(err){
+		if (err) {
+			return res.end("could not upload the file");
+		}
+		let pdfParser = new PDFParser(this,1);
+		let scrapedText = "";
+	 
+	    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+	    pdfParser.on("pdfParser_dataReady", pdfData => {
+	        scrapedText = pdfParser.getRawTextContent());
+	    	// call generate text helper function l8r
+	    	// return to frontend
+	    });
+		
+	    pdfParser.loadPDF("./uploads/" + req.file.filename);
+	}); 
 });
 
 app.post('/:userid/vocab', function(request, response){
