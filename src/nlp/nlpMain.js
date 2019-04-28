@@ -95,8 +95,8 @@ function processText(text, targetLanguage='en') {
 module.exports.processText = processText;
 module.exports.getKeywords = keywords.getKeywords;
 
-let text
-text = '我是一個漂亮的蝴蝶'
+// let text
+// text = '我是一個漂亮的蝴蝶'
 // text = 'Hola cómo estás'
 
 // tokenize.tokenizeText(text).then(r => console.log(r))

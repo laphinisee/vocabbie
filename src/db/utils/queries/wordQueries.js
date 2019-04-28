@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const wordSchema = require('../schemas/wordSchema');
 
+const _ = require('lodash');
+
 const Words = wordSchema.Words;
 
 function _wordId(word, sourceLanguage, targetLanguage) {
@@ -66,9 +68,18 @@ function getWords(words, sourceLanguage, targetLanguage) {
 		wordIds = words.map(word => _wordId(word['text']['content'], word['sourceLanguage'], word['targetLanguage']));
 	}
 
-	return Words.find({ id: {$in: wordIds} }).exec();
+	console.log(wordIds);
+
+	return Words.find({ id: {$in: wordIds} })
+		.exec()
+		.then(result => {
+			return result.sort((a, b) => { 
+				return wordIds.indexOf(a['id']) - wordIds.indexOf(b['id']) 
+			});
+		});
 }
 
 module.exports.createWord = createWord;
 module.exports.getTranslations = getTranslations;
 module.exports.getWords = getWords;
+
