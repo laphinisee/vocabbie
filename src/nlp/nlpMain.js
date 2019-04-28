@@ -85,16 +85,23 @@ function processText(text, targetLanguage='en') {
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
 	}).then(result => {
+		console.log("RESULT!", result)
 		const [ sourceLanguage, tokens, mongoWords ] = result;
 
 		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
-			map[word['id']] = word;
+			console.log("!@23434323424", word)
+			map[word.value['id']] = word.value;
 			return map;
 		}, {});
 
+		console.log("tokenMongoWordMap")
+		console.log(tokenMongoWordMap)
+
 		let wordId;
 		const orderedMongoWords = tokens.map(token => {
+			console.log("TOKEN:", token)
 			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
+			console.log("wordID:", tokenMongoWordMap[wordId])
 			return tokenMongoWordMap[wordId];
 		});
 

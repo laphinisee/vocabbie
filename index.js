@@ -295,8 +295,10 @@ function processAndSaveText(text, title, response){
   nlp.processText(text)
   .then(translatedJson => {
     [ srcLanguage, translatedWords, allWords ] = translatedJson;
+
+    console.log("translatedJson:", translatedJson)
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-    const keywordsPlaintext = nlpMain.getKeywords(whitespaceSeparatedWords);
+    const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
     // call db function to save all words.
     return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
@@ -305,6 +307,7 @@ function processAndSaveText(text, title, response){
     response.status(200).type('html');
     response.json(id);
   }).catch(err => {
+    console.log("err:", err)
     response.status(500).send();
   });
 }
