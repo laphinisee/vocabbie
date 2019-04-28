@@ -15,7 +15,6 @@ function createWord(token, sourceLanguage, targetLanguage) {
 	const wordId = _wordId(word, sourceLanguage, targetLanguage);
 
 	const wordPayload = {
-		id: wordId,
 		sourceLanguage: sourceLanguage,
 		targetLanguage: targetLanguage,
 		originalText: word,
@@ -32,16 +31,25 @@ function createWord(token, sourceLanguage, targetLanguage) {
 		}
 	});
 
-	const query = Words.findOne({ id: wordId });
+	console.log("createWord")
+	console.log(Words.findAndModify)
 
-	return query.then(result => {
-		if (result) {
-			return result;
-		} else {
-			const mongoWord = new Words(wordPayload);
-			return mongoWord.save();
-		}
-	});
+	return Words.findAndModify(
+		{ id: wordId },
+		[['id','asc']],
+		{ "$setOnInsert": { ...wordPayload } },
+		{new: true, upsert: true}
+	  ).then(result => { 
+		  console.log(result)
+		  return result 
+	   })
+	  .catch(err => { console.log(err)})
+
+	// return Words.findOneOrCreate(wordPayload, (err, result) => {
+	// 	console.log("res:", result)
+	// 	console.log("err:", err)
+	// 	return result
+	// });
 }
 
 function getTranslations(tokens, sourceLanguage, targetLanguage) {

@@ -6,8 +6,11 @@ const keywords = require('./utils/keywords');
 
 const query = require('../db/query');
 
+const _ = require('lodash');
+
 var Promise = require('bluebird');
 
+const maxWords = 128;
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
@@ -33,13 +36,20 @@ function processText(text, targetLanguage='en') {
 			}
 		}
 
-		const translations = translate.translateText(untranslatedWordList, sourceLanguage);
+		// const translations = translate.translateText(untranslatedWordList, sourceLanguage);
+		console.log('batching')
+		const translations = [];
+		let batch;
+		for (i = 0; i < Math.ceil(untranslatedWordList.length / maxWords); i++) {
+			batch = untranslatedWordList.slice(maxWords * i, maxWords * (i + 1));
+			translations.push(translate.translateText(batch, sourceLanguage))
+		}
 
-		return Promise.all([sourceLanguage, tokens, translations]);
+		return Promise.all([sourceLanguage, tokens, Promise.all(translations)])
 	}).then(result => {
 		const [ sourceLanguage, tokens, translationResult ] = result;
 
-		const translations = translationResult[0];
+		const translations = _.flattenDeep(translationResult.map(t => t[0]));
 		const pronunciations = [];
 
 		let token, word, isPunctuation;
@@ -75,16 +85,23 @@ function processText(text, targetLanguage='en') {
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
 	}).then(result => {
+		console.log("RESULT!", result)
 		const [ sourceLanguage, tokens, mongoWords ] = result;
 
 		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
-			map[word['id']] = word;
+			console.log("!@23434323424", word)
+			map[word.value['id']] = word.value;
 			return map;
 		}, {});
 
+		console.log("tokenMongoWordMap")
+		console.log(tokenMongoWordMap)
+
 		let wordId;
 		const orderedMongoWords = tokens.map(token => {
+			console.log("TOKEN:", token)
 			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
+			console.log("wordID:", tokenMongoWordMap[wordId])
 			return tokenMongoWordMap[wordId];
 		});
 
@@ -96,8 +113,12 @@ module.exports.processText = processText;
 module.exports.getKeywords = keywords.getKeywords;
 
 let text
-text = '我是一個漂亮的蝴蝶'
+// text = '我是一個漂亮的蝴蝶'
 // text = 'Hola cómo estás'
+// text = 'Suzanne et Joseph étaient nés dans les deux premières années de leur arrivée à la colonie. Après la naissance de Suzanne, la mère abandonna l’enseignement d’état. Elle ne donna plus que des leçons particulières de français. Son mari avait été nommé directeur d’une école indigène et, disaient-elle, ils avaient vécu très largement malgré la charge de leurs enfants. Ces années-là furent sans conteste les meilleures de sa vie, des années de bonheur. Du moins c’étaient ce qu’elle disait. Elle s’en souvenait comme d’une terre lointaine et rêvée, d’une île. Elle en parlait de moins en moins à mesure qu’elle vieillissait, mais quand elle en parlait c’était toujours avec le même acharnement. Alors, à chaque fois, elle découvrait pour eux de nouvelles perfections à cette perfection, une nouvelle qualité à son mari, un nouvel aspect de l’aisance qu’ils connaissaient alors, et qui tendaient à devenir une opulence dont Joseph et Suzanne doutaient un peu.'
+// processText(text).then(result => {
+// 	console.log(result[2])
+// })
 
 // tokenize.tokenizeText(text).then(r => console.log(r))
 

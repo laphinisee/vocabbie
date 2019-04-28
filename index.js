@@ -27,13 +27,14 @@ const querydb = require('./src/db/query');
 const cheerio = require('cheerio');
 const axios = require('axios');
 const PDFParser = require('pdf2json');
+const fs = require('fs');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
    1. See result of keywords, and if it's too much for a large article, cut it down to be ~20. 
       1. b TF/IDF and/or length?
 */
-////////////////////////// LOGIN LOGIC /////////////////////////////////////////
+////////////////////// LOGIN LOGIC //////////////////////
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("./keys/keys");
@@ -94,7 +95,7 @@ app.post('/login', function(req, res){
   });
 })
 
-///////////////////////// ENDPOINTS /////////////////////////
+////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -193,8 +194,8 @@ app.post('/generate-text', function(request, response, next) {
       res.status(500).send(err.message);
     } else if (user) {
       const title = request.body.title;
-      const text = scrapeURL(request.body.url);
-      processAndSaveText(text, title, response);
+      const text = request.body.plainText
+      return processAndSaveText(text, title, response);
     } else {
       response.status(401).send()
     }
@@ -203,9 +204,9 @@ app.post('/generate-text', function(request, response, next) {
 
 app.post('/generate-pdf', function(request, response){
   // entry point for uploading a pdf file
-  upload(req, res, function(err){
+  upload(request, response, function(err){
     if (err) {
-      return res.status(500).send();
+      return response.status(500).send();
     }
     let pdfParser = new PDFParser(this, 1);
     let scrapedText = "";   
@@ -214,8 +215,14 @@ app.post('/generate-pdf', function(request, response){
       scrapedText = pdfParser.getRawTextContent();
       const title = request.body.title;
       processAndSaveText(scrapedText, title, response);
+      try {
+        fs.unlinkSync('./uploads/' + request.file.filename);
+        console.log('deleted ' + request.file.filename);
+      } catch (err) {
+        console.log('error deleting ' + request.file.filename);
+      }
     });
-    pdfParser.loadPDF("./uploads/" + req.file.filename);
+    pdfParser.loadPDF("./uploads/" + request.file.filename);
   }); 
 });
 
@@ -285,44 +292,34 @@ function processAndSaveText(text, title, response){
   nlp.processText(text)
   .then(translatedJson => {
     [ srcLanguage, translatedWords, allWords ] = translatedJson;
+
+    console.log("translatedJson:", translatedJson)
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+    const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
     // call db function to save all words.
-    return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
+    return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(result => {
-    console.log(result);
     const id = result['_id'];
-    console.log(id);
     response.status(200).type('html');
     response.json(id);
   }).catch(err => {
+    console.log("err:", err)
     response.status(500).send();
   });
 }
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'];
+  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   return axios.get(url).then((response) => {
-    //TODO check promise rejection
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
     allText = textElements.map(element => $(element).text()).join(' ');
-    // console.log(allText);
     return allText;
   }).catch(err => {
     return "ERR: Invalid URL";
   });
-}
-
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
 }
 
 function rankText(text, thresh) {

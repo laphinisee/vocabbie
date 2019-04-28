@@ -16,3 +16,6 @@ const wordSchema = new mongoose.Schema({
 
 module.exports.schema = wordSchema;
 module.exports.Words = mongoose.model('Words', wordSchema);
+module.exports.Words.findAndModify = function (query, sort, doc, options, callback) {
+	return this.collection.findAndModify(query, sort, doc, options, callback);
+};
