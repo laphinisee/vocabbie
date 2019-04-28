@@ -197,8 +197,8 @@ app.post('/generate-text', function(request, response, next) {
       res.status(500).send(err.message);
     } else if (user) {
       const title = request.body.title;
-      const text = scrapeURL(request.body.url);
-      processAndSaveText(text, title, response);
+      const text = request.body.plainText
+      return processAndSaveText(text, title, response);
     } else {
       response.status(401).send()
     }
@@ -207,9 +207,9 @@ app.post('/generate-text', function(request, response, next) {
 
 app.post('/generate-pdf', function(request, response){
   // entry point for uploading a pdf file
-  upload(req, res, function(err){
+  upload(request, response, function(err){
     if (err) {
-      return res.status(500).send();
+      return response.status(500).send();
     }
     let pdfParser = new PDFParser(this, 1);
     let scrapedText = "";   
@@ -219,13 +219,13 @@ app.post('/generate-pdf', function(request, response){
       const title = request.body.title;
       processAndSaveText(scrapedText, title, response);
       try {
-        fs.unlinkSync('./uploads/' + req.file.filename);
-        console.log('deleted ' + req.file.filename);
+        fs.unlinkSync('./uploads/' + request.file.filename);
+        console.log('deleted ' + request.file.filename);
       } catch (err) {
-        console.log('error deleting ' + req.file.filename);
+        console.log('error deleting ' + request.file.filename);
       }
     });
-    pdfParser.loadPDF("./uploads/" + req.file.filename);
+    pdfParser.loadPDF("./uploads/" + request.file.filename);
   }); 
 });
 
@@ -301,9 +301,7 @@ function processAndSaveText(text, title, response){
     // call db function to save all words.
     return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
   }).then(result => {
-    console.log(result);
     const id = result['_id'];
-    console.log(id);
     response.status(200).type('html');
     response.json(id);
   }).catch(err => {
