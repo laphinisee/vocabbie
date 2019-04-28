@@ -24,6 +24,7 @@ let upload = multer({storage : storage});
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
+<<<<<<< HEAD
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
@@ -35,6 +36,19 @@ const querydb = require('./src/db/query');
    -. ERROR CHECKING !!!
 
 */
+=======
+const keyword_extractor = require("keyword-extractor");
+////////////////////// End boilerplate //////////////////////
+
+function getKeywords(text) {
+  return new Set(keyword_extractor.extract(text, {
+    // language: 'english',
+    remove_digits: true,
+    return_changed_case: false,
+    remove_duplicates: true
+  }));
+}
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
 
 app.get('/', function(request, response){
   response.status(200).type('html');
@@ -103,6 +117,7 @@ app.post('/generate-text', function(request, response, next) {
         //   }
         // });
 
+<<<<<<< HEAD
         const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
         const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
@@ -149,6 +164,48 @@ app.post('/generate-pdf', function(request, response){
 		
 	    pdfParser.loadPDF("./uploads/" + req.file.filename);
 	}); 
+=======
+app.post('/generate-text', function(request, response) {
+  // const topWords = rankText(request.body.text, 20);
+  const title = request.body.title
+  let keywords;
+  const text = request.body.text
+  const translatedJson = nlp.processText(text);
+  translatedJson.then(result => {
+    [ srcLanguage, translatedWords, allWords ] = result;
+
+    // translatedWords.forEach(function(w){
+    //   let hardId = "";
+    //   if(topWords.indexOf(w.lemma) !== -1) {
+    //     hardId = topWords.indexOf(w.lemma);
+    //     keywords[hardId] = w;
+    //   }
+    // });
+
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+
+    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+
+    // call db function to save all words.
+    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
+    
+    /**
+     * TODO: all promises need catches that gracefully return
+     * error messages to users.
+     */
+
+    promise.then(result => {
+      console.log(result);
+      const id = result['_id'];
+      console.log(id);
+      response.status(200).type('html');
+      response.json(id);
+    });
+  })
+
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
 });
 
 app.post('/:userid/vocab', function(request, response){
@@ -233,6 +290,7 @@ app.post('/register', function(req, res) {
 //           name: user.name
 //         };
 
+<<<<<<< HEAD
 //         jwt.sign(
 //           payload,
 //           keys.secretOrKey,
@@ -258,6 +316,38 @@ app.post('/register', function(req, res) {
 //     });
 //   });
 // })
+=======
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          {
+            expiresIn: 31556926 // 1 year in seconds
+          },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token,
+              name: user.name,
+              email: user.email,
+              id: user.id,
+            });
+          }
+        );
+
+      } else {
+        return res
+          .status(200)
+          .json({ error: "Incorrect email and/or password." });
+      }
+    });
+  });
+})
+
+
+
+
+
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
 
 function rankText(text, thresh) {
   const allKeyWords = keywords(text);
