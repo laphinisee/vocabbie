@@ -45,15 +45,11 @@ function processText(text, targetLanguage='en') {
 			translations.push(translate.translateText(batch, sourceLanguage))
 		}
 
-		// return Promise.all([sourceLanguage, tokens, Promise.reduce(translations, (a, b) => { a.concat(b[0]) }, [])]);
 		return Promise.all([sourceLanguage, tokens, Promise.all(translations)])
 	}).then(result => {
 		const [ sourceLanguage, tokens, translationResult ] = result;
 
-		const translationResultFlat = _.flattenDeep(translationResult);
-		console.log(translationResultFlat);
-		// const translations = translationResult[0];
-		const translations = translationResultFlat;
+		const translations = _.flattenDeep(translationResult.map(t => t[0]));
 		const pronunciations = [];
 
 		let token, word, isPunctuation;
