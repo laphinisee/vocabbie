@@ -27,6 +27,7 @@ const querydb = require('./src/db/query');
 const cheerio = require('cheerio');
 const axios = require('axios');
 const PDFParser = require('pdf2json');
+const fs = require('fs');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
@@ -36,7 +37,7 @@ const PDFParser = require('pdf2json');
    4. set up db auth and test text generation end points. 
    5. ERROR CHECKING !!!
 */
-////////////////////////// LOGIN LOGIC /////////////////////////////////////////
+////////////////////// LOGIN LOGIC //////////////////////
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("./keys/keys");
@@ -97,7 +98,7 @@ app.post('/login', function(req, res){
   });
 })
 
-///////////////////////// ENDPOINTS /////////////////////////
+////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -108,42 +109,85 @@ app.get('/document/:id', function(request, response){
   //Return JSON of Article, Defintions, Vocab_List
   //Article is list of all tokens to their definitions and id if they're in hardest.
   //vocab _list is mapping of id in Article to saved word cache objects.
+  
+  // const documentID = mongoose.Types.ObjectId(request.params.id);
+  // let title = "";
+  // querydb.document.getDocument(documentID).then(doc => {
+  //   console.log(doc)
+  //   title = doc.name;
+  //   const textId = mongoose.Types.ObjectId(doc.textId);
+  //   return querydb.documentText.getDocumentText(textId);
+  // }).then(result => {
+  //   console.log(result)
+  //   const article = [];
+  //   const vocab_list = {};
+  //   const srclanguage = result.sourceLanguage;
+  //   const allWordPromise = querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
+  //   allWordPromise.then(allWords=> {
+  //     const keyWordPromise = querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
+  //     keyWordPromise.then(keyWords => {
+  //       allWords.forEach(function(w){
+  //         console.log("w:", typeof w, w)
+  //         let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+  //         article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+  //       });
+  //       for(let i = 0 ; i < keyWords.length; i++){
+  //         vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+  //       }
+  //       const toReturn = {
+  //         title : title,
+  //         plaintext : result.plaintext, 
+  //         article : article,
+  //         vocab_list : vocab_list,
+  //         language : srclanguage
+  //       };
+  //       response.status(200).type('application/json');
+  //       response.json(toReturn);
+  //     })
+  //   })
+  // })
+
   const documentID = mongoose.Types.ObjectId(request.params.id);
-  let title = "";
-  querydb.document.getDocument(documentID).then(doc => {
+  let title = ""
+  let allWords;
+  querydb.document.getDocument(documentID)
+  .then(doc => {
     console.log(doc)
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
     return querydb.documentText.getDocumentText(textId);
   }).then(result => {
-    console.log(result)
     const article = [];
     const vocab_list = {};
     const srclanguage = result.sourceLanguage;
-    const allWordPromise = querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
-    allWordPromise.then(allWords=> {
-      const keyWordPromise = querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
-      keyWordPromise.then(keyWords => {
-        allWords.forEach(function(w){
-          console.log("w:", typeof w, w)
-          let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-          article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-        });
-        for(let i = 0 ; i < keyWords.length; i++){
-          vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
-        }
-        const toReturn = {
-          title : title,
-          plaintext : result.plaintext, 
-          article : article,
-          vocab_list : vocab_list,
-          language : srclanguage
-        };
-        response.status(200).type('application/json');
-        response.json(toReturn);
-      })
-    })
-  })
+    // allWordPromise
+    return querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
+  }).then(allwordsTemp => {
+    allWords = allWordsTemp;
+    // keyWordPromise
+    return querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
+  }).then(keyWords => {
+    allWords.forEach(function(w){
+      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+    });
+    for(let i = 0 ; i < keyWords.length; i++){
+      vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+    }
+    const toReturn = {
+      title : title,
+      plaintext : result.plaintext, 
+      article : article,
+      vocab_list : vocab_list,
+      language : srclanguage
+    };
+    response.status(200).type('application/json');
+    response.json(toReturn);
+
+  }).catch(err => {
+      // should catch any error from previous chains
+      response.status(500).send();
+  });
 });
 
 
@@ -165,26 +209,39 @@ app.post('/generate-pdf', function(request, response){
   // entry point for uploading a pdf file
   upload(req, res, function(err){
     if (err) {
-      return res.end("could not upload the file");
+      return res.status(500).send();
     }
-    let pdfParser = new PDFParser(this,1);
-    let scrapedText = "";
-   
-      pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
-      pdfParser.on("pdfParser_dataReady", pdfData => {
-          scrapedText = pdfParser.getRawTextContent();
-          const title = request.body.title;
-          processAndSaveText(scrapedText, title, response);
-      });
-    
-      pdfParser.loadPDF("./uploads/" + req.file.filename);
+    let pdfParser = new PDFParser(this, 1);
+    let scrapedText = "";   
+    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+    pdfParser.on("pdfParser_dataReady", pdfData => {
+      scrapedText = pdfParser.getRawTextContent();
+      const title = request.body.title;
+      processAndSaveText(scrapedText, title, response);
+      try {
+        fs.unlinkSync('./uploads/' + req.file.filename);
+        console.log('deleted ' + req.file.filename);
+      } catch (err) {
+        console.log('error deleting ' + req.file.filename);
+      }
+    });
+    pdfParser.loadPDF("./uploads/" + req.file.filename);
   }); 
 });
+
 app.post('/generate-url', function(request, response){
-  const scrapedText = scrapeURL(request.body.url);
-  const title = request.body.title;
-  processAndSaveText(scrapedText, title, response);
+  scrapeURL(request.body.url).then(allText => {
+    if(allText == "ERR: Invalid URL"){
+      response.status(500).send();
+      return;
+    }
+    const title = request.body.title;
+    processAndSaveText(allText, title, response);
+  }).catch(err => {
+    response.status(500).send()
+  });
 });
+
 app.post('/:userid/vocab', function(request, response){
   const titles = [];
   const ids = [];
@@ -196,9 +253,11 @@ app.post('/:userid/vocab', function(request, response){
     ids.push(result._id);
     let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
     previews.push(result.text.plaintext.substring(0, len));
+    response.status(200).type('html');
+    response.json({titles : titles, ids : ids, previews : previews});
+  }).catch(err => {
+    response.status(500).send();
   });
-  response.status(200).type('html');
-  response.json({titles : titles, ids : ids, previews : previews});
 });
 
 app.get('/vocab', function(request, response, next){
@@ -233,45 +292,36 @@ app.get('/vocab', function(request, response, next){
 
 function processAndSaveText(text, title, response){
   let keywords;
-  const translatedJson = nlp.processText(text);
-  translatedJson.then(result => {
-    [ srcLanguage, translatedWords, allWords ] = result;
-
+  nlp.processText(text)
+  .then(translatedJson => {
+    [ srcLanguage, translatedWords, allWords ] = translatedJson;
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
-
+    const keywordsPlaintext = nlpMain.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
-
     // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
-
-
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('html');
-      response.json(id);
-    });
+    return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
+  }).then(result => {
+    console.log(result);
+    const id = result['_id'];
+    console.log(id);
+    response.status(200).type('html');
+    response.json(id);
+  }).catch(err => {
+    response.status(500).send();
   });
 }
+
 function scrapeURL(url){
-  axios.get(url).then((response) => {
-    //TODO check promise rejection
+  let allText = "";
+  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'];
+  return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    const allText = $('p').text() + " " + $('h1').text() + " " + $('h2').text() + " " + $('h3').text() + " " + $('h4').text() + " " +$('h5').text() + " " + $('h6').text();
-    return allText
+    allText = textElements.map(element => $(element).text()).join(' ');
+    return allText;
+  }).catch(err => {
+    return "ERR: Invalid URL";
   });
-}
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
 }
 
 function rankText(text, thresh) {
