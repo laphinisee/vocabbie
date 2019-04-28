@@ -8,13 +8,6 @@ const query = require('../db/query');
 
 var Promise = require('bluebird');
 
-function splitIntoSentences(text) {
-	regex = /[^\.!\?]+[\.!\?]+/g
-    return text.match(regex)
-}
-
-console.log(splitIntoSentences('If you need to take probability and statistics in the fall, whether for graduation or spring prereqs, be advised that APMA 1650 is full and will NOT be taking students beyond the course cap (which is based on classroom capacity).  Please do NOT write Professor Klivens to request an override code for the fall.'))
-
 function processText(text, targetLanguage='en') {
 	return tokenize.tokenizeText(text).then(result => {
 		return result[0];
