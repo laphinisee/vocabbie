@@ -30,11 +30,8 @@ const PDFParser = require('pdf2json');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
-   1. query for allWords with GetWordsQuery from Alex (AllWords is currently a list of strings)
-   2. Revert back and get the processAndSaveText
-   3. Integrate pdf parsing and url parsing methods abstracted out
-   4. set up db auth and test text generation end points. 
-   5. ERROR CHECKING !!!
+   1. See result of keywords, and if it's too much for a large article, cut it down to be ~20. 
+      1. b TF/IDF and/or length?
 */
 ////////////////////////// LOGIN LOGIC /////////////////////////////////////////
 const bcrypt = require("bcryptjs");
