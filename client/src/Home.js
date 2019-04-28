@@ -1,5 +1,5 @@
 import React from "react";
-import {Heading, Box, Button, Grid, Paragraph} from 'grommet';
+import {Heading, Box, Button, Grid, Image, Paragraph} from 'grommet';
 import map from './images/map.png';
 import Container from "./Container";
 
@@ -39,29 +39,37 @@ class Home extends React.Component {
           <Header/>
           <Container>
               <Box direction="column" flex="grow">
-                <Heading level={2}>Why use Vocabbie?</Heading>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lacinia sapien in lectus pharetra, ut efficitur ligula finibus. Nullam id odio at tellus maximus semper at quis tortor. Nulla id metus vel ante bibendum pretium. Proin a vehicula neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec massa tortor, venenatis id ligula a, pulvinar ullamcorper purus. Quisque tristique enim ac sodales iaculis. Sed vehicula sem non mi rutrum mattis. Etiam pellentesque, arcu a aliquet eleifend, mauris metus imperdiet arcu, et facilisis nibh enim at nunc. Nulla volutpat urna vitae tortor ultrices rutrum. Sed ullamcorper lorem posuere lectus blandit, vitae laoreet massa efficitur. Vivamus dignissim magna nulla, quis tristique lorem porta eget. Fusce mollis tincidunt sem, sed fermentum enim efficitur volutpat.
-                </p>
-                <p>
-                  In rutrum lectus sapien, id sollicitudin ex lacinia mattis. Curabitur nibh ante, dignissim ac vulputate vel, ultrices quis felis. Vivamus vehicula felis a vehicula dapibus. Ut sodales turpis eget venenatis luctus. Phasellus fermentum lacus non dolor dapibus dignissim. Sed sed justo diam. Vivamus ligula turpis, dictum ut lacus eget, scelerisque commodo erat. Sed semper lorem quis odio lacinia placerat. Integer aliquam hendrerit velit at varius. Proin vulputate erat tellus, eget ornare ligula viverra ac. Sed semper ante at odio fringilla, eget facilisis sapien gravida. Nulla vel egestas dolor, vitae congue massa.
-                </p>
-              </Box>
-              <Box
-                className='PageHeader'
-                direction='column'
-                background='neutral-2'
-                pad={{ left: 'xlarge', right: 'xlarge', vertical: 'large' }}>
-                <Paragraph margin="none">Ready</Paragraph>
-              </Box>
-              <Box direction="column" flex="grow">
-                <Heading level={2}>Why use Vocabbie?</Heading>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lacinia sapien in lectus pharetra, ut efficitur ligula finibus. Nullam id odio at tellus maximus semper at quis tortor. Nulla id metus vel ante bibendum pretium. Proin a vehicula neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec massa tortor, venenatis id ligula a, pulvinar ullamcorper purus. Quisque tristique enim ac sodales iaculis. Sed vehicula sem non mi rutrum mattis. Etiam pellentesque, arcu a aliquet eleifend, mauris metus imperdiet arcu, et facilisis nibh enim at nunc. Nulla volutpat urna vitae tortor ultrices rutrum. Sed ullamcorper lorem posuere lectus blandit, vitae laoreet massa efficitur. Vivamus dignissim magna nulla, quis tristique lorem porta eget. Fusce mollis tincidunt sem, sed fermentum enim efficitur volutpat.
-                </p>
-                <p>
-                  In rutrum lectus sapien, id sollicitudin ex lacinia mattis. Curabitur nibh ante, dignissim ac vulputate vel, ultrices quis felis. Vivamus vehicula felis a vehicula dapibus. Ut sodales turpis eget venenatis luctus. Phasellus fermentum lacus non dolor dapibus dignissim. Sed sed justo diam. Vivamus ligula turpis, dictum ut lacus eget, scelerisque commodo erat. Sed semper lorem quis odio lacinia placerat. Integer aliquam hendrerit velit at varius. Proin vulputate erat tellus, eget ornare ligula viverra ac. Sed semper ante at odio fringilla, eget facilisis sapien gravida. Nulla vel egestas dolor, vitae congue massa.
-                </p>
+                <Grid
+                  rows={['medium', 'medium']}
+                  columns={['1/3', '1/3', '1/3']}
+                  gap="large"
+                  margin="large"
+                  areas={[
+                    {name: 'left1', start: [0,0], end: [1,0]},
+                    {name: 'right1', start: [1,0], end: [2,0]},
+                    {name: 'left2', start: [0,1], end: [2,1]},
+                    {name: 'right2', start: [2,1], end: [2,1]},
+                  ]}>
+                  <Box gridArea='left1'>
+                    <Heading level={2} color="neutral-2">What is Vocabbie?</Heading>
+                    <Paragraph>Take any article or web page and generate a vocabulary sheet out of it. Vocabbie's algorithm will take the hardest vocabulary words, and prune the words you don't need to study.</Paragraph>
+                    <Paragraph>Need to remove or add words to your sheets? Customizing your sheets is easy.</Paragraph>
+                    <Button label="Start now" href="signup" alignSelf="start" color="neutral-2"/>
+                  </Box>
+                  <Box gridArea='right1'>
+                    <Image fit="cover" src="/img1.jpg"/>
+                  </Box>
+                  <Box gridArea='left2'>
+                    <Image fit="cover" src="/img2.jpg"/>
+                  </Box>
+                  <Box gridArea='right2'>
+                    
+                    <Heading level={2} color="neutral-2">Spend less time on busywork, and more time on learning.</Heading>
+                    <Paragraph>Spend less time looking for study materials online. Make your own in no time at all.</Paragraph>
+                    <Paragraph>Export your vocab sheets into PDFs and flash cards for on-the-go studying.</Paragraph>
+                    <Button label="Start learning" href="signup" alignSelf="start" color="neutral-2"/>
+                  </Box>
+                </Grid>
               </Box>
           </Container>
         </div>
