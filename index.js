@@ -48,6 +48,9 @@ function getKeywords(text) {
     remove_duplicates: true
   }));
 }
+<<<<<<< HEAD
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
+=======
 >>>>>>> parent of 12a672f... url parsing and reformatted generate
 
 app.get('/', function(request, response){
@@ -181,6 +184,33 @@ app.post('/generate-text', function(request, response) {
     //     keywords[hardId] = w;
     //   }
     // });
+<<<<<<< HEAD
+
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+
+    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+
+    // call db function to save all words.
+    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
+    
+    /**
+     * TODO: all promises need catches that gracefully return
+     * error messages to users.
+     */
+
+    promise.then(result => {
+      console.log(result);
+      const id = result['_id'];
+      console.log(id);
+      response.status(200).type('html');
+      response.json(id);
+    });
+  })
+
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
+=======
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
@@ -343,6 +373,13 @@ app.post('/register', function(req, res) {
   });
 })
 
+<<<<<<< HEAD
+
+
+
+
+>>>>>>> parent of 12a672f... url parsing and reformatted generate
+=======
 
 
 
