@@ -147,16 +147,18 @@ app.get('/document/:id', function(request, response){
   const documentID = mongoose.Types.ObjectId(request.params.id);
   let title = ""
   let allWords;
-  querydb.document.getDocument(documentID)
+  const article = [];
+  const vocab_list = {};
+  let srcLanguage = "";
+  let plaintext = "";
+  querydb.document.getDocument(documentID);
   .then(doc => {
-    console.log(doc)
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
     return querydb.documentText.getDocumentText(textId);
   }).then(result => {
-    const article = [];
-    const vocab_list = {};
-    const srclanguage = result.sourceLanguage;
+    srclanguage = result.sourceLanguage;
+    plaintext = result.plaintext;
     // allWordPromise
     return querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
   }).then(allwordsTemp => {
@@ -173,7 +175,7 @@ app.get('/document/:id', function(request, response){
     }
     const toReturn = {
       title : title,
-      plaintext : result.plaintext, 
+      plaintext : plaintext, 
       article : article,
       vocab_list : vocab_list,
       language : srclanguage
@@ -214,7 +216,7 @@ app.post('/generate-pdf', function(request, response){
     pdfParser.on("pdfParser_dataReady", pdfData => {
       scrapedText = pdfParser.getRawTextContent();
       const title = request.body.title;
-      processAndSaveText(scrapedText, title, response);
+      return processAndSaveText(scrapedText, title, response);
       try {
         fs.unlinkSync('./uploads/' + request.file.filename);
         console.log('deleted ' + request.file.filename);
@@ -233,7 +235,7 @@ app.post('/generate-url', function(request, response){
       return;
     }
     const title = request.body.title;
-    processAndSaveText(allText, title, response);
+    return processAndSaveText(allText, title, response);
   }).catch(err => {
     response.status(500).send()
   });
