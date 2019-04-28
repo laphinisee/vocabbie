@@ -77,7 +77,7 @@ class ArticleUpload extends React.Component {
   }
 
   isFormValid = (type) => {
-    return this.state.errors[type] == '' && this.state.values[type] !== '' && this.state.values.title !== ''
+    return this.state.errors[type] === '' && this.state.values[type] !== '' && this.state.values.title !== ''
   }
 
   submitPlainText = (e) => {
