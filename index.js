@@ -12,52 +12,98 @@ app.use(bodyParser.json());
 
 const multer = require('multer');
 let storage = multer.diskStorage({
-	destination: function(req, file, callback) {
-		callback(null, "./uploads");
-	},
-	filename: function(req, file, callback) {
-		callback(null, Date.now() + "_" + file.originalname);
-	}
+  destination: function(req, file, callback) {
+    callback(null, "./uploads");
+  },
+  filename: function(req, file, callback) {
+    callback(null, Date.now() + "_" + file.originalname);
+  }
 });
 let upload = multer({storage : storage});
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
 const querydb = require('./src/db/query');
-<<<<<<< HEAD
+const cheerio = require('cheerio');
+const axios = require('axios');
+const PDFParser = require('pdf2json');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
-   -. set up db auth and test text generation end points. 
-   -  fix documentID returning nothing for vocab list and -1 id / undordered for article.
-   -. Revert back and get the processAndSaveText
-   -. Integrate pdf parsing and url parsing methods abstracted out
-   -. 
-   -. ERROR CHECKING !!!
-
+   1. query for allWords with GetWordsQuery from Alex (AllWords is currently a list of strings)
+   2. Revert back and get the processAndSaveText
+   3. Integrate pdf parsing and url parsing methods abstracted out
+   4. set up db auth and test text generation end points. 
+   5. ERROR CHECKING !!!
 */
-=======
-const keyword_extractor = require("keyword-extractor");
-////////////////////// End boilerplate //////////////////////
+////////////////////////// LOGIN LOGIC /////////////////////////////////////////
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const keys = require("./keys/keys");
 
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
-}
-<<<<<<< HEAD
->>>>>>> parent of 12a672f... url parsing and reformatted generate
-=======
->>>>>>> parent of 12a672f... url parsing and reformatted generate
 
+const Users = require('./src/db/utils/schemas/userSchema').Users;
+
+app.post('/register', function(req, res) {
+  querydb.user.getUserByEmail(req.body.email).then(user => {
+    if (user) {
+      return res.status(200).json({ error: "Email already exists" });
+    } 
+
+    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
+  });
+});
+
+const passport = require('passport');
+require('./passport')(passport)
+app.use(passport.initialize());
+
+app.post('/login', function(req, res){
+  Users.findOne({ email: req.body.email }).then(user => {
+    if (!user) {
+      return res.status(200).json({ error: "Incorrect email and/or password." });
+    }
+
+    bcrypt.compare(req.body.password, user.password).then(isMatch => {
+      if (isMatch) {
+        const payload = {
+          id: user.id,
+          name: user.name
+        };
+
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          {
+            expiresIn: 31556926 // 1 year in seconds
+          },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token,
+              name: user.name,
+              email: user.email,
+              id: user.id,
+            });
+          }
+        );
+
+      } else {
+        return res
+          .status(200)
+          .json({ error: "Incorrect email and/or password." });
+      }
+    });
+  });
+})
+
+///////////////////////// ENDPOINTS /////////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
   
 });
+
 app.get('/document/:id', function(request, response){
   //Return JSON of Article, Defintions, Vocab_List
   //Article is list of all tokens to their definitions and id if they're in hardest.
@@ -88,7 +134,7 @@ app.get('/document/:id', function(request, response){
         }
         const toReturn = {
           title : title,
-          plaintext : result.plaintext,	
+          plaintext : result.plaintext, 
           article : article,
           vocab_list : vocab_list,
           language : srclanguage
@@ -100,157 +146,58 @@ app.get('/document/:id', function(request, response){
   })
 });
 
+
 app.post('/generate-text', function(request, response, next) {
- // passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    // if (err) {
-    //   res.status(500).send(err.message);
-    // } else if (user) {
-      // const topWords = rankText(request.body.text, 20);
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else if (user) {
       const title = request.body.title;
-      const text = request.body.text;
-      const translatedJson = nlp.processText(text);
-      translatedJson.then(result => {
-        [ srcLanguage, translatedWords, allWords ] = result;
-
-        // translatedWords.forEach(function(w){
-        //   let hardId = "";
-        //   if(topWords.indexOf(w.lemma) !== -1) {
-        //     hardId = topWords.indexOf(w.lemma);
-        //     keywords[hardId] = w;
-        //   }
-        // });
-
-<<<<<<< HEAD
-        const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
-        const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
-
-        const keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
-
-        // call db function to save all words.
-        const promise = querydb.document.createDocument(title, user._id, request.body.text, srcLanguage, "en", allWords.map(word => word.originalText), keywords.map(word => word.originalText));
-        
-        /**
-         * TODO: all promises need catches that gracefully return
-         * error messages to users.
-         */
-
-        promise.then(result => {
-          console.log(result);
-          const id = result['_id'];
-          console.log(id);
-          response.status(200).type('application/json');
-          response.json({id:id});
-        });
-      })
-    // } else {
-    //   response.status(401).send()
-    // }
-  //})(request, response, next);
+      const text = scrapeURL(request.body.url);
+      processAndSaveText(text, title, response);
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 app.post('/generate-pdf', function(request, response){
-	// entry point for uploading a pdf file
-	upload(req, res, function(err){
-		if (err) {
-			return res.end("could not upload the file");
-		}
-		let pdfParser = new PDFParser(this,1);
-		let scrapedText = "";
-	 
-	    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
-	    pdfParser.on("pdfParser_dataReady", pdfData => {
-	        scrapedText = pdfParser.getRawTextContent();
-	    	// call generate text helper function l8r
-	    	// return to frontend
-	    });
-		
-	    pdfParser.loadPDF("./uploads/" + req.file.filename);
-	}); 
-=======
-app.post('/generate-text', function(request, response) {
-  // const topWords = rankText(request.body.text, 20);
-  const title = request.body.title
-  let keywords;
-  const text = request.body.text
-  const translatedJson = nlp.processText(text);
-  translatedJson.then(result => {
-    [ srcLanguage, translatedWords, allWords ] = result;
-
-    // translatedWords.forEach(function(w){
-    //   let hardId = "";
-    //   if(topWords.indexOf(w.lemma) !== -1) {
-    //     hardId = topWords.indexOf(w.lemma);
-    //     keywords[hardId] = w;
-    //   }
-    // });
-<<<<<<< HEAD
-
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
-
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
-
-    // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
+  // entry point for uploading a pdf file
+  upload(req, res, function(err){
+    if (err) {
+      return res.end("could not upload the file");
+    }
+    let pdfParser = new PDFParser(this,1);
+    let scrapedText = "";
+   
+      pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+      pdfParser.on("pdfParser_dataReady", pdfData => {
+          scrapedText = pdfParser.getRawTextContent();
+          const title = request.body.title;
+          processAndSaveText(scrapedText, title, response);
+      });
     
-    /**
-     * TODO: all promises need catches that gracefully return
-     * error messages to users.
-     */
-
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('html');
-      response.json(id);
-    });
-  })
-
->>>>>>> parent of 12a672f... url parsing and reformatted generate
-=======
-
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
-
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
-
-    // call db function to save all words.
-    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), request.body.text, srcLanguage, "en", allWords, keywords);
-    
-    /**
-     * TODO: all promises need catches that gracefully return
-     * error messages to users.
-     */
-
-    promise.then(result => {
-      console.log(result);
-      const id = result['_id'];
-      console.log(id);
-      response.status(200).type('html');
-      response.json(id);
-    });
-  })
-
->>>>>>> parent of 12a672f... url parsing and reformatted generate
+      pdfParser.loadPDF("./uploads/" + req.file.filename);
+  }); 
 });
-
+app.post('/gneerate-url', function(request, response){
+  const scrapedText = scrapeURL(request.body.url);
+  const title = request.body.title;
+  processAndSaveText(scrapedText, title, response);
+});
 app.post('/:userid/vocab', function(request, response){
-	const titles = [];
-	const ids = [];
-	const previews = [];
-	querydb.getUserDocuments(request.params.userid)
-	.then(result => {
-		// list of {name : ?, _id : ?, text.plaintext : ?}
-		titles.push(result.name);
-		ids.push(result._id);
-		let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
-		previews.push(result.text.plaintext.substring(0, len));
-	});
-	response.status(200).type('html');
+  const titles = [];
+  const ids = [];
+  const previews = [];
+  querydb.getUserDocuments(request.params.userid)
+  .then(result => {
+    // list of {name : ?, _id : ?, text.plaintext : ?}
+    titles.push(result.name);
+    ids.push(result._id);
+    let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
+    previews.push(result.text.plaintext.substring(0, len));
+  });
+  response.status(200).type('html');
   response.json({titles : titles, ids : ids, previews : previews});
 });
 
@@ -284,107 +231,48 @@ app.get('/vocab', function(request, response, next){
   })(request, response, next);
 });
 
+function processAndSaveText(text, title, response){
+  let keywords;
+  const translatedJson = nlp.processText(text);
+  translatedJson.then(result => {
+    [ srcLanguage, translatedWords, allWords ] = result;
+
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+
+    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+
+    // call db function to save all words.
+    const promise = querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
 
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-//const keys = require("./keys/keys");
-
-
-const Users = require('./src/db/utils/schemas/userSchema').Users;
-
-app.post('/register', function(req, res) {
-  querydb.user.getUserByEmail(req.body.email).then(user => {
-    if (user) {
-      return res.status(200).json({ error: "Email already exists" });
-    } 
-
-    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
-  });
-});
-
-//const passport = require('passport');
-//require('./passport')(passport)
-//app.use(passport.initialize());
-
-// app.post('/login', function(req, res){
-//   Users.findOne({ email: req.body.email }).then(user => {
-//     if (!user) {
-//       return res.status(200).json({ error: "Incorrect email and/or password." });
-//     }
-
-//     bcrypt.compare(req.body.password, user.password).then(isMatch => {
-//       if (isMatch) {
-//         const payload = {
-//           id: user.id,
-//           name: user.name
-//         };
-
-<<<<<<< HEAD
-//         jwt.sign(
-//           payload,
-//           keys.secretOrKey,
-//           {
-//             expiresIn: 31556926 // 1 year in seconds
-//           },
-//           (err, token) => {
-//             res.json({
-//               success: true,
-//               token: "Bearer " + token,
-//               name: user.name,
-//               email: user.email,
-//               id: user.id,
-//             });
-//           }
-//         );
-
-//       } else {
-//         return res
-//           .status(200)
-//           .json({ error: "Incorrect email and/or password." });
-//       }
-//     });
-//   });
-// })
-=======
-        jwt.sign(
-          payload,
-          keys.secretOrKey,
-          {
-            expiresIn: 31556926 // 1 year in seconds
-          },
-          (err, token) => {
-            res.json({
-              success: true,
-              token: "Bearer " + token,
-              name: user.name,
-              email: user.email,
-              id: user.id,
-            });
-          }
-        );
-
-      } else {
-        return res
-          .status(200)
-          .json({ error: "Incorrect email and/or password." });
-      }
+    promise.then(result => {
+      console.log(result);
+      const id = result['_id'];
+      console.log(id);
+      response.status(200).type('html');
+      response.json(id);
     });
   });
-})
-
-<<<<<<< HEAD
-
-
-
-
->>>>>>> parent of 12a672f... url parsing and reformatted generate
-=======
-
-
-
-
->>>>>>> parent of 12a672f... url parsing and reformatted generate
+}
+function scrapeURL(url){
+  axios.get(url).then((response) => {
+    //TODO check promise rejection
+    // Load the web page source code into a cheerio instance
+    const $ = cheerio.load(response.data);
+    const allText = $('p').text() + " " + $('h1').text() + " " + $('h2').text() + " " + $('h3').text() + " " + $('h4').text() + " " +$('h5').text() + " " + $('h6').text();
+    return allText
+  });
+}
+function getKeywords(text) {
+  return new Set(keyword_extractor.extract(text, {
+    // language: 'english',
+    remove_digits: true,
+    return_changed_case: false,
+    remove_duplicates: true
+  }));
+}
 
 function rankText(text, thresh) {
   const allKeyWords = keywords(text);
