@@ -27,11 +27,13 @@ const querydb = require('./src/db/query');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
-   1. query for allWords with GetWordsQuery from Alex (AllWords is currently a list of strings)
-   2. Revert back and get the processAndSaveText
-   3. Integrate pdf parsing and url parsing methods abstracted out
-   4. set up db auth and test text generation end points. 
-   5. ERROR CHECKING !!!
+   -. set up db auth and test text generation end points. 
+   -  fix documentID returning nothing for vocab list and -1 id / undordered for article.
+   -. Revert back and get the processAndSaveText
+   -. Integrate pdf parsing and url parsing methods abstracted out
+   -. 
+   -. ERROR CHECKING !!!
+
 */
 
 app.get('/', function(request, response){
@@ -61,7 +63,7 @@ app.get('/document/:id', function(request, response){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
       article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
     });
-    for(let i = 0 ; i < keyWords.length; i++){
+    for(let i = 0; i < keyWords.length; i++){
       vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
     }
     const toReturn = {
