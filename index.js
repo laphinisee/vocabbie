@@ -239,7 +239,7 @@ function processAndSaveText(text, title, response){
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
 
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+    const keywordsPlaintext = nlpMain.getKeywords(whitespaceSeparatedWords);
 
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
 
@@ -264,14 +264,6 @@ function scrapeURL(url){
     const allText = $('p').text() + " " + $('h1').text() + " " + $('h2').text() + " " + $('h3').text() + " " + $('h4').text() + " " +$('h5').text() + " " + $('h6').text();
     return allText
   });
-}
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
 }
 
 function rankText(text, thresh) {
