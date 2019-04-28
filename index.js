@@ -122,6 +122,7 @@ app.get('/document/:id', function(request, response){
     const srclanguage = result.sourceLanguage;
     const allWordPromise = querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
     allWordPromise.then(allWords=> {
+      console.log(allWords);
       const keyWordPromise = querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
       keyWordPromise.then(keyWords => {
         allWords.forEach(function(w){
@@ -180,11 +181,20 @@ app.post('/generate-pdf', function(request, response){
       pdfParser.loadPDF("./uploads/" + req.file.filename);
   }); 
 });
-app.post('/gneerate-url', function(request, response){
-  const scrapedText = scrapeURL(request.body.url);
-  const title = request.body.title;
-  processAndSaveText(scrapedText, title, response);
+
+app.post('/generate-url', function(request, response){
+  scrapeURL(request.body.url).then(allText => {
+    if(allText == "ERR: Invalid URL"){
+      response.status(500).send();
+      return;
+    }
+    const title = request.body.title;
+    processAndSaveText(allText, title, response);
+  }).catch(err => {
+    response.status(500).send()
+  });
 });
+
 app.post('/:userid/vocab', function(request, response){
   const titles = [];
   const ids = [];
@@ -257,12 +267,17 @@ function processAndSaveText(text, title, response){
   });
 }
 function scrapeURL(url){
-  axios.get(url).then((response) => {
+  let allText = "";
+  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'];
+  return axios.get(url).then((response) => {
     //TODO check promise rejection
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    const allText = $('p').text() + " " + $('h1').text() + " " + $('h2').text() + " " + $('h3').text() + " " + $('h4').text() + " " +$('h5').text() + " " + $('h6').text();
-    return allText
+    allText = textElements.map(element => $(element).text()).join(' ');
+    // console.log(allText);
+    return allText;
+  }).catch(err => {
+    return "ERR: Invalid URL";
   });
 }
 function getKeywords(text) {
