@@ -296,7 +296,7 @@ function processAndSaveText(text, title, response){
   .then(translatedJson => {
     [ srcLanguage, translatedWords, allWords ] = translatedJson;
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-    const keywordsPlaintext = getKeywords(whitespaceSeparatedWords);
+    const keywordsPlaintext = nlpMain.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
     // call db function to save all words.
     return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords, keywords);
@@ -322,15 +322,6 @@ function scrapeURL(url){
   }).catch(err => {
     return "ERR: Invalid URL";
   });
-}
-
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
-    // language: 'english',
-    remove_digits: true,
-    return_changed_case: false,
-    remove_duplicates: true
-  }));
 }
 
 function rankText(text, thresh) {
