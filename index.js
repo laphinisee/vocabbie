@@ -180,7 +180,7 @@ app.post('/generate-pdf', function(request, response){
       pdfParser.loadPDF("./uploads/" + req.file.filename);
   }); 
 });
-app.post('/gneerate-url', function(request, response){
+app.post('/generate-url', function(request, response){
   const scrapedText = scrapeURL(request.body.url);
   const title = request.body.title;
   processAndSaveText(scrapedText, title, response);
