@@ -306,7 +306,7 @@ function processAndSaveText(text, title, response){
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'];
+  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   return axios.get(url).then((response) => {
     //TODO check promise rejection
     // Load the web page source code into a cheerio instance
