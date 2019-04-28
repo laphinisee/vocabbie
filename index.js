@@ -27,6 +27,7 @@ const querydb = require('./src/db/query');
 const cheerio = require('cheerio');
 const axios = require('axios');
 const PDFParser = require('pdf2json');
+const fs = require('fs');
 ////////////////////// End boilerplate //////////////////////
 
 /* Backend TODOS
@@ -36,7 +37,7 @@ const PDFParser = require('pdf2json');
    4. set up db auth and test text generation end points. 
    5. ERROR CHECKING !!!
 */
-////////////////////////// LOGIN LOGIC /////////////////////////////////////////
+////////////////////// LOGIN LOGIC //////////////////////
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("./keys/keys");
@@ -97,7 +98,7 @@ app.post('/login', function(req, res){
   });
 })
 
-///////////////////////// ENDPOINTS /////////////////////////
+////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
   console.log('- request received:', request.method, request.url);
@@ -217,6 +218,12 @@ app.post('/generate-pdf', function(request, response){
       scrapedText = pdfParser.getRawTextContent();
       const title = request.body.title;
       processAndSaveText(scrapedText, title, response);
+      try {
+        fs.unlinkSync('./uploads/' + req.file.filename);
+        console.log('deleted ' + req.file.filename);
+      } catch (err) {
+        console.log('error deleting ' + req.file.filename);
+      }
     });
     pdfParser.loadPDF("./uploads/" + req.file.filename);
   }); 
@@ -308,11 +315,9 @@ function scrapeURL(url){
   let allText = "";
   const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'];
   return axios.get(url).then((response) => {
-    //TODO check promise rejection
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
     allText = textElements.map(element => $(element).text()).join(' ');
-    // console.log(allText);
     return allText;
   }).catch(err => {
     return "ERR: Invalid URL";
