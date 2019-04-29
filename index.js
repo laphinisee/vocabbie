@@ -149,8 +149,10 @@ app.get('/document/:id', function(request, response){
   let allWords;
   const article = [];
   const vocab_list = {};
-  let srcLanguage = "";
+  let srclanguage = "";
   let plaintext = "";
+  let targetlanguage = "";
+  let keyWordsStrings;
   querydb.document.getDocument(documentID);
   .then(doc => {
     title = doc.name;
@@ -159,12 +161,14 @@ app.get('/document/:id', function(request, response){
   }).then(result => {
     srclanguage = result.sourceLanguage;
     plaintext = result.plaintext;
+    targetlanguage = result.targetlanguage;
+    keyWordsStrings = result.keyWords;
     // allWordPromise
-    return querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
+    return querydb.word.getWords(result.allWords,  srlanguage, targetlanguage)
   }).then(allwordsTemp => {
     allWords = allWordsTemp;
     // keyWordPromise
-    return querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
+    return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
   }).then(keyWords => {
     allWords.forEach(function(w){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
