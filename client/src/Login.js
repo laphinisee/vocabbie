@@ -73,8 +73,8 @@ class Login extends React.Component {
       if(res.data.error) {
         console.log("form error!")
       } else {
-        this.props.onLogin(res.data.token)
         localStorage.setItem('JWT', res.data.token);        
+        this.props.onLogin(res.data.token)
         this.setState({
           redirect: true,
         })
@@ -84,7 +84,7 @@ class Login extends React.Component {
   render() {
     return (
       <Container title="Login" description="Login!">
-          {this.state.redirect && <Redirect to='/sheets' />}
+          {this.state.redirect && <Redirect to='/' />}
           <Form>
             <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email" />
             <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
