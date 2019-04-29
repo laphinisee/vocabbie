@@ -23,7 +23,6 @@ class Login extends React.Component {
         },
         redirect: localStorage.getItem('JWT') !== null
     }
-    console.log("ayy!", this.state)
   }
 
   handleUserInput = (e) => {
