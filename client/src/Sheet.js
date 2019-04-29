@@ -2,9 +2,11 @@ import React from "react";
 import ArticleDisplay from './ArticleDisplay';
 import Container from './Container';
 import VocabDisplay from './VocabDisplay';
+import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
 import {Button, Grid, Box} from 'grommet';
 import {Download, Trash, Edit} from 'grommet-icons'
+import {PDFViewer} from '@react-pdf/renderer';
 
 class Sheet extends React.Component {
   constructor(props) {
@@ -14,6 +16,7 @@ class Sheet extends React.Component {
       tokens: [],
       vocabRows: [],
       selected: null,
+      pdfReady: false,
     };
   }
 
@@ -23,6 +26,7 @@ class Sheet extends React.Component {
         const getData = res
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
+        this.setState({pdfReady: true})
       })
     }
 
@@ -43,10 +47,11 @@ class Sheet extends React.Component {
 
     render() {
       console.log("vocabRows:", this.state.vocabRows)
+      console.log("title", this.state.title)
       return (
         <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid
-          rows={['xxsmall','small' ]}
+          rows={['xxsmall','fit' ]}
           columns={['1/2', '1/2']}
           gap="small"
           areas={[
@@ -75,6 +80,9 @@ class Sheet extends React.Component {
             </Box>
           </Grid>
           <ReactTooltip />
+          {/* {this.state.pdfReady ? <PDFViewer>
+            <PDFSheet title={this.state.title} tokens={this.state.tokens}/>
+          </PDFViewer> : null} */}
          </Container>
       )
     }

@@ -4,6 +4,7 @@ import {AddCircle} from 'grommet-icons'
 import './index.css';
 import Container from './Container';
 import TextTruncate from 'react-text-truncate'; 
+import { withRouter } from "react-router";
 
 class VocabDisplay extends React.Component {
   constructor(props) {
@@ -27,6 +28,9 @@ class VocabDisplay extends React.Component {
       console.log(res)
       const getData = res
       this.setState({articles: getData, loading: false})
+    }).catch(err => {
+      console.error(err)
+      this.props.history.push('/error')
     })
   }
 
@@ -56,6 +60,6 @@ class VocabDisplay extends React.Component {
     }
   }
 
-  export default VocabDisplay;
+  export default withRouter(VocabDisplay);
 
 

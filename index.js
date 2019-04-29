@@ -246,24 +246,6 @@ app.post('/generate-url', function(request, response){
   });
 });
 
-app.post('/:userid/vocab', function(request, response){
-  const titles = [];
-  const ids = [];
-  const previews = [];
-  querydb.getUserDocuments(request.params.userid)
-  .then(result => {
-    // list of {name : ?, _id : ?, text.plaintext : ?}
-    titles.push(result.name);
-    ids.push(result._id);
-    let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
-    previews.push(result.text.plaintext.substring(0, len));
-    response.status(200).type('html');
-    response.json({titles : titles, ids : ids, previews : previews});
-  }).catch(err => {
-    response.status(500).send();
-  });
-});
-
 app.get('/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
@@ -281,7 +263,7 @@ app.get('/vocab', function(request, response, next){
         Promise.all(allPromises).then(
           dts => {
             dts.forEach((dt, i) => {
-              const len = Math.min(dt.plaintext.length, 100);
+              const len = Math.min(dt.plaintext.length, 1000);
               docs[i].preview = dt.plaintext.substring(0, len)
             })
             response.status(200).type('application/json');

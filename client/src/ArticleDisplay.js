@@ -1,5 +1,5 @@
 import React from "react";
-import {Box} from 'grommet';
+import {Box, Text} from 'grommet';
 import ReactTooltip from 'react-tooltip'
 
 class Token extends React.Component {
@@ -32,7 +32,7 @@ class Token extends React.Component {
         key={this.props.token_id}
         style={
           {
-            "whiteSpace": "pre"
+            "whiteSpace": "pre-wrap"
           }
         }
         data-tip={this.props.translated ? `${this.props.translated}` : ''}
@@ -90,9 +90,9 @@ class ArticleDisplay extends React.Component {
     return (
       <Box pad="medium">
         <ReactTooltip html={true} />
-        <p>
+        <Text>
           {this.processArticle(this.props.article, this.props.tokens)}
-        </p>
+        </Text>
       </Box>
     )
   }
