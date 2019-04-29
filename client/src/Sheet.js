@@ -7,6 +7,7 @@ import ReactTooltip from 'react-tooltip'
 import {Button, Grid, Box} from 'grommet';
 import {Download, Trash, Edit} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
+import { withRouter } from "react-router";
 
 class Sheet extends React.Component {
   constructor(props) {
@@ -27,6 +28,9 @@ class Sheet extends React.Component {
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
         this.setState({pdfReady: true})
+      }).catch((err) => {
+        console.error(err)
+        this.props.history.push('/error')
       })
     }
 
@@ -88,6 +92,6 @@ class Sheet extends React.Component {
     }
   }
 
-  export default Sheet;
+  export default withRouter(Sheet);
 
 
