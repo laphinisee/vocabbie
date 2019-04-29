@@ -28,7 +28,7 @@ function isStopword(token, sourceLanguage, punctuationIsStopword=true) {
 		return null;
 	}
 
-	const wordIsStopword = stopwords.includes(word) || stopwords.includes(lemma);
+	const wordIsStopword = stopwords.includes(word) || stopwords.includes(lemma) || stopwords.includes(word.toLowerCase()) || stopwords.includes(lemma.toLowerCase());
 	const wordIsPunctuation = (isPunctuation === 'PUNCT');
 
 	return punctuationIsStopword ? 
