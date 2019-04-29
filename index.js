@@ -210,6 +210,7 @@ app.post('/generate-text', function(request, response, next) {
 
 app.post('/generate-pdf', function(request, response){
   // entry point for uploading a pdf file
+  console.log("request.body:", request.body)
   upload(request, response, function(err){
     if (err) {
       return response.status(500).send();
@@ -309,7 +310,7 @@ function processAndSaveText(text, title, response){
   }).then(result => {
     const id = result['_id'];
     response.status(200).type('html');
-    response.json(id);
+    response.json({id: id});
   }).catch(err => {
     console.log("err:", err)
     response.status(500).send();
