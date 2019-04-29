@@ -12,7 +12,7 @@ const documentSchema = new mongoose.Schema({
 	sharedUsers: [mongoose.Schema.Types.ObjectId],
 	creationTime: { type: Date, default: Date.now },
 	studyMats: { type: Map, of: studyMat.schema, default: {} },
-	isPublic: { type: boolean, default: false }
+	isPublic: { type: Boolean, default: false }
 })
 
 module.exports.schema = documentSchema;

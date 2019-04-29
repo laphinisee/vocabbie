@@ -35,7 +35,7 @@ class Token extends React.Component {
             "whiteSpace": "pre"
           }
         }
-        data-tip={this.props.translated ? `${this.props.translated}` : ''}
+        data-tip={(this.props.translated ? `${this.props.translated}` : '') + (this.props.translated ? <br/> + `${this.props.translated}` : '')}
       >
         {this.props.str}
       </span>
@@ -63,6 +63,7 @@ class ArticleDisplay extends React.Component {
             token_id={currentToken.id} 
             key={display}
             translated={currentToken.def} 
+            pronunciation={currentToken.pronunciation}
             onHover={this.props.onWordHover}
             offHover={this.props.offWordHover}
           />
