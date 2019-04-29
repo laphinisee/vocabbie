@@ -171,7 +171,7 @@ app.get('/document/:id', function(request, response){
   }).then(keyWords => {
     allWords.forEach(function(w){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId, pronunciation : w.pronunciation});
+      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId, pronunciation : w.pronunciation, isStopword : w.isStopword});
     });
     for(let i = 0 ; i < keyWords.length; i++){
       vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
@@ -299,7 +299,6 @@ function processAndSaveText(text, title, response){
   
   nlp.processText(text)
   .then(result => {
-    console.log("result:", result)
     const [ srcLanguage, translatedWords, allWords ] = result;
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
