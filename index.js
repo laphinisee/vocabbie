@@ -164,7 +164,7 @@ app.get('/document/:id', function(request, response){
     targetlanguage = result.targetlanguage;
     keyWordsStrings = result.keyWords;
     // allWordPromise
-    return querydb.word.getWords(result.allWords,  srlanguage, targetlanguage)
+    return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage)
   }).then(allwordsTemp => {
     allWords = allWordsTemp;
     // keyWordPromise
