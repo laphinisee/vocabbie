@@ -153,7 +153,7 @@ app.get('/document/:id', function(request, response){
   let plaintext = "";
   let targetlanguage = "";
   let keyWordsStrings;
-  querydb.document.getDocument(documentID);
+  querydb.document.getDocument(documentID)
   .then(doc => {
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
@@ -166,7 +166,7 @@ app.get('/document/:id', function(request, response){
     // allWordPromise
     return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage)
   }).then(allwordsTemp => {
-    allWords = allWordsTemp;
+    allWords = allwordsTemp;
     // keyWordPromise
     return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
   }).then(keyWords => {
@@ -189,6 +189,7 @@ app.get('/document/:id', function(request, response){
 
   }).catch(err => {
       // should catch any error from previous chains
+      console.log(err)
       response.status(500).send();
   });
 });
