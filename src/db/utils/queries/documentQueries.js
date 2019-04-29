@@ -37,6 +37,16 @@ function deleteDocument(documentId) {
 	return Documents.findByIdAndDelete(documentId).exec();
 }
 
+function shareDocument(documentId, userIds) {
+	return Documents.findByIdAndUpdate(documentId, { $addToSet: { sharedUsers: { $each: userIds} }}).exec();
+}
+
+function hasPermission(documentId, userId) {
+	return getDocument(documentId).then(result => {
+		return result['owner'] === userId || result['sharedUsers'].includes(userId);
+	})
+}
+
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getAllUserDocuments = getAllUserDocuments;
