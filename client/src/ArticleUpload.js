@@ -89,7 +89,7 @@ class ArticleUpload extends React.Component {
           },
           redirect: "follow", // manual, *follow, error
           body: JSON.stringify({
-            text: this.state.values.plainText,
+            plainText: this.state.values.plainText,
             title: this.state.values.title
           }), // body data type must match "Content-Type" header
       })
@@ -123,7 +123,6 @@ class ArticleUpload extends React.Component {
       fetch('/generate-pdf', {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         headers: {
-          "Content-Type": "multipart/form-data",
           "Authorization": this.props.user.token,
         },
         redirect: "follow", // manual, *follow, error
@@ -181,7 +180,7 @@ class ArticleUpload extends React.Component {
                     type="file" 
                     // label="File Upload"
                 />
-                <Button disabled={!this.isFormValid('file')} onClick={this.submitFile} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                <Button disabled={!this.isFormValid('file')} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label="Generate" />
               </Tab>
             </Tabs>
           </Form>
