@@ -25,6 +25,8 @@ class Token extends React.Component {
   }
 
   render() {
+    console.log(this.props.isStopword)
+    const hovered = this.state.hovered && !(this.props.isStopword)
     return (
       <span
         onMouseEnter={this.onMouseEnter}
@@ -32,10 +34,13 @@ class Token extends React.Component {
         key={this.props.token_id}
         style={
           {
+            "font-weight": hovered ? "bold" : "normal",
+            "text-decoration": hovered ? "underline" : 'none',
             "whiteSpace": "pre-wrap"
           }
         }
-        data-tip={this.props.translated ? `${this.props.translated}` : ''}
+        data-html={true}
+        data-tip={this.props.isStopword ? '' : (this.props.translated ? `${this.props.translated}` : '') + (this.props.pronunciation ? `<br/>${this.props.pronunciation}` : '')}
       >
         {this.props.str}
       </span>
@@ -63,6 +68,8 @@ class ArticleDisplay extends React.Component {
             token_id={currentToken.id} 
             key={display}
             translated={currentToken.def} 
+            pronunciation={currentToken.pronunciation}
+            isStopword={currentToken.isStopword}
             onHover={this.props.onWordHover}
             offHover={this.props.offWordHover}
           />

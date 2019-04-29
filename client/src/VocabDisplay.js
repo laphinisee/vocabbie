@@ -27,7 +27,7 @@ class VocabDisplay extends React.Component {
             <TableBody>
               {Object.keys(this.props.vocabRows).map( (k) => {
                 const vocab = this.props.vocabRows[k]
-                console.log("VocabDisplay:", k, vocab)
+                // console.log("VocabDisplay:", k, vocab)
                 return (
                   <TableRow>
                     <TableCell scope="row" border="bottom">
