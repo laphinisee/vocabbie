@@ -26,6 +26,8 @@ class VocabDisplay extends React.Component {
       console.log(res)
       const getData = res
       this.setState({articles: getData, loading: false})
+    }).catch(err => {
+      console.error(err)
     })
   }
 
