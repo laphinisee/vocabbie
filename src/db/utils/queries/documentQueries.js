@@ -43,7 +43,7 @@ function shareDocument(documentId, userIds) {
 
 function hasPermission(documentId, userId) {
 	return getDocument(documentId).then(result => {
-		return result['owner'] === userId || result['sharedUsers'].includes(userId);
+		return result['isPublic'] || (result['owner'] === userId || result['sharedUsers'].includes(userId));
 	})
 }
 
