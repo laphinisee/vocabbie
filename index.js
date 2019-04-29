@@ -161,10 +161,9 @@ app.get('/document/:id', function(request, response){
   }).then(result => {
     srclanguage = result.sourceLanguage;
     plaintext = result.plaintext;
-    targetlanguage = result.targetlanguage;
+    targetlanguage = result.targetLanguage;
     keyWordsStrings = result.keyWords;
-    // allWordPromise
-    return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage)
+    return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
   }).then(allwordsTemp => {
     allWords = allwordsTemp;
     // keyWordPromise
