@@ -149,9 +149,11 @@ app.get('/document/:id', function(request, response){
   let allWords;
   const article = [];
   const vocab_list = {};
-  let srcLanguage = "";
+  let srclanguage = "";
   let plaintext = "";
-  querydb.document.getDocument(documentID);
+  let targetlanguage = "";
+  let keyWordsStrings;
+  querydb.document.getDocument(documentID)
   .then(doc => {
     title = doc.name;
     const textId = mongoose.Types.ObjectId(doc.textId);
@@ -159,12 +161,14 @@ app.get('/document/:id', function(request, response){
   }).then(result => {
     srclanguage = result.sourceLanguage;
     plaintext = result.plaintext;
+    targetlanguage = result.targetlanguage;
+    keyWordsStrings = result.keyWords;
     // allWordPromise
-    return querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
+    return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage)
   }).then(allwordsTemp => {
-    allWords = allWordsTemp;
+    allWords = allwordsTemp;
     // keyWordPromise
-    return querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
+    return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
   }).then(keyWords => {
     allWords.forEach(function(w){
       let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
@@ -185,6 +189,7 @@ app.get('/document/:id', function(request, response){
 
   }).catch(err => {
       // should catch any error from previous chains
+      console.log(err)
       response.status(500).send();
   });
 });
