@@ -58,7 +58,7 @@ app.get('/document/:id', function(request, response){
   let keyWordsStrings;
   query.document.getDocument(documentID)
   .then(doc => {
-	title = doc.name;
+  	title = doc.name;
 	const textId = mongoose.Types.ObjectId(doc.textId);
 	return query.documentText.getDocumentText(textId);
   }).then(result => {
