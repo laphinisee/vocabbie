@@ -41,6 +41,9 @@ const keys = require("./keys/keys");
 
 
 const Users = require('./src/db/utils/schemas/userSchema').Users;
+const passport = require('passport');
+require('./passport')(passport)
+app.use(passport.initialize());
 
 app.post('/register', function(req, res) {
   querydb.user.getUserByEmail(req.body.email).then(user => {
@@ -48,13 +51,31 @@ app.post('/register', function(req, res) {
       return res.status(200).json({ error: "Email already exists" });
     } 
 
-    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
+    const newUser = querydb.user.createUser(req.body.name, req.body.email, req.body.password, (user) => {
+      const payload = {
+        id: user.id,
+        name: user.name
+      };
+
+      jwt.sign(
+        payload,
+        keys.secretOrKey,
+        {
+          expiresIn: 31556926 // 1 year in seconds
+        },
+        (err, token) => {
+          res.json({
+            success: true,
+            token: "Bearer " + token,
+            name: user.name,
+            email: user.email,
+            id: user.id,
+          });
+        }
+      );
+    });
   });
 });
-
-const passport = require('passport');
-require('./passport')(passport)
-app.use(passport.initialize());
 
 app.post('/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
