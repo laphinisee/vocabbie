@@ -1,6 +1,7 @@
 import React from "react";
 import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
 import { withRouter } from "react-router";
+import AlertBox from './AlertBox';
 
 class ArticleUpload extends React.Component {
 
@@ -26,6 +27,7 @@ class ArticleUpload extends React.Component {
           title: false,
       },
       loading: false,
+      error: '',
     }
   }
 
@@ -84,6 +86,7 @@ class ArticleUpload extends React.Component {
   submitPlainText = (e) => {
       this.setState({
         loading: true,
+        error: '',
       }, () => {
         fetch('/generate-text', {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -167,6 +170,7 @@ class ArticleUpload extends React.Component {
       return (
         <Box pad="medium">
           <Form>
+            {this.state.error && <AlertBox type="error" message={this.state.error}/>}
             <Box gridArea="title" alignContent="start">
                   <FormField 
                             error={this.state.touched.title && this.state.errors.title} 

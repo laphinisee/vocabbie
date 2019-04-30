@@ -322,8 +322,10 @@ function processAndSaveText(text, title, response){
     response.status(200).type('html');
     response.json({id: id});
   }).catch(err => {
-    console.log("err:", err)
-    response.status(500).send();
+    // TODO: error 400 means they did eng->eng, but it could mean other things.
+    // error code 3 means unsupported language. We should probably not assume
+    // that the error is an unsupported language. 
+    response.status(400).send("The language you entered is not supported.");
   });
 }
 
