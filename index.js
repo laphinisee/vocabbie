@@ -123,7 +123,7 @@ app.get('/', function(request, response){
   
 });
 
-app.get('/document/:id', function(request, response){
+app.get('/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -195,7 +195,7 @@ app.post('/generate-text', function(request, response, next) {
   })(request, response, next);
 });
 
-app.post('/generate-pdf', function(request, response){
+app.post('/generate-pdf', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -227,7 +227,7 @@ app.post('/generate-pdf', function(request, response){
   })(request, response, next); 
 });
 
-app.post('/generate-url', function(request, response){
+app.post('/generate-url', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
