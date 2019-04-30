@@ -3,6 +3,7 @@ import Container from './Container';
 import {Form, FormField, Anchor, Box, Button} from 'grommet';
 import axios from 'axios';
 import { Redirect } from 'react-router-dom'
+import AlertBox from './AlertBox'
 
 class Login extends React.Component {
 
@@ -21,9 +22,9 @@ class Login extends React.Component {
             email: false,
             password: false,
         },
+        error: '',
         redirect: localStorage.getItem('JWT') !== null
     }
-    console.log("ayy!", this.state)
   }
 
   handleUserInput = (e) => {
@@ -72,7 +73,9 @@ class Login extends React.Component {
     })
     .then(res => {
       if(res.data.error) {
-        console.log("form error!")
+        this.setState({
+          error: true,
+        })
       } else {
         localStorage.setItem('JWT', res.data.token);        
         this.props.onLogin(res.data.token)
@@ -87,6 +90,7 @@ class Login extends React.Component {
       <Container title="Login" description="Login!">
           {this.state.redirect && <Redirect to='/' />}
           <Form>
+            {this.state.error && <AlertBox type="error" message="Oh no! Your email or password was incorrect."/>}
             <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email" />
             <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
             <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Login" fill={true} primary color="accent-1"/> 

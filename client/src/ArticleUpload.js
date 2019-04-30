@@ -95,6 +95,10 @@ class ArticleUpload extends React.Component {
       })
       .then(res => res.json())
       .then(data => this.props.history.push(`/display/${data.id}`))
+      .catch(err => {
+        console.log(err)
+        this.props.history.push('/error')
+      })
     }
 
     submitUrl = () => {
@@ -112,6 +116,10 @@ class ArticleUpload extends React.Component {
       })
       .then(res => res.json())
       .then(data => this.props.history.push(`/display/${data.id}`))
+      .catch(err => {
+        console.log(err)
+        this.props.history.push('/error')
+      })
     }
 
     submitPdf = () => {
@@ -130,7 +138,10 @@ class ArticleUpload extends React.Component {
       })
       .then(res => res.json())
       .then(data => this.props.history.push(`/display/${data.id}`))
-      .catch(res => console.log(res))
+      .catch(err => {
+        console.log(err)
+        this.props.history.push('/error')
+      })
     }
 
     render() {

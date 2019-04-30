@@ -3,6 +3,10 @@ import Container from './Container';
 import {Anchor, Box, Form, FormField, Button, Heading, Paragraph, Text} from 'grommet';
 import TypeOut from 'react-typeout';
 import {Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
+import { Redirect } from 'react-router-dom'
+import axios from 'axios';
+import AlertBox from './AlertBox'
+import { withRouter } from "react-router";
 
 class Signup extends React.Component {
 
@@ -23,7 +27,8 @@ class Signup extends React.Component {
                 name: false,
                 email: false,
                 password: false,
-            }
+            },
+            redirect: localStorage.getItem('JWT') !== null
         }
     }
 
@@ -70,13 +75,29 @@ class Signup extends React.Component {
     }
 
     onSignup = () => {
-        console.log(this.state.values)
+        axios.post('/register', {
+            email: this.state.values.email,
+            name: this.state.values.name,
+            password: this.state.values.password,
+          })
+          .then(res => {
+            if(res.data.error) {
+              this.setState({
+                error: res.data.error,
+              })
+            } else {
+              localStorage.setItem('JWT', res.data.token);     
+              this.props.onLogin(res.data.token)
+              this.props.history.push(`/`)
+            }
+          })
     }
 
     render() {
       const words = ['Let\'s learn.', 'Aprendamos.', '我们来学习', 'Lass uns lernen']
       return (
         <Container title="Sign Up" description="Let's begin your journey with a new language.">
+        {this.state.redirect && <Redirect to='/sheets' />}
         <GridContainer>
             <Row>
                 <Hidden xs sm>
@@ -99,10 +120,11 @@ class Signup extends React.Component {
                         To get started, simply make an account or sign up using Facebook or Google.<br/><br/>
                     </Text>
                     <Form>
+                        {this.state.error && <AlertBox type="error" message={this.state.error}/>}
                         <FormField error={this.state.touched.name && this.state.errors.name} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.name} name="name" type="text" label="Full Name" />
                         <FormField error={this.state.touched.email && this.state.errors.email} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.email} name="email" type="email" label="Email Address" />
                         <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Password" />
-                        <Button disabled={!this.isFormValid()} onClick={this.onLogin} type="submit" label="Sign Up" fill={true} primary color="accent-1"/> 
+                        <Button disabled={!this.isFormValid()} onClick={this.onSignup} type="submit" label="Sign Up" fill={true} primary color="accent-1"/> 
                     </Form>
                     <Box align="center" margin="medium">
                         <Anchor href="/login" color="accent-1">Already have an account?</Anchor>
@@ -115,4 +137,4 @@ class Signup extends React.Component {
     }
   }
 
-  export default Signup;
+  export default withRouter(Signup);

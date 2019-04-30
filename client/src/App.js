@@ -79,7 +79,9 @@ class App extends React.Component {
                 <Route path='/login' render={(routeProps) => (
                   <Login {...routeProps} onLogin={this.onLogin} />
                 )} />
-                <Route path='/signup' component={Signup} />
+                <Route path='/signup' render={(routeProps) => (
+                  <Signup {...routeProps} onLogin={this.onLogin} />
+                )} />
                 <PrivateRoute path='/settings' component={Settings} />
                 <PrivateRoute path='/sheets' component={UserSheets} />
                 <PrivateRoute path='/display/:id' component={Sheet} />

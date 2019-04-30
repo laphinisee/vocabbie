@@ -4,20 +4,20 @@ const bcrypt = require('bcryptjs');
 
 const Users = userSchema.Users;
 
-function createUser(name, email, password) {
-	const newUser = new User({
+function createUser(name, email, password, callback) {
+	const newUser = new Users({
 		name: name,
 		email: email,
 		password: password
 	});
 	
-	return bcrypt.genSalt(10, (err, salt) => {
+	bcrypt.genSalt(10, (err, salt) => {
 		return bcrypt.hash(newUser.password, salt, (err, hash) => {
 			if (err) { throw err }
 			newUser.password = hash;
-			return newUser.save();
+			return newUser.save().then(user => callback(user));
 		})
-	});   
+	})
 }
 
 function deleteUser(userId) {
