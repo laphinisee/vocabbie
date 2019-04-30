@@ -41,6 +41,9 @@ const keys = require("./keys/keys");
 
 
 const Users = require('./src/db/utils/schemas/userSchema').Users;
+const passport = require('passport');
+require('./passport')(passport)
+app.use(passport.initialize());
 
 app.post('/register', function(req, res) {
   querydb.user.getUserByEmail(req.body.email).then(user => {
@@ -48,18 +51,36 @@ app.post('/register', function(req, res) {
       return res.status(200).json({ error: "Email already exists" });
     } 
 
-    querydb.user.createUser(req.body.name, req.body.email, req.body.password);
+    const newUser = querydb.user.createUser(req.body.name, req.body.email, req.body.password, (user) => {
+      const payload = {
+        id: user.id,
+        name: user.name
+      };
+
+      jwt.sign(
+        payload,
+        keys.secretOrKey,
+        {
+          expiresIn: 31556926 // 1 year in seconds
+        },
+        (err, token) => {
+          res.json({
+            success: true,
+            token: "Bearer " + token,
+            name: user.name,
+            email: user.email,
+            id: user.id,
+          });
+        }
+      );
+    });
   });
 });
-
-const passport = require('passport');
-require('./passport')(passport)
-app.use(passport.initialize());
 
 app.post('/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
     if (!user) {
-      return res.status(200).json({ error: "Incorrect email and/or password." });
+      return response.status(200).json({ error: "Incorrect email and/or password." });
     }
 
     bcrypt.compare(req.body.password, user.password).then(isMatch => {
@@ -105,7 +126,7 @@ app.get('/', function(request, response){
 app.get('/document/:id', function(request, response){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      res.status(500).send(err.message);
+      response.status(500).send(err.message);
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let title = ""
@@ -148,7 +169,6 @@ app.get('/document/:id', function(request, response){
         };
         response.status(200).type('application/json');
         response.json(toReturn);
-
       }).catch(err => {
           // should catch any error from previous chains
           console.log(err)
@@ -164,7 +184,7 @@ app.get('/document/:id', function(request, response){
 app.post('/generate-text', function(request, response, next) {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      res.status(500).send(err.message);
+      response.status(500).send(err.message);
     } else if (user) {
       const title = request.body.title;
       const text = request.body.plainText
@@ -178,7 +198,7 @@ app.post('/generate-text', function(request, response, next) {
 app.post('/generate-pdf', function(request, response){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      res.status(500).send(err.message);
+      response.status(500).send(err.message);
     } else if (user) {
       // entry point for uploading a pdf file
       upload(request, response, function(err){
@@ -210,7 +230,7 @@ app.post('/generate-pdf', function(request, response){
 app.post('/generate-url', function(request, response){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      res.status(500).send(err.message);
+      response.status(500).send(err.message);
     } else if (user) {
       scrapeURL(request.body.url).then(allText => {
         if(allText == "ERR: Invalid URL"){
@@ -231,7 +251,7 @@ app.post('/generate-url', function(request, response){
 app.get('/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      res.status(500).send(err.message);
+      response.status(500).send(err.message);
     } else if (user) {
       const docs = []
       querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
@@ -245,7 +265,7 @@ app.get('/vocab', function(request, response, next){
         Promise.all(allPromises).then(
           dts => {
             dts.forEach((dt, i) => {
-              const len = Math.min(dt.plaintext.length, 100);
+              const len = Math.min(dt.plaintext.length, 1000);
               docs[i].preview = dt.plaintext.substring(0, len)
             })
             response.status(200).type('application/json');
@@ -259,11 +279,11 @@ app.get('/vocab', function(request, response, next){
 });
 function processAndSaveText(text, title, response){
   let keywords;
+  
   nlp.processText(text)
-  .then(translatedJson => {
-    [ srcLanguage, translatedWords, allWords ] = translatedJson;
+  .then(result => {
+    const [ srcLanguage, translatedWords, allWords ] = result;
 
-    console.log("translatedJson:", translatedJson)
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
     const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
@@ -272,7 +292,7 @@ function processAndSaveText(text, title, response){
   }).then(result => {
     const id = result['_id'];
     response.status(200).type('html');
-    response.json(id);
+    response.json({id: id});
   }).catch(err => {
     console.log("err:", err)
     response.status(500).send();

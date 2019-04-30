@@ -14,6 +14,7 @@ const AlertBox = (props) => {
       gap='medium'
       alignContent='center'
       background={`status-${props.type}`}
+      margin={{"bottom": 'medium'}}
       pad={{ left: 'small', right: 'small', vertical: 'small' }} >
         <Box><Icon color='white'/></Box>
         <Box color='white'><Text color="white">{props.message}</Text></Box>
