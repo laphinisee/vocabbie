@@ -21,7 +21,6 @@ let storage = multer.diskStorage({
   }
 });
 const upload = multer({storage : storage}).single('file');
-// const upload = multer({storage : storage})
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -131,51 +130,60 @@ app.get('/document/:id', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
-      let title = ""
-      let allWords;
-      const article = [];
-      const vocab_list = {};
-      let srclanguage = "";
-      let plaintext = "";
-      let targetlanguage = "";
-      let keyWordsStrings;
-      querydb.document.getDocument(documentID)
-      .then(doc => {
-        title = doc.name;
-        const textId = mongoose.Types.ObjectId(doc.textId);
-        return querydb.documentText.getDocumentText(textId);
-      }).then(result => {
-        srclanguage = result.sourceLanguage;
-        plaintext = result.plaintext;
-        targetlanguage = result.targetLanguage;
-        keyWordsStrings = result.keyWords;
-        return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
-      }).then(allwordsTemp => {
-        allWords = allwordsTemp;
-        // keyWordPromise
-        return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
-      }).then(keyWords => {
-        allWords.forEach(function(w){
-          let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-          article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-        });
-        for(let i = 0 ; i < keyWords.length; i++){
-          vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+      querydb.documentQueries.hasPermission(documentID, user._id)
+      .then(isPermitted => {
+        if (!isPermitted) {
+          response.status(401).send();
+        } else {
+          let title = ""
+          let allWords;
+          const article = [];
+          const vocab_list = {};
+          let srclanguage = "";
+          let plaintext = "";
+          let targetlanguage = "";
+          let keyWordsStrings;
+          querydb.document.getDocument(documentID)
+          .then(doc => {
+            title = doc.name;
+            const textId = mongoose.Types.ObjectId(doc.textId);
+            return querydb.documentText.getDocumentText(textId);
+          }).then(result => {
+            srclanguage = result.sourceLanguage;
+            plaintext = result.plaintext;
+            targetlanguage = result.targetLanguage;
+            keyWordsStrings = result.keyWords;
+            return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
+          }).then(allwordsTemp => {
+            allWords = allwordsTemp;
+            // keyWordPromise
+            return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
+          }).then(keyWords => {
+            allWords.forEach(function(w){
+              let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+              article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+            });
+            for(let i = 0 ; i < keyWords.length; i++){
+              vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+            }
+            const toReturn = {
+              title : title,
+              plaintext : plaintext, 
+              article : article,
+              vocab_list : vocab_list,
+              language : srclanguage
+            };
+            response.status(200).type('application/json');
+            response.json(toReturn);
+          }).catch(err => {
+              // should catch any error from previous chains
+              console.log(err)
+              response.status(500).send();
+          });
         }
-        const toReturn = {
-          title : title,
-          plaintext : plaintext, 
-          article : article,
-          vocab_list : vocab_list,
-          language : srclanguage
-        };
-        response.status(200).type('application/json');
-        response.json(toReturn);
       }).catch(err => {
-          // should catch any error from previous chains
-          console.log(err)
-          response.status(500).send();
-      });
+        response.status(500).send();
+      })
     } else {
       response.status(401).send()
     }
@@ -209,15 +217,13 @@ app.post('/generate-pdf', function(request, response, next){
         if (err) {
           return response.status(500).send();
         }
-        console.log("upload 1:", request.file)
-        console.log("upload 2:", request.body.title)
         const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          return processAndSaveText(scrapedText, title, response, user._id);
+          processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
             console.log('deleted ' + request.file.filename);
@@ -284,6 +290,7 @@ app.get('/vocab', function(request, response, next){
     }
   })(request, response, next);
 });
+
 function processAndSaveText(text, title, response, userId){
   let keywords;
   
@@ -301,8 +308,10 @@ function processAndSaveText(text, title, response, userId){
     response.status(200).type('html');
     response.json({id: id});
   }).catch(err => {
-    console.log("err:", err)
-    response.status(500).send();
+    // TODO: error 400 means they did eng->eng, but it could mean other things.
+    // error code 3 means unsupported language. We should probably not assume
+    // that the error is an unsupported language. 
+    response.status(400).json({err: "The language you entered is not supported."});
   });
 }
 

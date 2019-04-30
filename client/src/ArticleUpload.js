@@ -1,6 +1,7 @@
 import React from "react";
 import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
 import { withRouter } from "react-router";
+import AlertBox from './AlertBox';
 
 class ArticleUpload extends React.Component {
 
@@ -26,6 +27,7 @@ class ArticleUpload extends React.Component {
           title: false,
       },
       loading: false,
+      error: '',
     }
   }
 
@@ -84,6 +86,7 @@ class ArticleUpload extends React.Component {
   submitPlainText = (e) => {
       this.setState({
         loading: true,
+        error: '',
       }, () => {
         fetch('/generate-text', {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -97,14 +100,22 @@ class ArticleUpload extends React.Component {
               title: this.state.values.title
             }), // body data type must match "Content-Type" header
         })
-        .then(res => res.json())
+        .then(res => {
+          if(res.status == 200) {
+            return res.json()
+          } else {
+            throw new Error('You entered text from an unsupported language!');
+          }
+        })
         .then(data => {
           this.setState({loading: false})
           this.props.history.push(`/display/${data.id}`)
         })
         .catch(err => {
-          console.log(err)
-          this.props.history.push('/error')
+          this.setState({
+            loading: false,
+            error: err.message,
+          })
         })
       })
     }
@@ -125,14 +136,23 @@ class ArticleUpload extends React.Component {
             title: this.state.values.title
           }), // body data type must match "Content-Type" header
         })
-        .then(res => res.json())
+        .then(res => {
+          console.log("url res:", res)
+          if(res.status == 200) {
+            return res.json()
+          } else {
+            throw new Error('You entered text from an unsupported language!');
+          }
+        })
         .then(data => {
           this.setState({loading: false})
           this.props.history.push(`/display/${data.id}`)
         })
         .catch(err => {
-          this.setState({loading: false})
-          this.props.history.push('/error')
+          this.setState({
+            loading: false,
+            error: err.message,
+          })
         })
       })
     }
@@ -154,19 +174,30 @@ class ArticleUpload extends React.Component {
           redirect: "follow", // manual, *follow, error
           body: data, // body data type must match "Content-Type" header
         })
-        .then(res => res.json())
+        .then(res => {
+          console.log("RES:", res)
+          if(res.status == 200) {
+            return res.json()
+          } else {
+            throw new Error('You entered text from an unsupported language!');
+          }
+        })
         .then(data => this.props.history.push(`/display/${data.id}`))
         .catch(err => {
-          console.log(err)
-          this.props.history.push('/error')
+          this.setState({
+            loading: false,
+            error: err.message,
+          })
         })
       })
     }
 
     render() {
+      console.log("this.state.error:", this.state.error)
       return (
         <Box pad="medium">
           <Form>
+            {this.state.error && <AlertBox type="error" message={this.state.error}/>}
             <Box gridArea="title" alignContent="start">
                   <FormField 
                             error={this.state.touched.title && this.state.errors.title} 
