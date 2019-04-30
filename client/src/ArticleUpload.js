@@ -148,7 +148,7 @@ class ArticleUpload extends React.Component {
         fetch('/generate-pdf', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
-            "Content-Type": "multipart/form-data",
+            // "Content-Type": "multipart/form-data",
             "Authorization": this.props.user.token,
           },
           redirect: "follow", // manual, *follow, error

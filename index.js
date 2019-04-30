@@ -14,12 +14,14 @@ const multer = require('multer');
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "./uploads");
+    console.log("req.body:", req.body)
   },
   filename: function(req, file, callback) {
     callback(null, Date.now() + "_" + file.originalname);
   }
 });
-const upload = multer({storage : storage}).single('pdfUpload');
+const upload = multer({storage : storage}).single('file');
+// const upload = multer({storage : storage})
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -125,7 +127,6 @@ app.get('/', function(request, response){
 
 app.get('/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    console.log("USER:", user)
     if (err) {
       response.status(500).send(err.message);
     } else if (user) {
@@ -202,10 +203,14 @@ app.post('/generate-pdf', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       // entry point for uploading a pdf file
+      
       upload(request, response, function(err){
+        console.log("IN UPLOAD:", Object.keys(request.body))
         if (err) {
           return response.status(500).send();
         }
+        console.log("upload 1:", request.file)
+        console.log("upload 2:", request.body.title)
         const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
@@ -222,6 +227,7 @@ app.post('/generate-pdf', function(request, response, next){
         });
         pdfParser.loadPDF("./uploads/" + request.file.filename);
       }); 
+      console.log("request.body:", request.body.title)
     } else {
       response.status(401).send()
     }
