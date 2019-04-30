@@ -130,51 +130,60 @@ app.get('/document/:id', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
-      let title = ""
-      let allWords;
-      const article = [];
-      const vocab_list = {};
-      let srclanguage = "";
-      let plaintext = "";
-      let targetlanguage = "";
-      let keyWordsStrings;
-      querydb.document.getDocument(documentID)
-      .then(doc => {
-        title = doc.name;
-        const textId = mongoose.Types.ObjectId(doc.textId);
-        return querydb.documentText.getDocumentText(textId);
-      }).then(result => {
-        srclanguage = result.sourceLanguage;
-        plaintext = result.plaintext;
-        targetlanguage = result.targetLanguage;
-        keyWordsStrings = result.keyWords;
-        return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
-      }).then(allwordsTemp => {
-        allWords = allwordsTemp;
-        // keyWordPromise
-        return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
-      }).then(keyWords => {
-        allWords.forEach(function(w){
-          let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-          article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-        });
-        for(let i = 0 ; i < keyWords.length; i++){
-          vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+      querydb.documentQueries.hasPermission(documentID, user._id)
+      .then(isPermitted => {
+        if (!isPermitted) {
+          response.status(401).send();
+        } else {
+          let title = ""
+          let allWords;
+          const article = [];
+          const vocab_list = {};
+          let srclanguage = "";
+          let plaintext = "";
+          let targetlanguage = "";
+          let keyWordsStrings;
+          querydb.document.getDocument(documentID)
+          .then(doc => {
+            title = doc.name;
+            const textId = mongoose.Types.ObjectId(doc.textId);
+            return querydb.documentText.getDocumentText(textId);
+          }).then(result => {
+            srclanguage = result.sourceLanguage;
+            plaintext = result.plaintext;
+            targetlanguage = result.targetLanguage;
+            keyWordsStrings = result.keyWords;
+            return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
+          }).then(allwordsTemp => {
+            allWords = allwordsTemp;
+            // keyWordPromise
+            return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
+          }).then(keyWords => {
+            allWords.forEach(function(w){
+              let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+              article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+            });
+            for(let i = 0 ; i < keyWords.length; i++){
+              vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+            }
+            const toReturn = {
+              title : title,
+              plaintext : plaintext, 
+              article : article,
+              vocab_list : vocab_list,
+              language : srclanguage
+            };
+            response.status(200).type('application/json');
+            response.json(toReturn);
+          }).catch(err => {
+              // should catch any error from previous chains
+              console.log(err)
+              response.status(500).send();
+          });
         }
-        const toReturn = {
-          title : title,
-          plaintext : plaintext, 
-          article : article,
-          vocab_list : vocab_list,
-          language : srclanguage
-        };
-        response.status(200).type('application/json');
-        response.json(toReturn);
       }).catch(err => {
-          // should catch any error from previous chains
-          console.log(err)
-          response.status(500).send();
-      });
+        response.status(500).send();
+      })
     } else {
       response.status(401).send()
     }
@@ -281,6 +290,7 @@ app.get('/vocab', function(request, response, next){
     }
   })(request, response, next);
 });
+
 function processAndSaveText(text, title, response, userId){
   let keywords;
   
