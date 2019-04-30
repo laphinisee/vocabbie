@@ -14,12 +14,14 @@ const multer = require('multer');
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "./uploads");
+    console.log("req.body:", req.body)
   },
   filename: function(req, file, callback) {
     callback(null, Date.now() + "_" + file.originalname);
   }
 });
-let upload = multer({storage : storage});
+const upload = multer({storage : storage}).single('file');
+// const upload = multer({storage : storage})
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -123,7 +125,7 @@ app.get('/', function(request, response){
   
 });
 
-app.get('/document/:id', function(request, response){
+app.get('/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -188,30 +190,34 @@ app.post('/generate-text', function(request, response, next) {
     } else if (user) {
       const title = request.body.title;
       const text = request.body.plainText
-      return processAndSaveText(text, title, response);
+      return processAndSaveText(text, title, response, user._id);
     } else {
       response.status(401).send()
     }
   })(request, response, next);
 });
 
-app.post('/generate-pdf', function(request, response){
+app.post('/generate-pdf', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
     } else if (user) {
       // entry point for uploading a pdf file
+      
       upload(request, response, function(err){
+        console.log("IN UPLOAD:", Object.keys(request.body))
         if (err) {
           return response.status(500).send();
         }
-        let pdfParser = new PDFParser(this, 1);
+        console.log("upload 1:", request.file)
+        console.log("upload 2:", request.body.title)
+        const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          return processAndSaveText(scrapedText, title, response);
+          return processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
             console.log('deleted ' + request.file.filename);
@@ -221,13 +227,14 @@ app.post('/generate-pdf', function(request, response){
         });
         pdfParser.loadPDF("./uploads/" + request.file.filename);
       }); 
+      console.log("request.body:", request.body.title)
     } else {
       response.status(401).send()
     }
   })(request, response, next); 
 });
 
-app.post('/generate-url', function(request, response){
+app.post('/generate-url', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -238,7 +245,7 @@ app.post('/generate-url', function(request, response){
           return;
         }
         const title = request.body.title;
-        return processAndSaveText(allText, title, response);
+        return processAndSaveText(allText, title, response, user._id);
       }).catch(err => {
         response.status(500).send()
       });
@@ -254,7 +261,7 @@ app.get('/vocab', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const docs = []
-      querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
+      querydb.document.getUserDocuments(user._id)
       .then(result => {
         const allPromises = []
         result.forEach((d) => {
@@ -298,6 +305,7 @@ function processAndSaveText(text, title, response){
   let srcLanguage;
   let translatedWords;
   let allWords;
+  let doc;
   nlp.processText(text)
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
@@ -306,16 +314,18 @@ function processAndSaveText(text, title, response){
     const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
     // call db function to save all words.
-    return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
-  }).then(result => {
-    id = result['_id'];
-    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keyWords);
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
+  }).then(doc => {
+    id = doc['_id'];
+    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keyWords); 
   }).then(studyMatId => {
     response.status(200).type('html');
     response.json({id: id});
   }).catch(err => {
-    console.log("err:", err)
-    response.status(500).send();
+    // TODO: error 400 means they did eng->eng, but it could mean other things.
+    // error code 3 means unsupported language. We should probably not assume
+    // that the error is an unsupported language. 
+    response.status(400).send("The language you entered is not supported.");
   });
 }
 

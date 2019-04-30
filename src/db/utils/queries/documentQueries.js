@@ -47,6 +47,15 @@ function hasPermission(documentId, userId) {
 	})
 }
 
+function addStudyMat(documentId, studyMat) {
+	const studyMatEnum = studyMat['type'];
+
+	return getDocument(documentId).then(doc => {
+		doc['studyMats'].push(studyMat);
+		return doc.save();
+	})
+}
+
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getAllUserDocuments = getAllUserDocuments;

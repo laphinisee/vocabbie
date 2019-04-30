@@ -9,6 +9,18 @@ import {Download, Trash, Edit} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
 
+const EditMenu = (props) => {
+  if (props.editMode) {
+    // Add in text field to add Words
+    return (
+    <Box pad="medium">
+      <Button label="Finish editing" onClick={props.toggle} />
+    </Box>)
+  } else {
+    return null
+  }
+}
+
 class Sheet extends React.Component {
   constructor(props) {
     super(props);
@@ -18,19 +30,26 @@ class Sheet extends React.Component {
       vocabRows: [],
       selected: null,
       pdfReady: false,
+      loading: true,
+      editMode: false,
     };
   }
 
     componentWillMount() {
       const url = '/document/' + this.props.match.params.id
-      fetch(url).then( (res) => res.json()).then((res) => {
+      fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+      }).then( (res) => res.json()).then((res) => {
         const getData = res
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
-        this.setState({pdfReady: true})
+        this.setState({pdfReady: true, loading: false})
       }).catch((err) => {
         console.error(err)
-        this.props.history.push('/error')
+        // this.props.history.push('/error')
       })
     }
 
@@ -49,9 +68,19 @@ class Sheet extends React.Component {
       this.setState({vocabRows})
     }
 
+    toggleEditMode = (e) => {
+      this.setState({editMode: !this.state.editMode})
+    }
+
+    handleDelete = (e) => {
+      console.log("delete this sheet")
+      // Do a modal to confirm choice
+    }
+
     render() {
+      console.log("SELECTED:", this.state.selected)
       return (
-        <Container title={this.state.title} description="Your generated vocab sheet">
+        <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
           <Grid
           rows={['xxsmall','fit' ]}
           columns={['1/2', '1/2']}
@@ -63,8 +92,8 @@ class Sheet extends React.Component {
           ]}
         >
             <Box gridArea="menu" alignContent="end" direction="row-reverse">
-              <Button data-tip="Delete Sheet" icon={<Trash />} disabled color="black"/>
-              <Button data-tip="Edit Sheet" icon={<Edit />} disabled color="black"/>
+              <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
+              <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
               <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
             </Box>
             <Box gridArea="article">
@@ -72,12 +101,14 @@ class Sheet extends React.Component {
                 article={this.state.article} 
                 tokens={this.state.tokens}
                 onWordHover={(t) => this.setState({selected: t})}
-                offWordHover={(t) => this.setState({selected: null})}
-/>
+                offWordHover={(t) => this.setState({selected: null})}/>
             </Box>
             <Box gridArea="vocab" background="light-2">
+              <EditMenu editMode={this.state.editMode} toggle={this.toggleEditMode}/>
               <VocabDisplay 
                 vocabRows={this.state.vocabRows} 
+                selected={this.state.selected}
+                editMode={this.state.editMode}
                 />
             </Box>
           </Grid>

@@ -1,6 +1,7 @@
 import React from "react";
 import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
 import { withRouter } from "react-router";
+import AlertBox from './AlertBox';
 
 class ArticleUpload extends React.Component {
 
@@ -24,7 +25,9 @@ class ArticleUpload extends React.Component {
           url: false,
           file: false,
           title: false,
-      }
+      },
+      loading: false,
+      error: '',
     }
   }
 
@@ -81,7 +84,39 @@ class ArticleUpload extends React.Component {
   }
 
   submitPlainText = (e) => {
-      fetch('/generate-text', {
+      this.setState({
+        loading: true,
+        error: '',
+      }, () => {
+        fetch('/generate-text', {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": this.props.user.token,
+            },
+            redirect: "follow", // manual, *follow, error
+            body: JSON.stringify({
+              plainText: this.state.values.plainText,
+              title: this.state.values.title
+            }), // body data type must match "Content-Type" header
+        })
+        .then(res => res.json())
+        .then(data => {
+          this.setState({loading: false})
+          this.props.history.push(`/display/${data.id}`)
+        })
+        .catch(err => {
+          console.log(err)
+          this.props.history.push('/error')
+        })
+      })
+    }
+
+    submitUrl = () => {
+      this.setState({
+        loading: true,
+      }, () => {
+        fetch('/generate-url', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
             "Content-Type": "application/json",
@@ -89,58 +124,45 @@ class ArticleUpload extends React.Component {
           },
           redirect: "follow", // manual, *follow, error
           body: JSON.stringify({
-            plainText: this.state.values.plainText,
+            url: this.state.values.url,
             title: this.state.values.title
           }), // body data type must match "Content-Type" header
-      })
-      .then(res => res.json())
-      .then(data => this.props.history.push(`/display/${data.id}`))
-      .catch(err => {
-        console.log(err)
-        this.props.history.push('/error')
-      })
-    }
-
-    submitUrl = () => {
-      fetch('/generate-url', {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": this.props.user.token,
-        },
-        redirect: "follow", // manual, *follow, error
-        body: JSON.stringify({
-          url: this.state.values.url,
-          title: this.state.values.title
-        }), // body data type must match "Content-Type" header
-      })
-      .then(res => res.json())
-      .then(data => this.props.history.push(`/display/${data.id}`))
-      .catch(err => {
-        console.log(err)
-        this.props.history.push('/error')
+        })
+        .then(res => res.json())
+        .then(data => {
+          this.setState({loading: false})
+          this.props.history.push(`/display/${data.id}`)
+        })
+        .catch(err => {
+          this.setState({loading: false})
+          this.props.history.push('/error')
+        })
       })
     }
 
     submitPdf = () => {
-      console.log("submit")
-      const data = new FormData()
-      data.append('title', this.state.values.title)
-      data.append('file', this.state.values.file)
+      this.setState({
+        loading: true,
+      }, () => {
+        const data = new FormData()
+        data.append('title', this.state.values.title)
+        data.append('file', this.state.values.file)
 
-      fetch('/generate-pdf', {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          "Authorization": this.props.user.token,
-        },
-        redirect: "follow", // manual, *follow, error
-        body: data, // body data type must match "Content-Type" header
-      })
-      .then(res => res.json())
-      .then(data => this.props.history.push(`/display/${data.id}`))
-      .catch(err => {
-        console.log(err)
-        this.props.history.push('/error')
+        fetch('/generate-pdf', {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          headers: {
+            // "Content-Type": "multipart/form-data",
+            "Authorization": this.props.user.token,
+          },
+          redirect: "follow", // manual, *follow, error
+          body: data, // body data type must match "Content-Type" header
+        })
+        .then(res => res.json())
+        .then(data => this.props.history.push(`/display/${data.id}`))
+        .catch(err => {
+          console.log(err)
+          this.props.history.push('/error')
+        })
       })
     }
 
@@ -148,6 +170,7 @@ class ArticleUpload extends React.Component {
       return (
         <Box pad="medium">
           <Form>
+            {this.state.error && <AlertBox type="error" message={this.state.error}/>}
             <Box gridArea="title" alignContent="start">
                   <FormField 
                             error={this.state.touched.title && this.state.errors.title} 
@@ -168,7 +191,7 @@ class ArticleUpload extends React.Component {
                     onBlur={this.handleBlur} 
                     value={this.state.values.plainText} 
                     placeholder="Type your article here" /><br/>
-                  <Button disabled={!this.isFormValid('plainText')} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                  <Button disabled={!this.isFormValid('plainText') || this.state.loading} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
                 </Box>
               </Tab>
               <Tab title="URL">
@@ -180,7 +203,7 @@ class ArticleUpload extends React.Component {
                   name="url" 
                   type="text" 
                   label="URL"/>
-                  <Button disabled={!this.isFormValid('url')} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                  <Button disabled={!this.isFormValid('url') || this.state.loading} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
               <Tab title="File Upload">
                 <input 
@@ -191,7 +214,7 @@ class ArticleUpload extends React.Component {
                     type="file" 
                     // label="File Upload"
                 />
-                <Button disabled={!this.isFormValid('file')} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label="Generate" />
+                <Button disabled={!this.isFormValid('file') || this.state.loading} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
             </Tabs>
           </Form>
