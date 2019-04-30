@@ -19,7 +19,7 @@ let storage = multer.diskStorage({
     callback(null, Date.now() + "_" + file.originalname);
   }
 });
-let upload = multer({storage : storage});
+const upload = multer({storage : storage}).single('pdfUpload');
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -205,7 +205,7 @@ app.post('/generate-pdf', function(request, response){
         if (err) {
           return response.status(500).send();
         }
-        let pdfParser = new PDFParser(this, 1);
+        const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
