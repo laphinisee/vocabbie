@@ -277,12 +277,30 @@ app.get('/vocab', function(request, response, next){
     }
   })(request, response, next);
 });
+
+app.post('/document/:id/delete', function(request, response, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
+      const wordToDelete = request.body.word;
+      const documentID = request.body.id;
+      return processAndSaveText(text, title, response);
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
+});
 function processAndSaveText(text, title, response){
   let keywords;
-  
+  let id;
+  let keyWords;
+  let srcLanguage;
+  let translatedWords;
+  let allWords;
   nlp.processText(text)
   .then(result => {
-    const [ srcLanguage, translatedWords, allWords ] = result;
+    [ srcLanguage, translatedWords, allWords ] = result;
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
     const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
@@ -290,7 +308,9 @@ function processAndSaveText(text, title, response){
     // call db function to save all words.
     return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(result => {
-    const id = result['_id'];
+    id = result['_id'];
+    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keyWords);
+  }).then(studyMatId => {
     response.status(200).type('html');
     response.json({id: id});
   }).catch(err => {
