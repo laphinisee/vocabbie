@@ -46,8 +46,6 @@ class Sheet extends React.Component {
     }
 
     render() {
-      console.log("vocabRows:", this.state.vocabRows)
-      console.log("title", this.state.title)
       return (
         <Container title={this.state.title} description="Your generated vocab sheet">
           <Grid

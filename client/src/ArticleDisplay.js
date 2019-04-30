@@ -25,7 +25,6 @@ class Token extends React.Component {
   }
 
   render() {
-    console.log(this.props.isStopword)
     const hovered = this.state.hovered && !(this.props.isStopword)
     return (
       <span

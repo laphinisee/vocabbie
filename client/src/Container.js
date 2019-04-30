@@ -7,7 +7,6 @@ import logo from './images/logo-blue.png';
 
 class Container extends React.Component {
     render() {
-      console.log("LOADING:", this.props.loading)
       const {title, description, loading, ...props} = this.props
       if(!loading) {
         return (
