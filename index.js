@@ -103,94 +103,61 @@ app.get('/', function(request, response){
 });
 
 app.get('/document/:id', function(request, response){
-  //Return JSON of Article, Defintions, Vocab_List
-  //Article is list of all tokens to their definitions and id if they're in hardest.
-  //vocab _list is mapping of id in Article to saved word cache objects.
-  
-  // const documentID = mongoose.Types.ObjectId(request.params.id);
-  // let title = "";
-  // querydb.document.getDocument(documentID).then(doc => {
-  //   console.log(doc)
-  //   title = doc.name;
-  //   const textId = mongoose.Types.ObjectId(doc.textId);
-  //   return querydb.documentText.getDocumentText(textId);
-  // }).then(result => {
-  //   console.log(result)
-  //   const article = [];
-  //   const vocab_list = {};
-  //   const srclanguage = result.sourceLanguage;
-  //   const allWordPromise = querydb.word.getWords(result.allWords,  result.sourceLanguage, result.targetLanguage)
-  //   allWordPromise.then(allWords=> {
-  //     const keyWordPromise = querydb.word.getWords(result.keyWords,  result.sourceLanguage, result.targetLanguage)
-  //     keyWordPromise.then(keyWords => {
-  //       allWords.forEach(function(w){
-  //         console.log("w:", typeof w, w)
-  //         let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-  //         article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-  //       });
-  //       for(let i = 0 ; i < keyWords.length; i++){
-  //         vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
-  //       }
-  //       const toReturn = {
-  //         title : title,
-  //         plaintext : result.plaintext, 
-  //         article : article,
-  //         vocab_list : vocab_list,
-  //         language : srclanguage
-  //       };
-  //       response.status(200).type('application/json');
-  //       response.json(toReturn);
-  //     })
-  //   })
-  // })
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else if (user) {
+      const documentID = mongoose.Types.ObjectId(request.params.id);
+      let title = ""
+      let allWords;
+      const article = [];
+      const vocab_list = {};
+      let srclanguage = "";
+      let plaintext = "";
+      let targetlanguage = "";
+      let keyWordsStrings;
+      querydb.document.getDocument(documentID)
+      .then(doc => {
+        title = doc.name;
+        const textId = mongoose.Types.ObjectId(doc.textId);
+        return querydb.documentText.getDocumentText(textId);
+      }).then(result => {
+        srclanguage = result.sourceLanguage;
+        plaintext = result.plaintext;
+        targetlanguage = result.targetLanguage;
+        keyWordsStrings = result.keyWords;
+        return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
+      }).then(allwordsTemp => {
+        allWords = allwordsTemp;
+        // keyWordPromise
+        return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
+      }).then(keyWords => {
+        allWords.forEach(function(w){
+          let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+          article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+        });
+        for(let i = 0 ; i < keyWords.length; i++){
+          vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+        }
+        const toReturn = {
+          title : title,
+          plaintext : plaintext, 
+          article : article,
+          vocab_list : vocab_list,
+          language : srclanguage
+        };
+        response.status(200).type('application/json');
+        response.json(toReturn);
 
-  const documentID = mongoose.Types.ObjectId(request.params.id);
-  let title = ""
-  let allWords;
-  const article = [];
-  const vocab_list = {};
-  let srclanguage = "";
-  let plaintext = "";
-  let targetlanguage = "";
-  let keyWordsStrings;
-  querydb.document.getDocument(documentID)
-  .then(doc => {
-    title = doc.name;
-    const textId = mongoose.Types.ObjectId(doc.textId);
-    return querydb.documentText.getDocumentText(textId);
-  }).then(result => {
-    srclanguage = result.sourceLanguage;
-    plaintext = result.plaintext;
-    targetlanguage = result.targetLanguage;
-    keyWordsStrings = result.keyWords;
-    return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
-  }).then(allwordsTemp => {
-    allWords = allwordsTemp;
-    // keyWordPromise
-    return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
-  }).then(keyWords => {
-    allWords.forEach(function(w){
-      let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
-      article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-    });
-    for(let i = 0 ; i < keyWords.length; i++){
-      vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+      }).catch(err => {
+          // should catch any error from previous chains
+          console.log(err)
+          response.status(500).send();
+      });
+    } else {
+      response.status(401).send()
     }
-    const toReturn = {
-      title : title,
-      plaintext : plaintext, 
-      article : article,
-      vocab_list : vocab_list,
-      language : srclanguage
-    };
-    response.status(200).type('application/json');
-    response.json(toReturn);
-
-  }).catch(err => {
-      // should catch any error from previous chains
-      console.log(err)
-      response.status(500).send();
-  });
+  })(request, response, next); 
 });
 
 
@@ -209,58 +176,56 @@ app.post('/generate-text', function(request, response, next) {
 });
 
 app.post('/generate-pdf', function(request, response){
-  // entry point for uploading a pdf file
-  upload(request, response, function(err){
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
-      return response.status(500).send();
+      res.status(500).send(err.message);
+    } else if (user) {
+      // entry point for uploading a pdf file
+      upload(request, response, function(err){
+        if (err) {
+          return response.status(500).send();
+        }
+        let pdfParser = new PDFParser(this, 1);
+        let scrapedText = "";   
+        pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
+        pdfParser.on("pdfParser_dataReady", pdfData => {
+          scrapedText = pdfParser.getRawTextContent();
+          const title = request.body.title;
+          return processAndSaveText(scrapedText, title, response);
+          try {
+            fs.unlinkSync('./uploads/' + request.file.filename);
+            console.log('deleted ' + request.file.filename);
+          } catch (err) {
+            console.log('error deleting ' + request.file.filename);
+          }
+        });
+        pdfParser.loadPDF("./uploads/" + request.file.filename);
+      }); 
+    } else {
+      response.status(401).send()
     }
-    let pdfParser = new PDFParser(this, 1);
-    let scrapedText = "";   
-    pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
-    pdfParser.on("pdfParser_dataReady", pdfData => {
-      scrapedText = pdfParser.getRawTextContent();
-      const title = request.body.title;
-      return processAndSaveText(scrapedText, title, response);
-      try {
-        fs.unlinkSync('./uploads/' + request.file.filename);
-        console.log('deleted ' + request.file.filename);
-      } catch (err) {
-        console.log('error deleting ' + request.file.filename);
-      }
-    });
-    pdfParser.loadPDF("./uploads/" + request.file.filename);
-  }); 
+  })(request, response, next); 
 });
 
 app.post('/generate-url', function(request, response){
-  scrapeURL(request.body.url).then(allText => {
-    if(allText == "ERR: Invalid URL"){
-      response.status(500).send();
-      return;
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else if (user) {
+      scrapeURL(request.body.url).then(allText => {
+        if(allText == "ERR: Invalid URL"){
+          response.status(500).send();
+          return;
+        }
+        const title = request.body.title;
+        return processAndSaveText(allText, title, response);
+      }).catch(err => {
+        response.status(500).send()
+      });
+    } else {
+      response.status(401).send()
     }
-    const title = request.body.title;
-    return processAndSaveText(allText, title, response);
-  }).catch(err => {
-    response.status(500).send()
-  });
-});
-
-app.post('/:userid/vocab', function(request, response){
-  const titles = [];
-  const ids = [];
-  const previews = [];
-  querydb.getUserDocuments(request.params.userid)
-  .then(result => {
-    // list of {name : ?, _id : ?, text.plaintext : ?}
-    titles.push(result.name);
-    ids.push(result._id);
-    let len = result.text.plaintext.length > 100 ? 100 : result.text.plaintext.length;
-    previews.push(result.text.plaintext.substring(0, len));
-    response.status(200).type('html');
-    response.json({titles : titles, ids : ids, previews : previews});
-  }).catch(err => {
-    response.status(500).send();
-  });
+  })(request, response, next);  
 });
 
 app.get('/vocab', function(request, response, next){
@@ -292,7 +257,6 @@ app.get('/vocab', function(request, response, next){
     }
   })(request, response, next);
 });
-
 function processAndSaveText(text, title, response){
   let keywords;
   nlp.processText(text)
