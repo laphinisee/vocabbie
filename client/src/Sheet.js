@@ -9,6 +9,15 @@ import {Download, Trash, Edit} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
 
+const EditMenu = (props) => {
+  if (props.editMode) {
+    // Add in text field to add Words
+    return (<Button label="Finish editing" onClick={props.toggle} />)
+  } else {
+    return null
+  }
+}
+
 class Sheet extends React.Component {
   constructor(props) {
     super(props);
@@ -19,6 +28,7 @@ class Sheet extends React.Component {
       selected: null,
       pdfReady: false,
       loading: true,
+      editMode: false,
     };
   }
 
@@ -55,6 +65,15 @@ class Sheet extends React.Component {
       this.setState({vocabRows})
     }
 
+    toggleEditMode = (e) => {
+      this.setState({editMode: !this.state.editMode})
+    }
+
+    handleDelete = (e) => {
+      console.log("delete this sheet")
+      // Do a modal to confirm choice
+    }
+
     render() {
       console.log("SELECTED:", this.state.selected)
       return (
@@ -70,8 +89,8 @@ class Sheet extends React.Component {
           ]}
         >
             <Box gridArea="menu" alignContent="end" direction="row-reverse">
-              <Button data-tip="Delete Sheet" icon={<Trash />} disabled color="black"/>
-              <Button data-tip="Edit Sheet" icon={<Edit />} disabled color="black"/>
+              <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
+              <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
               <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
             </Box>
             <Box gridArea="article">
@@ -79,13 +98,14 @@ class Sheet extends React.Component {
                 article={this.state.article} 
                 tokens={this.state.tokens}
                 onWordHover={(t) => this.setState({selected: t})}
-                offWordHover={(t) => this.setState({selected: null})}
-/>
+                offWordHover={(t) => this.setState({selected: null})}/>
             </Box>
             <Box gridArea="vocab" background="light-2">
+              <EditMenu editMode={this.state.editMode} toggle={this.toggleEditMode}/>
               <VocabDisplay 
                 vocabRows={this.state.vocabRows} 
                 selected={this.state.selected}
+                editMode={this.state.editMode}
                 />
             </Box>
           </Grid>
