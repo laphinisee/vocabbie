@@ -4,7 +4,7 @@ import Container from './Container';
 import VocabDisplay from './VocabDisplay';
 import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
-import {Button, Grid, Box} from 'grommet';
+import {Button, TextInput, Table, TableBody, TableRow, TableCell, Grid, Box} from 'grommet';
 import {Download, Trash, Edit} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
@@ -13,7 +13,26 @@ const EditMenu = (props) => {
   if (props.editMode) {
     // Add in text field to add Words
     return (
-    <Box pad="medium">
+    <Box pad="medium" background="light-4">
+      <Table size="fit">
+        <TableBody>
+        <TableRow>
+          <TableCell scope="col">
+            <TextInput name="newWord" size="small" value={props.newWord} onChange={props.handleWordInput} placeholder="Word" />
+          </TableCell>
+          <TableCell scope="col">
+            <TextInput name="newPOS" size="small" value={props.newPOS} onChange={props.handleWordInput} placeholder="Part of Speech" />
+          </TableCell>
+          <TableCell scope="col">
+            <TextInput name="newTranslation" size="small" value={props.newTranslation} onChange={props.handleWordInput} placeholder="Translation" />
+          </TableCell>
+          <TableCell scope="col">
+          </TableCell>
+        </TableRow>
+        </TableBody>
+      </Table>
+      <br/>
+      <Button onClick={props.addWord} type="submit" fill={true} primary color="accent-1" label="Add Word" />
       <Button label="Finish editing" onClick={props.toggle} />
     </Box>)
   } else {
@@ -32,6 +51,12 @@ class Sheet extends React.Component {
       pdfReady: false,
       loading: true,
       editMode: false,
+      values: {
+        newWord: '',
+        newPOS: '',
+        newTranslation: '',
+        title: '',
+      },
     };
   }
 
@@ -72,13 +97,33 @@ class Sheet extends React.Component {
       this.setState({editMode: !this.state.editMode})
     }
 
+    addWord = (e) => {
+      console.log(this.props.match.params.id)
+      console.log(this.state.values.newWord)
+      console.log(this.state.values.newPOS)
+      console.log(this.state.values.newTranslation)
+    }
+
+    handleWordInput = (e) => {
+      const fieldName = e.target.name
+      const fieldValue = e.target.value
+      this.setState(prevState => ({
+        values: {
+            ...prevState.values,
+            [fieldName]: fieldValue,
+        }
+      }))
+    }
+
     handleDelete = (e) => {
       console.log("delete this sheet")
+      console.log(this.props.match.params.id)
       // Do a modal to confirm choice
     }
 
     render() {
-      console.log("SELECTED:", this.state.selected)
+      const docId = this.props.match.params.id
+      console.log(docId)
       return (
         <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
           <Grid
@@ -104,11 +149,19 @@ class Sheet extends React.Component {
                 offWordHover={(t) => this.setState({selected: null})}/>
             </Box>
             <Box gridArea="vocab" background="light-2">
-              <EditMenu editMode={this.state.editMode} toggle={this.toggleEditMode}/>
+              <EditMenu 
+                addWord={this.addWord}
+                newWord={this.state.newWord} 
+                newPOS={this.state.newPOS} 
+                newTranslation={this.state.newTranslation} 
+                handleWordInput={this.handleWordInput} 
+                editMode={this.state.editMode} 
+                toggle={this.toggleEditMode}/>
               <VocabDisplay 
                 vocabRows={this.state.vocabRows} 
                 selected={this.state.selected}
                 editMode={this.state.editMode}
+                docId={docId}
                 />
             </Box>
           </Grid>

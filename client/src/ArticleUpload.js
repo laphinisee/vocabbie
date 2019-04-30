@@ -176,7 +176,7 @@ class ArticleUpload extends React.Component {
                             name="title" 
                             type="text" 
                             label="Title"/>
-              </Box>
+            </Box>
             <Tabs margin="medium">
               <Tab title="Plain Text">
                 <Box pad="medium">
