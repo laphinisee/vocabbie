@@ -27,9 +27,8 @@ class VocabDisplay extends React.Component {
             <TableBody>
               {Object.keys(this.props.vocabRows).map( (k) => {
                 const vocab = this.props.vocabRows[k]
-                // console.log("VocabDisplay:", k, vocab)
                 return (
-                  <TableRow>
+                  <TableRow style={k == this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
                       <strong>{vocab.text}</strong>
                     </TableCell>

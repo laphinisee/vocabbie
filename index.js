@@ -125,6 +125,7 @@ app.get('/', function(request, response){
 
 app.get('/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    console.log("USER:", user)
     if (err) {
       response.status(500).send(err.message);
     } else if (user) {

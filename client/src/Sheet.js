@@ -18,19 +18,25 @@ class Sheet extends React.Component {
       vocabRows: [],
       selected: null,
       pdfReady: false,
+      loading: true,
     };
   }
 
     componentWillMount() {
       const url = '/document/' + this.props.match.params.id
-      fetch(url).then( (res) => res.json()).then((res) => {
+      fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+      }).then( (res) => res.json()).then((res) => {
         const getData = res
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
-        this.setState({pdfReady: true})
+        this.setState({pdfReady: true, loading: false})
       }).catch((err) => {
         console.error(err)
-        this.props.history.push('/error')
+        // this.props.history.push('/error')
       })
     }
 
@@ -50,8 +56,9 @@ class Sheet extends React.Component {
     }
 
     render() {
+      console.log("SELECTED:", this.state.selected)
       return (
-        <Container title={this.state.title} description="Your generated vocab sheet">
+        <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
           <Grid
           rows={['xxsmall','fit' ]}
           columns={['1/2', '1/2']}
@@ -78,6 +85,7 @@ class Sheet extends React.Component {
             <Box gridArea="vocab" background="light-2">
               <VocabDisplay 
                 vocabRows={this.state.vocabRows} 
+                selected={this.state.selected}
                 />
             </Box>
           </Grid>
