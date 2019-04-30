@@ -106,7 +106,7 @@ function processText(text, targetLanguage='en') {
 		});
 
 		return Promise.all([sourceLanguage, tokens, orderedMongoWords]);
-	}).catch(err => console.log(err)).catch(err => console.log(err)).catch(err => console.log(err)).catch(err => console.log(err)).catch(err => console.log(err));
+	})
 }
 
 module.exports.processText = processText;
