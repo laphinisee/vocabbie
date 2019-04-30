@@ -21,7 +21,6 @@ let storage = multer.diskStorage({
   }
 });
 const upload = multer({storage : storage}).single('file');
-// const upload = multer({storage : storage})
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -209,15 +208,13 @@ app.post('/generate-pdf', function(request, response, next){
         if (err) {
           return response.status(500).send();
         }
-        console.log("upload 1:", request.file)
-        console.log("upload 2:", request.body.title)
         const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          return processAndSaveText(scrapedText, title, response, user._id);
+          processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
             console.log('deleted ' + request.file.filename);
@@ -325,7 +322,7 @@ function processAndSaveText(text, title, response){
     // TODO: error 400 means they did eng->eng, but it could mean other things.
     // error code 3 means unsupported language. We should probably not assume
     // that the error is an unsupported language. 
-    response.status(400).send("The language you entered is not supported.");
+    response.status(400).json({err: "The language you entered is not supported."});
   });
 }
 

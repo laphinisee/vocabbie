@@ -1,6 +1,8 @@
 const studyMatSchema = require('../schemas/studyMatSchema');
 const documentSchema = require('../schemas/documentSchema');
 
+const _ = require('lodash');
+
 const wordQuery = require('../queries/wordQueries');
 
 const StudyMats = studyMatSchema.StudyMats;
@@ -26,7 +28,7 @@ function getStudyMat(studyMatId) {
 	return StudyMats.findById(studyMatId).exec();
 }
 
-function addWords(studyMatId, words) {
+function addWordsById(studyMatId, words) {
 	return StudyMats.findByIdAndUpdate(
 		studyMatId,
 		{ $addToSet: {
@@ -35,13 +37,23 @@ function addWords(studyMatId, words) {
 	).exec();
 }
 
-function removeWords(studyMatId, words) {
+function removeWordsById(studyMatId, words) {
 	return StudyMats.findByIdAndUpdate(
 		studyMatId,
 		{ $pullAll: {
 			savedWords: words
 		}}
 	).exec();
+}
+
+function addWords(studyMat, words) {
+	studyMat['savedWords'] = _.union(studyMat['savedWords'], words);
+	return studyMat.save();
+}
+
+function removeWords(studyMat, words) {
+	studyMat['savedWords'] = _.pullAll(studyMat['savedWords'], words);
+	return studyMat.save();
 }
 
 module.exports.createStudyMat = createStudyMat;
