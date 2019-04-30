@@ -12,7 +12,10 @@ import { withRouter } from "react-router";
 const EditMenu = (props) => {
   if (props.editMode) {
     // Add in text field to add Words
-    return (<Button label="Finish editing" onClick={props.toggle} />)
+    return (
+    <Box pad="medium">
+      <Button label="Finish editing" onClick={props.toggle} />
+    </Box>)
   } else {
     return null
   }

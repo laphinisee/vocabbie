@@ -189,7 +189,7 @@ app.post('/generate-text', function(request, response, next) {
     } else if (user) {
       const title = request.body.title;
       const text = request.body.plainText
-      return processAndSaveText(text, title, response);
+      return processAndSaveText(text, title, response, user._id);
     } else {
       response.status(401).send()
     }
@@ -212,7 +212,7 @@ app.post('/generate-pdf', function(request, response, next){
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          return processAndSaveText(scrapedText, title, response);
+          return processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
             console.log('deleted ' + request.file.filename);
@@ -239,7 +239,7 @@ app.post('/generate-url', function(request, response, next){
           return;
         }
         const title = request.body.title;
-        return processAndSaveText(allText, title, response);
+        return processAndSaveText(allText, title, response, user._id);
       }).catch(err => {
         response.status(500).send()
       });
@@ -255,7 +255,7 @@ app.get('/vocab', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const docs = []
-      querydb.document.getAllUserDocuments(mongoose.Types.ObjectId(request.params.userid))
+      querydb.document.getUserDocuments(user._id)
       .then(result => {
         const allPromises = []
         result.forEach((d) => {
@@ -278,7 +278,7 @@ app.get('/vocab', function(request, response, next){
     }
   })(request, response, next);
 });
-function processAndSaveText(text, title, response){
+function processAndSaveText(text, title, response, userId){
   let keywords;
   
   nlp.processText(text)
@@ -289,7 +289,7 @@ function processAndSaveText(text, title, response){
     const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
     // call db function to save all words.
-    return querydb.document.createDocument(title, mongoose.Types.ObjectId(), text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(result => {
     const id = result['_id'];
     response.status(200).type('html');
