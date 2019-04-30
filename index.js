@@ -21,7 +21,6 @@ let storage = multer.diskStorage({
   }
 });
 const upload = multer({storage : storage}).single('file');
-// const upload = multer({storage : storage})
 
 const mongoose = require('mongoose');
 const nlp = require('./src/nlp/nlpMain');
@@ -209,15 +208,13 @@ app.post('/generate-pdf', function(request, response, next){
         if (err) {
           return response.status(500).send();
         }
-        console.log("upload 1:", request.file)
-        console.log("upload 2:", request.body.title)
         const pdfParser = new PDFParser(this, 1);
         let scrapedText = "";   
         pdfParser.on("pdfParser_dataError", errData => console.error(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          return processAndSaveText(scrapedText, title, response, user._id);
+          processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
             console.log('deleted ' + request.file.filename);
