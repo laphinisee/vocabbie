@@ -36,8 +36,6 @@ function processText(text, targetLanguage='en') {
 			}
 		}
 
-		// const translations = translate.translateText(untranslatedWordList, sourceLanguage);
-		console.log('batching')
 		const translations = [];
 		let batch;
 		for (i = 0; i < Math.ceil(untranslatedWordList.length / maxWords); i++) {
@@ -94,14 +92,9 @@ function processText(text, targetLanguage='en') {
 			return map;
 		}, {});
 
-		console.log("tokenMongoWordMap")
-		console.log(tokenMongoWordMap)
-
 		let wordId;
 		const orderedMongoWords = tokens.map(token => {
-			console.log("TOKEN:", token)
 			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
-			console.log("wordID:", tokenMongoWordMap[wordId])
 			return tokenMongoWordMap[wordId];
 		});
 
