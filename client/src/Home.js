@@ -38,7 +38,7 @@ class Home extends React.Component {
         <div>
           <Header/>
           <Container>
-              <Box direction="column" flex="grow">
+              <Box direction="column">
                 <Grid
                   rows={['medium', 'medium']}
                   columns={['1/3', '1/3', '1/3']}
