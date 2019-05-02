@@ -145,7 +145,7 @@ app.get('/document/:id', function(request, response, next){
           querydb.document.getDocument(documentID)
           .then(doc => {
             title = doc.name;
-            studyMat = doc.studyMat[0].savedWords; //TODO: I don't think we should have more than one. 
+            savedWords = doc.studyMats[0].savedWords; //TODO: I don't think we should have more than one. 
             const textId = mongoose.Types.ObjectId(doc.textId);
             return querydb.documentText.getDocumentText(textId);
           }).then(result => {
@@ -291,30 +291,42 @@ app.get('/vocab', function(request, response, next){
 });
 
 app.post('/document/:id/delete', function(request, response, next) {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      response.status(500).send(err.message);
-    } else if (user) {
+  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
+  //   if (err) {
+  //     response.status(500).send(err.message);
+  //   } else if (user) {
       const wordToDelete = request.body.word;
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
+      let studyMat;
+      let document;
       querydb.document.getDocument(documentID).then(doc => {
-        const studyMat = doc.studyMat[0];//TODO: I don't think we should have more than one. 
-        return querydb.studyMat.removeWords(studyMat, [wordToDelete]);
+        document = doc
+        studyMat = doc.studyMats[0];//TODO: I don't think we should have more than one. 
+        const textId = mongoose.Types.ObjectId(doc.textId);
+        return querydb.documentText.getDocumentText(textId);
+      }).then(documentText => {
+        sourceLanguage = documentText.sourceLanguage
+        targetLanguage = documentText.targetLanguage
+        return querydb.studyMat.removeWords(document, studyMat, [wordToDelete], "vocabSheet");
       }).then(updatedMat => {
+        // console.log(updatedMat)
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
+        // console.log("HEHHEH")
+        // console.log(savedWordObjs)
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}));
+        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
+        console.log(err)
         response.status(500).send()
       });
       
-    } else {
-      response.status(401).send()
-    }
-  })(request, response, next);
+  //   } else {
+  //     response.status(401).send()
+  //   }
+  // })(request, response, next);
 });
 
 app.post('/document/:id/add', function(request, response, next) {
@@ -327,13 +339,13 @@ app.post('/document/:id/add', function(request, response, next) {
       let sourceLanguage;
       let targetLanguage;
       querydb.document.getDocument(documentID).then(doc => {
-        const studyMat = doc.studyMat[0];//TODO: I don't think we should have more than one. 
+        const studyMat = doc.studyMats[0];//TODO: I don't think we should have more than one. 
         return querydb.studyMat.addWords(studyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}));
+        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
         response.status(500).send()
       });
@@ -351,13 +363,14 @@ function processAndSaveText(text, title, response, userId){
   let srcLanguage;
   let translatedWords;
   let allWords;
+  let keywordsPlaintext
   nlp.processText(text)
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
-    const keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.has(word['originalText']));
+    keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
+    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.includes(word['originalText']));
     // call db function to save all words.
     return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(doc => {
@@ -372,6 +385,8 @@ function processAndSaveText(text, title, response, userId){
     // TODO: error 400 means they did eng->eng, but it could mean other things.
     // error code 3 means unsupported language. We should probably not assume
     // that the error is an unsupported language. 
+    console.log('lmao')
+    console.log(err)
     response.status(400).json({err: "The language you entered is not supported."});
   });
 }

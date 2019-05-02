@@ -31,16 +31,12 @@ function createWord(token, sourceLanguage, targetLanguage) {
 		}
 	});
 
-	console.log("createWord")
-	console.log(Words.findAndModify)
-
 	return Words.findAndModify(
 		{ id: wordId },
 		[['id','asc']],
 		{ "$setOnInsert": { ...wordPayload } },
 		{new: true, upsert: true}
 	  ).then(result => { 
-		  console.log(result)
 		  return result 
 	   })
 	  .catch(err => { console.log(err)})
@@ -71,6 +67,7 @@ function getWords(words, sourceLanguage, targetLanguage) {
 	let wordIds;
 
 	if (typeof words[0] === 'string') {
+		console.log(sourceLanguage)
 		wordIds = words.map(word => _wordId(word, sourceLanguage, targetLanguage));
 	} else {
 		wordIds = words.map(word => _wordId(word['text']['content'], word['sourceLanguage'], word['targetLanguage']));
@@ -81,9 +78,17 @@ function getWords(words, sourceLanguage, targetLanguage) {
 	return Words.find({ id: {$in: wordIds} })
 		.exec()
 		.then(result => {
-			return result.sort((a, b) => { 
-				return wordIds.indexOf(a['id']) - wordIds.indexOf(b['id']) 
+			const wordMap = {};
+			result.forEach(token => {
+				wordMap[token['originalText']] = token;
 			});
+
+			const tokenList = [];
+			for (i = 0; i < words.length; i++) {
+				tokenList.push(wordMap[words[i]])
+			}
+			
+			return tokenList;
 		});
 }
 

@@ -3,6 +3,7 @@ const tokenize = require('./utils/tokenizer');
 const pronunciation = require('./utils/pronunciation');
 const stopwords = require('./utils/stopwords');
 const keywords = require('./utils/keywords');
+const detection = require('./utils/languageDetection');
 
 const query = require('../db/query');
 
@@ -12,8 +13,13 @@ var Promise = require('bluebird');
 
 const maxWords = 128;
 function processText(text, targetLanguage='en') {
-	return tokenize.tokenizeText(text).then(result => {
-		return result[0];
+	return detection.detectLanguage(text).then(result => {
+		const sourceLanguage = result[0]['language'];
+		return Promise.all([sourceLanguage, tokenize.tokenizeText(text, sourceLanguage)]);
+	}).then(result => {
+		const [ sourceLanguage, tokenizeResult ] = result;
+		tokenizeResult[0]['language'] = sourceLanguage;
+		return tokenizeResult[0];
 	}).then(result => {
 		const sourceLanguage = result['language'],
 			tokens = result['tokens'],
@@ -83,11 +89,9 @@ function processText(text, targetLanguage='en') {
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
 	}).then(result => {
-		console.log("RESULT!", result)
 		const [ sourceLanguage, tokens, mongoWords ] = result;
 
 		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
-			console.log("!@23434323424", word)
 			map[word.value['id']] = word.value;
 			return map;
 		}, {});
@@ -106,10 +110,13 @@ module.exports.processText = processText;
 module.exports.getKeywords = keywords.getKeywords;
 
 let text
+// text = 'je suis'
 // text = '我是一個漂亮的蝴蝶'
 // text = 'Hola cómo estás'
 // text = 'Suzanne et Joseph étaient nés dans les deux premières années de leur arrivée à la colonie. Après la naissance de Suzanne, la mère abandonna l’enseignement d’état. Elle ne donna plus que des leçons particulières de français. Son mari avait été nommé directeur d’une école indigène et, disaient-elle, ils avaient vécu très largement malgré la charge de leurs enfants. Ces années-là furent sans conteste les meilleures de sa vie, des années de bonheur. Du moins c’étaient ce qu’elle disait. Elle s’en souvenait comme d’une terre lointaine et rêvée, d’une île. Elle en parlait de moins en moins à mesure qu’elle vieillissait, mais quand elle en parlait c’était toujours avec le même acharnement. Alors, à chaque fois, elle découvrait pour eux de nouvelles perfections à cette perfection, une nouvelle qualité à son mari, un nouvel aspect de l’aisance qu’ils connaissaient alors, et qui tendaient à devenir une opulence dont Joseph et Suzanne doutaient un peu.'
 // processText(text).then(result => {
+// 	console.log("START HERE!!")
+
 // 	console.log(result[2])
 // })
 

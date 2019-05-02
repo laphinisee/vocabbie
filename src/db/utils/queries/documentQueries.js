@@ -1,5 +1,6 @@
 const documentSchema = require('../schemas/documentSchema');
 const documentTextQueries = require('./documentTextQueries');
+const studyMatQueries = require('./studyMatQueries');
 
 const Documents = documentSchema.Documents;
 
@@ -41,15 +42,19 @@ function hasPermission(documentId, userId) {
 }
 
 function addStudyMat(documentId, studyMat) {
-	const studyMatEnum = studyMat['type'];
-
 	return getDocument(documentId).then(doc => {
-		doc['studyMats'].push(studyMat);
-		return doc.save();
+		doc['studyMat'] = studyMat;
+		doc.save().
 	})
+}
+
+function getStudyMat(document) {
+	return studyMatQueries.getStudyMat(document.studyMat)
 }
 
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getDocument = getDocument;
 module.exports.hasPermission = hasPermission;
+module.exports.addStudyMat = addStudyMat;
+module.exports.getStudyMat = getStudyMat;
