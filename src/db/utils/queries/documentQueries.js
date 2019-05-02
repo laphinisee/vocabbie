@@ -44,7 +44,7 @@ function addStudyMat(documentId, studyMat) {
 	const studyMatEnum = studyMat['type'];
 
 	return getDocument(documentId).then(doc => {
-		doc['studyMats'][studyMatEnum] = studyMat;
+		doc['studyMats'].push(studyMat);
 		return doc.save();
 	})
 }
