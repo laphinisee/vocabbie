@@ -73,7 +73,7 @@ class Settings extends React.Component {
     .then(res => {
       if(res.data.error) {
         this.setState({
-          error: true,
+          error: res.data.error,
           loading: false,
         })
       } else {
@@ -92,7 +92,7 @@ class Settings extends React.Component {
       <Container title="Settings" description="Manage your account, update preferences, etc.">
         <Form>
           {this.state.error && <AlertBox type="error" message={this.state.error}/>}
-          {this.state.success && <AlertBox type="info" message={this.state.success}/>}
+          {this.state.success && <AlertBox type="ok" message={this.state.success}/>}
 
           <FormField error={this.state.touched.password && this.state.errors.password} onChange={this.handleUserInput} onBlur={this.handleBlur} value={this.state.values.password} name="password" type="password" label="Change your password" />
           <Button disabled={!this.isFormValid() || this.props.loading} onClick={this.onUpdateSettings} type="submit" label={this.props.loading ? 'Loading...' : "Save"} fill={true} primary color="accent-1"/> 
