@@ -53,3 +53,4 @@ module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getDocument = getDocument;
 module.exports.hasPermission = hasPermission;
+module.exports.addStudyMat = addStudyMat;

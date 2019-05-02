@@ -71,6 +71,7 @@ function getWords(words, sourceLanguage, targetLanguage) {
 	let wordIds;
 
 	if (typeof words[0] === 'string') {
+		console.log(sourceLanguage)
 		wordIds = words.map(word => _wordId(word, sourceLanguage, targetLanguage));
 	} else {
 		wordIds = words.map(word => _wordId(word['text']['content'], word['sourceLanguage'], word['targetLanguage']));
