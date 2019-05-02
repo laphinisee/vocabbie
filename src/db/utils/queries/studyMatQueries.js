@@ -9,7 +9,7 @@ const StudyMats = studyMatSchema.StudyMats;
 const Documents = documentSchema.Documents;
 
 function createStudyMat(studyMatEnum, sourceLanguage, targetLanguage, savedWords) {
-	if (!studyMats.studyMatEnums.includes(studyMatEnum)) {
+	if (!studyMatSchema.studyMatEnums.includes(studyMatEnum)) {
 		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
 	}
 
@@ -51,9 +51,16 @@ function addWords(studyMat, words) {
 	return studyMat.save();
 }
 
-function removeWords(studyMat, words) {
+function removeWords(doc, studyMat, words, matEnum) {
+	console.log("WOOOWOWO")
+	console.log(words)
 	studyMat['savedWords'] = _.pullAll(studyMat['savedWords'], words);
-	return studyMat.save();
+	console.log("AHHAHAHAH!!!")
+	console.log(studyMat['savedWords'])
+	doc['studyMats'][matEnum] = studyMat;
+	studyMat.save();
+	doc.save();
+	return Promise.resolve(studyMat);
 }
 
 module.exports.createStudyMat = createStudyMat;

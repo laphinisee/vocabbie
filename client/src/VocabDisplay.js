@@ -1,6 +1,7 @@
 import React from "react";
 import {Box, Button, Table, TableRow, TableCell, TableBody, TableHeader} from 'grommet';
 import {FormClose} from 'grommet-icons'
+import './App.css';
 
 class VocabDisplay extends React.Component {
   constructor(props) {
@@ -11,25 +12,25 @@ class VocabDisplay extends React.Component {
     }
   
   removeVocab = (word) => (e) => {
-    // const url = '/document/' + this.props.match.params.id
+    const url = '/document/' + this.props.docId + '/delete'
     console.log(this.props.docId)
     console.log(word)
     // this.setState({vocabRows: []})
-    // fetch(url, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Authorization": this.props.user.token,
-    //   },
-    // }).then( (res) => res.json()).then((res) => {
-    //   const getData = res
-    //   this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
-    //   this.getVocabSheet(getData.vocab_list);
-    //   this.setState({pdfReady: true, loading: false})
+    fetch(url, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        "Content-Type": "application/json",
+        // "Authorization": this.props.user.token,
+      },
+      body: JSON.stringify({word}), // body data type must match "Content-Type" header
+    }).then( (res) => res.json()).then((res) => {
+      console.log(res)
+      this.setState({vocabRow: res})
     // TODO: Would be nice to get in response new vocab_list.
-    // }).catch((err) => {
-    //   console.error(err)
-    //   // this.props.history.push('/error')
-    // })
+    }).catch((err) => {
+      console.error(err)
+      // this.props.history.push('/error')
+    })
   }
 
     render() {
@@ -47,7 +48,7 @@ class VocabDisplay extends React.Component {
               <TableCell scope="col" border="bottom">
                 Translation
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell className={!this.props.editMode ? "hide" : ""}  scope="col" border="bottom">
               </TableCell>
             </TableRow>
           </TableHeader>
@@ -65,8 +66,8 @@ class VocabDisplay extends React.Component {
                     <TableCell scope="row" border="bottom">
                       {vocab.translation}
                     </TableCell>
-                    <TableCell scope="row" border="bottom">
-                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.text)}/>
+                    <TableCell className={!this.props.editMode ? "hide" : ""} scope="row" border="bottom">
+                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.text)}/>
                     </TableCell>
                   </TableRow>
                 )
