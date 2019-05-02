@@ -33,7 +33,6 @@ const fs = require('fs');
 
 /* Backend TODOS
    1. See result of keywords, and if it's too much for a large article, cut it down to be ~20. 
-      1. b TF/IDF and/or length?
 */
 ////////////////////// LOGIN LOGIC //////////////////////
 const bcrypt = require("bcryptjs");
@@ -137,29 +136,29 @@ app.get('/document/:id', function(request, response, next){
       let srclanguage = "";
       let plaintext = "";
       let targetlanguage = "";
-      let keyWordsStrings;
+      let savedWords;
       querydb.document.getDocument(documentID)
       .then(doc => {
         title = doc.name;
+        studyMat = doc.studyMat[0].savedWords; //TODO: I don't think we should have more than one. 
         const textId = mongoose.Types.ObjectId(doc.textId);
         return querydb.documentText.getDocumentText(textId);
       }).then(result => {
         srclanguage = result.sourceLanguage;
         plaintext = result.plaintext;
         targetlanguage = result.targetLanguage;
-        keyWordsStrings = result.keyWords;
         return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
       }).then(allwordsTemp => {
         allWords = allwordsTemp;
         // keyWordPromise
-        return querydb.word.getWords(keyWordsStrings,  srclanguage, targetlanguage)
-      }).then(keyWords => {
+        return querydb.word.getWords(savedWords,  srclanguage, targetlanguage)
+      }).then(savedWords => {
         allWords.forEach(function(w){
-          let hardId = keyWords.findIndex(word => word.lemma == w.lemma);
+          let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
           article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
         });
-        for(let i = 0 ; i < keyWords.length; i++){
-          vocab_list[i] = {"text": keyWords[i].lemma, "pos": keyWords[i].partOfSpeech, "translation": keyWords[i].translatedText};
+        for(let i = 0 ; i < savedWords.length; i++){
+          vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
         }
         const toReturn = {
           title : title,
@@ -288,13 +287,54 @@ app.post('/document/:id/delete', function(request, response, next) {
       response.status(500).send(err.message);
     } else if (user) {
       const wordToDelete = request.body.word;
-      const documentID = request.body.id;
-      return processAndSaveText(text, title, response);
+      const documentID = mongoose.Types.ObjectId(request.params.id);
+      let sourceLanguage;
+      let targetLanguage;
+      querydb.document.getDocument(documentID).then(doc => {
+        const studyMat = doc.studyMat[0];//TODO: I don't think we should have more than one. 
+        return querydb.studyMat.removeWords(studyMat, [wordToDelete]);
+      }).then(updatedMat => {
+        return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
+      }).then(savedWordObjs => {
+        response.status(200).type('application/json');
+        response.json(savedWordObjs.map(word => {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}));
+      }).catch(err => {
+        response.status(500).send()
+      });
+      
     } else {
       response.status(401).send()
     }
   })(request, response, next);
 });
+
+app.post('/document/:id/add', function(request, response, next) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
+      const wordToAdd = request.body.word;
+      const documentID = mongoose.Types.ObjectId(request.params.id);
+      let sourceLanguage;
+      let targetLanguage;
+      querydb.document.getDocument(documentID).then(doc => {
+        const studyMat = doc.studyMat[0];//TODO: I don't think we should have more than one. 
+        return querydb.studyMat.addWords(studyMat, [wordToAdd]);
+      }).then(updatedMat => {
+        return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
+      }).then(savedWordObjs => {
+        response.status(200).type('application/json');
+        response.json(savedWordObjs.map(word => {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}));
+      }).catch(err => {
+        response.status(500).send()
+      });
+      
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
+});
+
 function processAndSaveText(text, title, response){
   let keywords;
   let id;
@@ -302,7 +342,6 @@ function processAndSaveText(text, title, response){
   let srcLanguage;
   let translatedWords;
   let allWords;
-  let doc;
   nlp.processText(text)
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
@@ -313,9 +352,11 @@ function processAndSaveText(text, title, response){
     // call db function to save all words.
     return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(doc => {
-    id = doc['_id'];
-    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keyWords); 
-  }).then(studyMatId => {
+    id = doc['_id']; //TODO: filter down keyWords here.
+    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keywordsPlaintext); 
+  }).then(studyMat => {
+    return querydb.document.addStudyMat(id, studyMat);
+  }).then(result =>{
     response.status(200).type('html');
     response.json({id: id});
   }).catch(err => {
