@@ -11,7 +11,7 @@ const documentSchema = new mongoose.Schema({
 	owner: { type: mongoose.Schema.Types.ObjectId, required: true },
 	sharedUsers: [mongoose.Schema.Types.ObjectId],
 	creationTime: { type: Date, default: Date.now },
-	studyMats: [studyMat.schema],
+	studyMat: mongoose.Schema.Types.ObjectId,
 	isPublic: { type: Boolean, default: false }
 })
 
