@@ -48,5 +48,6 @@ function updateUser(userId, payload) {
 module.exports = {
 	createUser,
 	deleteUser,
-	getUserByEmail
+	getUserByEmail,
+	updateUser
 };
