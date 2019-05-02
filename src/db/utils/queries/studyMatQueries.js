@@ -51,16 +51,9 @@ function addWords(studyMat, words) {
 	return studyMat.save();
 }
 
-function removeWords(doc, studyMat, words, matEnum) {
-	console.log("WOOOWOWO")
-	console.log(words)
+function removeWords(studyMat, words) {
 	studyMat['savedWords'] = _.pullAll(studyMat['savedWords'], words);
-	console.log("AHHAHAHAH!!!")
-	console.log(studyMat['savedWords'])
-	doc['studyMats'][matEnum] = studyMat;
-	studyMat.save();
-	doc.save();
-	return Promise.resolve(studyMat);
+	return studyMat.save();
 }
 
 module.exports.createStudyMat = createStudyMat;
