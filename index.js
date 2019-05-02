@@ -130,7 +130,7 @@ app.get('/document/:id', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
-      querydb.documentQueries.hasPermission(documentID, user._id)
+      querydb.document.hasPermission(documentID, mongoose.Types.ObjectId(user._id))
       .then(isPermitted => {
         if (!isPermitted) {
           response.status(401).send();
