@@ -1,11 +1,19 @@
 const keyword_extractor = require('keyword-extractor');
 
-function getKeywords(text) {
-  return new Set(keyword_extractor.extract(text, {
+const _ = require('lodash');
+
+function getKeywords(text, max_words=20) {
+  const keywords = new Set(keyword_extractor.extract(text, {
     remove_digits: true,
     return_changed_case: false,
     remove_duplicates: true
   }));
+  
+  let multiset = text.split(' ').filter(word => keywords.has(word))
+  multiset = _.countBy(multiset, x => x.toString())
+
+  const sortedKeywords = _.sortBy(Array.from(keywords), [(word) => { return -1 * multiset[word] }])
+  return _.slice(sortedKeywords, 0, max_words)
 }
 
 module.exports = {
