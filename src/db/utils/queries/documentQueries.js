@@ -36,7 +36,7 @@ function shareDocument(documentId, userIds) {
 
 function hasPermission(documentId, userId) {
 	return getDocument(documentId).then(result => {
-		return result['isPublic'] || (result['owner'] === userId || result['sharedUsers'].includes(userId));
+		return result['isPublic'] || (result['owner'].equals(userId) || result['sharedUsers'].includes(userId));
 	})
 }
 
@@ -44,7 +44,7 @@ function addStudyMat(documentId, studyMat) {
 	const studyMatEnum = studyMat['type'];
 
 	return getDocument(documentId).then(doc => {
-		doc['studyMats'][studyMatEnum] = studyMat;
+		doc['studyMats'].push(studyMat);
 		return doc.save();
 	})
 }
@@ -52,3 +52,4 @@ function addStudyMat(documentId, studyMat) {
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getDocument = getDocument;
+module.exports.hasPermission = hasPermission;
