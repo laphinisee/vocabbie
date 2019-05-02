@@ -3,7 +3,7 @@ import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
 import { withRouter } from "react-router";
 import AlertBox from './AlertBox';
 
-class ArticleUpload extends React.Component {
+export class ArticleUpload extends React.Component {
 
   constructor(props) {
     super(props) 
@@ -43,6 +43,7 @@ class ArticleUpload extends React.Component {
   }
 
   handleUserInput = (e) => {
+    console.log("user input change!", e.target.name, e.target.value)
     const fieldName = e.target.name
     const fieldValue = e.target.value
     this.setState(prevState => ({
@@ -80,6 +81,10 @@ class ArticleUpload extends React.Component {
   }
 
   isFormValid = (type) => {
+    if(type == 'plainText') {
+      console.log("is form valid?:",  this.state.errors[type] === '' && this.state.values[type] !== '' && this.state.values.title !== '')  
+    }
+    
     return this.state.errors[type] === '' && this.state.values[type] !== '' && this.state.values.title !== ''
   }
 
@@ -207,7 +212,7 @@ class ArticleUpload extends React.Component {
                             name="title" 
                             type="text" 
                             label="Title"/>
-              </Box>
+            </Box>
             <Tabs margin="medium">
               <Tab title="Plain Text">
                 <Box pad="medium">
@@ -218,7 +223,7 @@ class ArticleUpload extends React.Component {
                     onBlur={this.handleBlur} 
                     value={this.state.values.plainText} 
                     placeholder="Type your article here" /><br/>
-                  <Button disabled={!this.isFormValid('plainText') || this.state.loading} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
+                  <Button name="plainTextGenerate" disabled={!this.isFormValid('plainText') || this.state.loading} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
                 </Box>
               </Tab>
               <Tab title="URL">
@@ -230,7 +235,7 @@ class ArticleUpload extends React.Component {
                   name="url" 
                   type="text" 
                   label="URL"/>
-                  <Button disabled={!this.isFormValid('url') || this.state.loading} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
+                  <Button name="urlGenerate" disabled={!this.isFormValid('url') || this.state.loading} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
               <Tab title="File Upload">
                 <input 
@@ -241,7 +246,7 @@ class ArticleUpload extends React.Component {
                     type="file" 
                     // label="File Upload"
                 />
-                <Button disabled={!this.isFormValid('file') || this.state.loading} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
+                <Button name="pdfGenerate" disabled={!this.isFormValid('file') || this.state.loading} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
             </Tabs>
           </Form>

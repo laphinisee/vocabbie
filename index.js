@@ -129,51 +129,60 @@ app.get('/document/:id', function(request, response, next){
       response.status(500).send(err.message);
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
-      let title = ""
-      let allWords;
-      const article = [];
-      const vocab_list = {};
-      let srclanguage = "";
-      let plaintext = "";
-      let targetlanguage = "";
-      let savedWords;
-      querydb.document.getDocument(documentID)
-      .then(doc => {
-        title = doc.name;
-        studyMat = doc.studyMat[0].savedWords; //TODO: I don't think we should have more than one. 
-        const textId = mongoose.Types.ObjectId(doc.textId);
-        return querydb.documentText.getDocumentText(textId);
-      }).then(result => {
-        srclanguage = result.sourceLanguage;
-        plaintext = result.plaintext;
-        targetlanguage = result.targetLanguage;
-        return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
-      }).then(allwordsTemp => {
-        allWords = allwordsTemp;
-        // keyWordPromise
-        return querydb.word.getWords(savedWords,  srclanguage, targetlanguage)
-      }).then(savedWords => {
-        allWords.forEach(function(w){
-          let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
-          article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
-        });
-        for(let i = 0 ; i < savedWords.length; i++){
-          vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
+      querydb.documentQueries.hasPermission(documentID, user._id)
+      .then(isPermitted => {
+        if (!isPermitted) {
+          response.status(401).send();
+        } else {
+          let title = ""
+          let allWords;
+          const article = [];
+          const vocab_list = {};
+          let srclanguage = "";
+          let plaintext = "";
+          let targetlanguage = "";
+          let savedWords;
+          querydb.document.getDocument(documentID)
+          .then(doc => {
+            title = doc.name;
+            studyMat = doc.studyMat[0].savedWords; //TODO: I don't think we should have more than one. 
+            const textId = mongoose.Types.ObjectId(doc.textId);
+            return querydb.documentText.getDocumentText(textId);
+          }).then(result => {
+            srclanguage = result.sourceLanguage;
+            plaintext = result.plaintext;
+            targetlanguage = result.targetLanguage;
+            return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
+          }).then(allwordsTemp => {
+            allWords = allwordsTemp;
+            // keyWordPromise
+            return querydb.word.getWords(savedWords,  srclanguage, targetlanguage)
+          }).then(savedWords => {
+            allWords.forEach(function(w){
+              let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
+              article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+            });
+            for(let i = 0 ; i < savedWords.length; i++){
+              vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
+            }
+            const toReturn = {
+              title : title,
+              plaintext : plaintext, 
+              article : article,
+              vocab_list : vocab_list,
+              language : srclanguage
+            };
+            response.status(200).type('application/json');
+            response.json(toReturn);
+          }).catch(err => {
+              // should catch any error from previous chains
+              console.log(err)
+              response.status(500).send();
+          });
         }
-        const toReturn = {
-          title : title,
-          plaintext : plaintext, 
-          article : article,
-          vocab_list : vocab_list,
-          language : srclanguage
-        };
-        response.status(200).type('application/json');
-        response.json(toReturn);
       }).catch(err => {
-          // should catch any error from previous chains
-          console.log(err)
-          response.status(500).send();
-      });
+        response.status(500).send();
+      })
     } else {
       response.status(401).send()
     }
@@ -335,7 +344,7 @@ app.post('/document/:id/add', function(request, response, next) {
   })(request, response, next);
 });
 
-function processAndSaveText(text, title, response){
+function processAndSaveText(text, title, response, userId){
   let keywords;
   let id;
   let keyWords;

@@ -9,7 +9,7 @@ const AlertBox = (props) => {
     <Box
       className='AlertBox'
       direction='column'
-      flex='true'
+      flex={true}
       direction='row'
       gap='medium'
       alignContent='center'

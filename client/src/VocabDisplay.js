@@ -12,6 +12,7 @@ class VocabDisplay extends React.Component {
   
   removeVocab = (word) => (e) => {
     // const url = '/document/' + this.props.match.params.id
+    console.log(this.props.docId)
     console.log(word)
     // this.setState({vocabRows: []})
     // fetch(url, {
