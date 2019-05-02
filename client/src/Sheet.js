@@ -8,6 +8,7 @@ import {Button, TextInput, Table, TableBody, TableRow, TableCell, Grid, Box} fro
 import {Download, Trash, Edit} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
+import {Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
 
 const EditMenu = (props) => {
   if (props.editMode) {
@@ -126,45 +127,46 @@ class Sheet extends React.Component {
       console.log(docId)
       return (
         <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
-          <Grid
-          rows={['xxsmall','fit' ]}
-          columns={['1/2', '1/2']}
-          gap="small"
-          areas={[
-            { name: 'menu', start: [0,0], end:[1,0]},
-            { name: 'article', start: [0, 1], end: [1, 1] },
-            { name: 'vocab', start: [1, 1], end: [1, 1] },
-          ]}
-        >
-            <Box gridArea="menu" alignContent="end" direction="row-reverse">
-              <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
-              <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
-              <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
-            </Box>
-            <Box gridArea="article">
-              <ArticleDisplay 
-                article={this.state.article} 
-                tokens={this.state.tokens}
-                onWordHover={(t) => this.setState({selected: t})}
-                offWordHover={(t) => this.setState({selected: null})}/>
-            </Box>
-            <Box gridArea="vocab" background="light-2">
-              <EditMenu 
-                addWord={this.addWord}
-                newWord={this.state.newWord} 
-                newPOS={this.state.newPOS} 
-                newTranslation={this.state.newTranslation} 
-                handleWordInput={this.handleWordInput} 
-                editMode={this.state.editMode} 
-                toggle={this.toggleEditMode}/>
-              <VocabDisplay 
-                vocabRows={this.state.vocabRows} 
-                selected={this.state.selected}
-                editMode={this.state.editMode}
-                docId={docId}
-                />
-            </Box>
-          </Grid>
+          <GridContainer>
+            <Row>
+              <Col offset={{sm:9}} sm={3}>
+                <Box gridArea="menu" alignContent="end" direction="row-reverse">
+                  <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
+                  <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
+                  <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
+                </Box>
+              </Col>
+            </Row>
+            <Row>
+            < Col sm={12} push={{ md: 6 }} md={6}>
+              <Box gridArea="vocab" background="light-2">
+                <EditMenu 
+                  addWord={this.addWord}
+                  newWord={this.state.newWord} 
+                  newPOS={this.state.newPOS} 
+                  newTranslation={this.state.newTranslation} 
+                  handleWordInput={this.handleWordInput} 
+                  editMode={this.state.editMode} 
+                  toggle={this.toggleEditMode}/>
+                <VocabDisplay 
+                  vocabRows={this.state.vocabRows} 
+                  selected={this.state.selected}
+                  editMode={this.state.editMode}
+                  docId={docId}
+                  />
+              </Box>
+            </ Col>
+              <Col sm={12} pull={{ md: 6 }} md={6}>
+                <Box gridArea="article">
+                  <ArticleDisplay 
+                    article={this.state.article} 
+                    tokens={this.state.tokens}
+                    onWordHover={(t) => this.setState({selected: t})}
+                    offWordHover={(t) => this.setState({selected: null})}/>
+                </Box>
+              </ Col>
+            </Row>
+          </GridContainer>
           <ReactTooltip />
           {/* {this.state.pdfReady ? <PDFViewer>
             <PDFSheet title={this.state.title} tokens={this.state.tokens}/>
