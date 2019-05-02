@@ -362,7 +362,7 @@ function processAndSaveText(text, title, response, userId){
     return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
-    return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keywordsPlaintext); 
+    return querydb.studyMat.createStudyMat(srcLanguage, "en", keywordsPlaintext); 
   }).then(studyMat => {
     return querydb.document.addStudyMat(id, studyMat);
   }).then(result =>{
