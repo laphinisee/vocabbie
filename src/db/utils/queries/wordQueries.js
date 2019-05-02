@@ -31,16 +31,12 @@ function createWord(token, sourceLanguage, targetLanguage) {
 		}
 	});
 
-	console.log("createWord")
-	console.log(Words.findAndModify)
-
 	return Words.findAndModify(
 		{ id: wordId },
 		[['id','asc']],
 		{ "$setOnInsert": { ...wordPayload } },
 		{new: true, upsert: true}
 	  ).then(result => { 
-		  console.log(result)
 		  return result 
 	   })
 	  .catch(err => { console.log(err)})
