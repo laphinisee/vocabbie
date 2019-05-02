@@ -83,11 +83,9 @@ function processText(text, targetLanguage='en') {
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
 	}).then(result => {
-		console.log("RESULT!", result)
 		const [ sourceLanguage, tokens, mongoWords ] = result;
 
 		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
-			console.log("!@23434323424", word)
 			map[word.value['id']] = word.value;
 			return map;
 		}, {});
