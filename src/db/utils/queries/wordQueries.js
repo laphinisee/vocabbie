@@ -77,9 +77,17 @@ function getWords(words, sourceLanguage, targetLanguage) {
 	return Words.find({ id: {$in: wordIds} })
 		.exec()
 		.then(result => {
-			return result.sort((a, b) => { 
-				return wordIds.indexOf(a['id']) - wordIds.indexOf(b['id']) 
+			const wordMap = {};
+			result.forEach(token => {
+				wordMap[token['originalText']] = token;
 			});
+
+			const tokenList = [];
+			for (i = 0; i < words.length; i++) {
+				tokenList.push(wordMap[words[i]])
+			}
+			
+			return tokenList;
 		});
 }
 

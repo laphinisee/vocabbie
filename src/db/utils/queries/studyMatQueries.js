@@ -58,4 +58,5 @@ function removeWords(studyMat, words) {
 
 module.exports.createStudyMat = createStudyMat;
 module.exports.getStudyMat = getStudyMat;
-
+module.exports.addWords = addWords;
+module.exports.removeWords = removeWords;
