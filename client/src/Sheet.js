@@ -5,7 +5,7 @@ import VocabDisplay from './VocabDisplay';
 import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
 import {Button, TextInput, Table, TableBody, TableRow, TableCell, Grid, Box} from 'grommet';
-import {Download, Trash, Edit} from 'grommet-icons'
+import {Download, Trash, Edit, Iteration} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
 import {Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
@@ -133,6 +133,7 @@ class Sheet extends React.Component {
                 <Box gridArea="menu" alignContent="end" direction="row-reverse">
                   <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
                   <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
+                  <Button data-tip="View as Flashcards" icon={<Iteration />} color="black" href={`/flashcards/${this.props.match.params.id}`}/>
                   <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
                 </Box>
               </Col>
