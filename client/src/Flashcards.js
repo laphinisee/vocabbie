@@ -185,6 +185,7 @@ class Flashcards extends React.Component {
         return (
             <Container style={{
                 background: "#F1F1F1",
+                position: "relative",
             }} loading={this.state.loading} title={"Flashcards"} description="Your generated vocab sheet">
                 <CardContainer cards={this.state.cards} />
             </Container>
