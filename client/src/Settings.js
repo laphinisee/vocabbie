@@ -67,19 +67,24 @@ class Settings extends React.Component {
     this.setState({
       loading: true
     }, () => {
-    axios.post('/settings', {
-      password: this.state.values.password,
-    })
+      fetch('/settings', {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+        redirect: "follow", // manual, *follow, error
+        body: JSON.stringify({
+          password: this.state.values.password,
+        }), // body data type must match "Content-Type" header
+      })
     .then(res => {
-      if(res.data.error) {
-        this.setState({
-          error: res.data.error,
-          loading: false,
-        })
-      } else {
+      if(res.status == 200) {
         this.setState({
           success: 'Your password has been updated.',
         })
+      } else {
+        this.props.history.push('/error')
       }
     })
     .catch(err => {

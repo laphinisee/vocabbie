@@ -28,20 +28,22 @@ function getUserByEmail(email) {
 	return Users.findOne({ email: email }).exec();	
 }
 
-function updateUser(userId, payload) {
-	const keys = Object.keys(payload).filter(key => (payload[key]))
-	const cleanPayload = keys.map(key => payload[key])
+function updateUser(userId, payload, onSuccess, onFailure) {
 
-	if (cleanPayload['password']) {
+	// const keys = Object.keys(payload).filter(key => (payload[key]))
+	// const cleanPayload = keys.map(key => payload[key])
+	if (payload['password']) {
 		return bcrypt.genSalt(10, (err, salt) => {
-			return bcrypt.hash(cleanPayload['password'], salt, (err, hash) => {
+			return bcrypt.hash(payload['password'], salt, (err, hash) => {
 				if (err) { throw err }
-				cleanPayload['password'] = hash;
-				return Users.findByIdAndUpdate(userId, payload).exec();
+				payload['password'] = hash;
+				Users.findByIdAndUpdate(userId, payload).exec();
+				onSuccess()
 			})
 		}); 
 	} else {
-		return Users.findByIdAndUpdate(userId, payload).exec();
+		Users.findByIdAndUpdate(userId, payload).exec();
+		onFailure()
 	}
 }
 

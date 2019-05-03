@@ -366,12 +366,9 @@ app.post('/settings', function(request, response, next){
 		if (err) {
 			response.status(500).send(err.message);
 		} else if (user) {
-			querydb.user.updateUser(user._id, response.password)
-			.then((user) => {
-				response.status(200).send();
-			}).catch(err => {
-				response.status(500).send();
-			});
+      const onSuccess = () => { response.status(200).send() }
+      const onFailure = () => { response.status(500).send() }
+			querydb.user.updateUser(user._id, {password: request.body.password}, onSuccess, onFailure)
 		}
 	})(request, response, next);
 });
