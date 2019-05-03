@@ -361,6 +361,21 @@ app.post('/document/:id/add', function(request, response, next) {
   })(request, response, next);
 });
 
+app.post('/settings', function(request, response, next){
+	passport.authenticate('jwt', {session : false}, (err, user, info) => {
+		if (err) {
+			response.status(500).send(err.message);
+		} else if (user) {
+			querydb.user.updateUser(user._id, response.password)
+			.then((user) => {
+				response.status(200).send();
+			}).catch(err => {
+				response.status(500).send();
+			});
+		}
+	})(request, response, next);
+});
+
 function processAndSaveText(text, title, response, userId){
   let keywords;
   let id;
