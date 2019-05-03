@@ -1,7 +1,9 @@
 import React from "react";
 import Container from './Container';
-import './Flashcards.css'
-import {Radial, RadialSelected} from 'grommet-icons'
+import VocabDisplay from './VocabDisplay';
+import './Flashcards.css';
+import {Box} from 'grommet';
+import {Radial, RadialSelected} from 'grommet-icons';
 
 class Card extends React.Component {
     constructor() {
@@ -18,7 +20,7 @@ class Card extends React.Component {
       const contentClass = this.state.showAnswer ? 'back' : 'front';
       const actionClass = this.state.showAnswer ? 'active' : '';
   
-      return (
+    return (
         <div 
           className={`card ${cardClass}`}
           onClick={() => this.setState({showAnswer: !this.state.showAnswer})}
@@ -138,18 +140,18 @@ class Card extends React.Component {
     }
     render() {
       return (
-        <div>
-          <span 
-              className='card-container__icon  fa fa-plus' 
-              onClick={() => {
-                this.setState({showModal: !this.state.showModal});
-              }}
-            />
-          {this.generateCards()}
-          <div className='card-container__dots-wrapper'>
-            {this.generateDots()}
+          <div>
+            <span 
+                className='card-container__icon  fa fa-plus' 
+                onClick={() => {
+                  this.setState({showModal: !this.state.showModal});
+                }}
+              />
+            {this.generateCards()}
+            <div className='card-container__dots-wrapper'>
+              {this.generateDots()}
+            </div>
           </div>
-        </div>
      );
     }
   }
@@ -183,12 +185,16 @@ class Flashcards extends React.Component {
     render() {
         console.log("this.state.cards", this.state.cards)
         return (
-            <Container style={{
-                background: "#F1F1F1",
-                position: "relative",
-            }} loading={this.state.loading} title={"Flashcards"} description="Your generated vocab sheet">
-                <CardContainer cards={this.state.cards} />
-            </Container>
+              <Container style={{
+                  background: "#F1F1F1",
+                  position: "relative",
+              }} loading={this.state.loading} title={"Flashcards"} description="Your generated vocab sheet">
+                <Box background="light-2" height="large">
+                  <CardContainer cards={this.state.cards} />
+                  <VocabDisplay vocabRows={this.state.cards} />
+                </Box>
+              </Container>
+            
         )
     }
 }

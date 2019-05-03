@@ -44,7 +44,7 @@ function hasPermission(documentId, userId) {
 function addStudyMat(documentId, studyMat) {
 	return getDocument(documentId).then(doc => {
 		doc['studyMat'] = studyMat;
-		doc.save().
+		doc.save();
 	})
 }
 
