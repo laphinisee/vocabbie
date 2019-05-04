@@ -166,12 +166,13 @@ app.get('/document/:id', function(request, response, next){
           }).then(savedWords => {
             console.log("SAVED WORDS:")
             console.log(savedWords)
-            allWords.forEach(function(w){
+            allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
             });
             for(let i = 0 ; i < savedWords.length; i++){
-              vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
+              console.log("savedWords[i]:", savedWords[i])
+              vocab_list[i] = {"str": savedWords[i].originalText, "text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
             }
             const toReturn = {
               title : title,
@@ -308,6 +309,7 @@ app.post('/document/:id/delete', function(request, response, next) {
       let sourceLanguage;
       let targetLanguage;
       let document;
+      console.log("in delete with doc id", documentID, " and word", wordToDelete)
       querydb.document.getDocument(documentID).then(doc => {
         document = doc
         const textId = mongoose.Types.ObjectId(doc.textId);
@@ -324,28 +326,33 @@ app.post('/document/:id/delete', function(request, response, next) {
         // console.log("HEHHEH")
         // console.log(savedWordObjs)
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
+        response.json(savedWordObjs.map(word => {return {"str": word.originalText, "text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
         console.log(err)
         response.status(500).send()
       });
-      
-  //   } else {
-  //     response.status(401).send()
-  //   }
-  // })(request, response, next);
 });
 
 app.post('/document/:id/add', function(request, response, next) {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      response.status(500).send(err.message);
-    } else if (user) {
+  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
+  //   if (err) {
+  //     response.status(500).send(err.message);
+  //   } else if (user) {
       const wordToAdd = request.body.word;
+      console.log(wordToAdd)
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
+      let document;
       querydb.document.getDocument(documentID).then(doc => {
+        document = doc;
+        const textId = mongoose.Types.ObjectId(doc.textId);
+        return querydb.documentText.getDocumentText(textId);
+      }).then(documentText => {
+        sourceLanguage = documentText.sourceLanguage;
+        targetLanguage = documentText.targetLanguage;
+        return querydb.studyMat.getStudyMat(document.studyMat)
+      }).then(studyMat => {
         return querydb.studyMat.addWords(studyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
@@ -353,13 +360,14 @@ app.post('/document/:id/add', function(request, response, next) {
         response.status(200).type('application/json');
         response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
+        console.log(err)
         response.status(500).send()
       });
       
-    } else {
-      response.status(401).send()
-    }
-  })(request, response, next);
+    // } else {
+    //   response.status(401).send()
+    // }
+  // })(request, response, next);
 });
 
 app.post('/settings', function(request, response, next){
@@ -419,16 +427,6 @@ function scrapeURL(url){
   }).catch(err => {
     return "ERR: Invalid URL";
   });
-}
-
-function rankText(text, thresh) {
-  const allKeyWords = keywords(text);
-  //Return the longest words as a proxy. 
-  allKeyWords.sort(function(a, b){
-    return b.length - a.length;
-  });
-  const hardestWords = allKeyWords.splice(0, thresh);
-  return Array.from(new Set(hardestWords))
 }
 
 app.listen(8080);
