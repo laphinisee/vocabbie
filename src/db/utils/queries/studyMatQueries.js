@@ -37,7 +37,7 @@ function removeWordsById(studyMatId, words) {
 		studyMatId,
 		{ $pullAll: {
 			savedWords: words
-		}}
+		}}, {new: true}
 	).exec();
 }
 
@@ -47,8 +47,7 @@ function addWords(studyMat, words) {
 }
 
 function removeWords(studyMat, words) {
-	studyMat['savedWords'] = _.pullAll(studyMat['savedWords'], words);
-	return studyMat.save();
+	return removeWordsById(studyMat._id, words)
 }
 
 module.exports.createStudyMat = createStudyMat;

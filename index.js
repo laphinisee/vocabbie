@@ -167,7 +167,8 @@ app.get('/document/:id', function(request, response, next){
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
             });
             for(let i = 0 ; i < savedWords.length; i++){
-              vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
+              console.log("savedWords[i]:", savedWords[i])
+              vocab_list[i] = {"str": savedWords[i].originalText, "text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
             }
             const toReturn = {
               title : title,
@@ -304,6 +305,7 @@ app.post('/document/:id/delete', function(request, response, next) {
       let sourceLanguage;
       let targetLanguage;
       let document;
+      console.log("in delete with doc id", documentID, " and word", wordToDelete)
       querydb.document.getDocument(documentID).then(doc => {
         document = doc
         const textId = mongoose.Types.ObjectId(doc.textId);
@@ -315,15 +317,12 @@ app.post('/document/:id/delete', function(request, response, next) {
       }).then(studyMat => {
         return querydb.studyMat.removeWords(studyMat, [wordToDelete]);
       }).then(updatedMat => {
-        console.log("HERE!!!!!")
-        console.log(updatedMat.savedWords)
-        console.log(updatedMat.savedWords)
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
         // console.log("HEHHEH")
         // console.log(savedWordObjs)
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
+        response.json(savedWordObjs.map(word => {return {"str": word.originalText, "text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
         console.log(err)
         response.status(500).send()
