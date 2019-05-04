@@ -101,7 +101,7 @@ export class ArticleUpload extends React.Component {
             },
             redirect: "follow", // manual, *follow, error
             body: JSON.stringify({
-              plainText: this.state.values.plainText,
+              plainText: this.state.values.plainText.trim(),
               title: this.state.values.title
             }), // body data type must match "Content-Type" header
         })
@@ -142,7 +142,6 @@ export class ArticleUpload extends React.Component {
           }), // body data type must match "Content-Type" header
         })
         .then(res => {
-          console.log("url res:", res)
           if(res.status == 200) {
             return res.json()
           } else {
@@ -180,7 +179,6 @@ export class ArticleUpload extends React.Component {
           body: data, // body data type must match "Content-Type" header
         })
         .then(res => {
-          console.log("RES:", res)
           if(res.status == 200) {
             return res.json()
           } else {

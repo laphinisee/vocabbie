@@ -5,8 +5,8 @@ function _cooccurranceMatrix(words) {
 
 	let word, nextWord;
 	for (i = 0; i < words.length - 1; i++) {
-		word = words[i].toLowerCase();
-		nextWord = words[i + 1].toLowerCase();
+		word = words[i]
+		nextWord = words[i + 1]
 
 		matrix[word] = matrix[word] || {};
 		matrix[word][nextWord] = matrix[word][nextWord] || 0;
