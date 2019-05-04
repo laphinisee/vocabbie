@@ -58,8 +58,7 @@ class ArticleDisplay extends React.Component {
     const display = []
     let currentText = article
     let currentToken = tokens.shift()
-    let tokenCount = 0;
-    while(currentToken && tokenCount < 5000) { 
+    while(currentToken) { 
       if(currentText.startsWith(currentToken.str)) {
         display.push(
           <Token 
@@ -87,7 +86,6 @@ class ArticleDisplay extends React.Component {
         )
         currentText = currentText.substring(nextTokenLocation)
       }
-      tokenCount += 1
     }
     return display
   }

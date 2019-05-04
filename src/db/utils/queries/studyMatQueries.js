@@ -9,12 +9,7 @@ const StudyMats = studyMatSchema.StudyMats;
 const Documents = documentSchema.Documents;
 
 function createStudyMat(studyMatEnum, sourceLanguage, targetLanguage, savedWords) {
-	if (!studyMatSchema.studyMatEnums.includes(studyMatEnum)) {
-		throw 'Invalid Study Mat type: must be one of: ' + studyMats.studyMatEnums.join(', ');
-	}
-
 	const payload = {
-		type: studyMatEnum,
 		sourceLanguage: sourceLanguage,
 		targetLanguage: targetLanguage,
 		savedWords: savedWords

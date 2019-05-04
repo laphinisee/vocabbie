@@ -44,12 +44,12 @@ function hasPermission(documentId, userId) {
 function addStudyMat(documentId, studyMat) {
 	return getDocument(documentId).then(doc => {
 		doc['studyMat'] = studyMat;
-		doc.save().
+		doc.save();
 	})
 }
 
 function getStudyMat(document) {
-	return studyMatQueries.getStudyMat(document.studyMat)
+	return studyMatQueries.getStudyMat(document.studyMat);
 }
 
 module.exports.createDocument = createDocument;
