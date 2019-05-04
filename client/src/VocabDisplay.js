@@ -59,7 +59,7 @@ class VocabDisplay extends React.Component {
               {Object.keys(this.state.vocabRows).map( (k) => {
                 const vocab = this.state.vocabRows[k]
                 return (
-                  <TableRow style={k == this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
+                  <TableRow style={k === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
                       <strong>{vocab.text}</strong>
                     </TableCell>
