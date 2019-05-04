@@ -147,10 +147,6 @@ app.get('/document/:id', function(request, response, next){
           .then(doc => {
             document = doc;
             title = doc.name;
-<<<<<<< HEAD
-            savedWords = doc.studyMats[0].savedWords;
-=======
->>>>>>> bd6226d78398c9e2f83ecd4c1c64229be3853be4
             const textId = mongoose.Types.ObjectId(doc.textId);
             return querydb.documentText.getDocumentText(textId);
           }).then(result => {
@@ -164,14 +160,18 @@ app.get('/document/:id', function(request, response, next){
           }).then(studyMat => {
             return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
           }).then(savedWords => {
-            console.log("SAVED WORDS:")
-            console.log(savedWords)
+              const dupes = {};
+              savedWords = savedWords.filter(function(item){
+                  const val = item['lemma'].toLowerCase();
+                  const exists = dupes[val];
+                  dupes[val] = true;
+                  return !exists;
+              });
             allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
             });
             for(let i = 0 ; i < savedWords.length; i++){
-              console.log("savedWords[i]:", savedWords[i])
               vocab_list[i] = {"str": savedWords[i].originalText, "text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
             }
             const toReturn = {
@@ -323,8 +323,6 @@ app.post('/document/:id/delete', function(request, response, next) {
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
-        // console.log("HEHHEH")
-        // console.log(savedWordObjs)
         response.status(200).type('application/json');
         response.json(savedWordObjs.map(word => {return {"str": word.originalText, "text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
@@ -358,7 +356,7 @@ app.post('/document/:id/add', function(request, response, next) {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
+        response.json(savedWordObjs.map(word => {return {"str": word.originalText,"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
         console.log(err)
         response.status(500).send()

@@ -42,9 +42,7 @@ function removeWordsById(studyMatId, words) {
 }
 
 function addWords(studyMat, words) {
-	console.log(studyMat)
-	studyMat['savedWords'] = _.union(studyMat['savedWords'], words);
-	return studyMat.save();
+	return addWordsById(studyMat._id, words)
 }
 
 function removeWords(studyMat, words) {
