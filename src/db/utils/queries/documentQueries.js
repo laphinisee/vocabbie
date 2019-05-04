@@ -49,7 +49,7 @@ function addStudyMat(documentId, studyMat) {
 }
 
 function getStudyMat(document) {
-	return studyMatQueries.getStudyMat(document.studyMat)
+	return studyMatQueries.getStudyMat(document.studyMat);
 }
 
 module.exports.createDocument = createDocument;
