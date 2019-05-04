@@ -4,11 +4,11 @@ import Container from './Container';
 import VocabDisplay from './VocabDisplay';
 import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
-import {Button, TextInput, Table, TableBody, TableRow, TableCell, Grid, Box} from 'grommet';
+import {Button, TextInput, Table, TableBody, TableRow, TableCell, Box} from 'grommet';
 import {Download, Trash, Edit, Iteration} from 'grommet-icons'
 import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
-import {Container as GridContainer, Row, Col, Hidden } from 'react-grid-system';
+import {Container as GridContainer, Row, Col } from 'react-grid-system';
 
 const EditMenu = (props) => {
   if (props.editMode) {
@@ -100,10 +100,26 @@ class Sheet extends React.Component {
     }
 
     addWord = (e) => {
-      console.log(this.props.match.params.id)
-      console.log(this.state.values.newWord)
-      console.log(this.state.values.newPOS)
-      console.log(this.state.values.newTranslation)
+      // console.log(this.props.match.params.id)
+      const word = {lemma: this.state.values.newWord}
+      if (this.state.editMode) {
+        const url = '/document/' + this.props.match.params.id + '/add'
+        fetch(url, {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          headers: {
+            "Content-Type": "application/json",
+            // "Authorization": this.props.user.token,
+          },
+          body: JSON.stringify({word}), // body data type must match "Content-Type" header
+        }).then( (res) => res.json()).then((res) => {
+          console.log(res)
+          this.setState({vocabRow: res})
+        // TODO: Would be nice to get in response new vocab_list.
+        }).catch((err) => {
+          console.error(err)
+          // this.props.history.push('/error')
+        })
+      }
     }
 
     handleWordInput = (e) => {

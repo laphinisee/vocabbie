@@ -327,23 +327,28 @@ app.post('/document/:id/delete', function(request, response, next) {
         console.log(err)
         response.status(500).send()
       });
-      
-  //   } else {
-  //     response.status(401).send()
-  //   }
-  // })(request, response, next);
 });
 
 app.post('/document/:id/add', function(request, response, next) {
-  passport.authenticate('jwt', { session: false }, (err, user, info) => {
-    if (err) {
-      response.status(500).send(err.message);
-    } else if (user) {
+  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
+  //   if (err) {
+  //     response.status(500).send(err.message);
+  //   } else if (user) {
       const wordToAdd = request.body.word;
+      console.log(wordToAdd)
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
+      let document;
       querydb.document.getDocument(documentID).then(doc => {
+        document = doc;
+        const textId = mongoose.Types.ObjectId(doc.textId);
+        return querydb.documentText.getDocumentText(textId);
+      }).then(documentText => {
+        sourceLanguage = documentText.sourceLanguage;
+        targetLanguage = documentText.targetLanguage;
+        return querydb.studyMat.getStudyMat(document.studyMat)
+      }).then(studyMat => {
         return querydb.studyMat.addWords(studyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
@@ -351,13 +356,14 @@ app.post('/document/:id/add', function(request, response, next) {
         response.status(200).type('application/json');
         response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
+        console.log(err)
         response.status(500).send()
       });
       
-    } else {
-      response.status(401).send()
-    }
-  })(request, response, next);
+    // } else {
+    //   response.status(401).send()
+    // }
+  // })(request, response, next);
 });
 
 app.post('/settings', function(request, response, next){
