@@ -145,7 +145,7 @@ app.get('/document/:id', function(request, response, next){
           querydb.document.getDocument(documentID)
           .then(doc => {
             title = doc.name;
-            savedWords = doc.studyMats[0].savedWords; //TODO: I don't think we should have more than one. 
+            savedWords = doc.studyMats[0].savedWords;
             const textId = mongoose.Types.ObjectId(doc.textId);
             return querydb.documentText.getDocumentText(textId);
           }).then(result => {
