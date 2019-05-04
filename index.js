@@ -162,12 +162,13 @@ app.get('/document/:id', function(request, response, next){
           }).then(savedWords => {
             console.log("SAVED WORDS:")
             console.log(savedWords)
-            allWords.forEach(function(w){
+            allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
             });
             for(let i = 0 ; i < savedWords.length; i++){
-              vocab_list[i] = {"text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
+              console.log("savedWords[i]:", savedWords[i])
+              vocab_list[i] = {"str": savedWords[i].originalText, "text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
             }
             const toReturn = {
               title : title,
@@ -304,6 +305,7 @@ app.post('/document/:id/delete', function(request, response, next) {
       let sourceLanguage;
       let targetLanguage;
       let document;
+      console.log("in delete with doc id", documentID, " and word", wordToDelete)
       querydb.document.getDocument(documentID).then(doc => {
         document = doc
         const textId = mongoose.Types.ObjectId(doc.textId);
@@ -320,7 +322,7 @@ app.post('/document/:id/delete', function(request, response, next) {
         // console.log("HEHHEH")
         // console.log(savedWordObjs)
         response.status(200).type('application/json');
-        response.json(savedWordObjs.map(word => {return {"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
+        response.json(savedWordObjs.map(word => {return {"str": word.originalText, "text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
         console.log(err)
         response.status(500).send()
@@ -387,16 +389,11 @@ function processAndSaveText(text, title, response, userId){
   nlp.processText(text)
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
-    
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => {
-      console.log("THIS IS A WORD")
-      console.log(word['lemma'])
-      return word['originalText']}
-      ).join(' ')
+
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['lemma']).join(' ')
     keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.includes(word['originalText']));
     // call db function to save all words.
-    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext);
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
     return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keywordsPlaintext); 
@@ -426,16 +423,6 @@ function scrapeURL(url){
   }).catch(err => {
     return "ERR: Invalid URL";
   });
-}
-
-function rankText(text, thresh) {
-  const allKeyWords = keywords(text);
-  //Return the longest words as a proxy. 
-  allKeyWords.sort(function(a, b){
-    return b.length - a.length;
-  });
-  const hardestWords = allKeyWords.splice(0, thresh);
-  return Array.from(new Set(hardestWords))
 }
 
 app.listen(8080);

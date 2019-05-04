@@ -26,7 +26,7 @@ class VocabDisplay extends React.Component {
         body: JSON.stringify({word}), // body data type must match "Content-Type" header
       }).then( (res) => res.json()).then((res) => {
         console.log(res)
-        this.setState({vocabRow: res})
+        this.setState({vocabRows: res})
       // TODO: Would be nice to get in response new vocab_list.
       }).catch((err) => {
         console.error(err)
@@ -70,7 +70,7 @@ class VocabDisplay extends React.Component {
                       {vocab.translation}
                     </TableCell>
                     <TableCell className={!this.props.editMode ? "hide" : ""} scope="row" border="bottom">
-                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.text)}/>
+                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.str)}/>
                     </TableCell>
                   </TableRow>
                 )
