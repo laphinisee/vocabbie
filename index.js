@@ -368,11 +368,10 @@ function processAndSaveText(text, title, response, userId){
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
 
-    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
+    const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['lemma']).join(' ')
     keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
-    keywords = Array.from(new Set(allWords)).filter(word => keywordsPlaintext.includes(word['originalText']));
     // call db function to save all words.
-    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywords.map(word => word['originalText']));
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext);
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
     return querydb.studyMat.createStudyMat('vocabSheet', srcLanguage, "en", keywordsPlaintext); 
