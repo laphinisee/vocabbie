@@ -162,7 +162,7 @@ app.get('/document/:id', function(request, response, next){
           }).then(savedWords => {
             console.log("SAVED WORDS:")
             console.log(savedWords)
-            allWords.forEach(function(w){
+            allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
             });
@@ -418,16 +418,6 @@ function scrapeURL(url){
   }).catch(err => {
     return "ERR: Invalid URL";
   });
-}
-
-function rankText(text, thresh) {
-  const allKeyWords = keywords(text);
-  //Return the longest words as a proxy. 
-  allKeyWords.sort(function(a, b){
-    return b.length - a.length;
-  });
-  const hardestWords = allKeyWords.splice(0, thresh);
-  return Array.from(new Set(hardestWords))
 }
 
 app.listen(8080);
