@@ -141,11 +141,12 @@ app.get('/document/:id', function(request, response, next){
           let srclanguage = "";
           let plaintext = "";
           let targetlanguage = "";
+          let document;
           let savedWords;
           querydb.document.getDocument(documentID)
           .then(doc => {
+            document = doc;
             title = doc.name;
-            savedWords = doc.studyMats[0].savedWords; //TODO: I don't think we should have more than one. 
             const textId = mongoose.Types.ObjectId(doc.textId);
             return querydb.documentText.getDocumentText(textId);
           }).then(result => {
@@ -155,9 +156,12 @@ app.get('/document/:id', function(request, response, next){
             return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
           }).then(allwordsTemp => {
             allWords = allwordsTemp;
-            // keyWordPromise
-            return querydb.word.getWords(savedWords,  srclanguage, targetlanguage)
+            return querydb.studyMat.getStudyMat(document.studyMat)
+          }).then(studyMat => {
+            return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
           }).then(savedWords => {
+            console.log("SAVED WORDS:")
+            console.log(savedWords)
             allWords.forEach(function(w){
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
@@ -299,19 +303,21 @@ app.post('/document/:id/delete', function(request, response, next) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
-      let studyMat;
       let document;
       querydb.document.getDocument(documentID).then(doc => {
         document = doc
-        studyMat = doc.studyMats[0];//TODO: I don't think we should have more than one. 
         const textId = mongoose.Types.ObjectId(doc.textId);
         return querydb.documentText.getDocumentText(textId);
       }).then(documentText => {
         sourceLanguage = documentText.sourceLanguage
         targetLanguage = documentText.targetLanguage
-        return querydb.studyMat.removeWords(document, studyMat, [wordToDelete], "vocabSheet");
+        return querydb.studyMat.getStudyMat(document.studyMat)
+      }).then(studyMat => {
+        return querydb.studyMat.removeWords(studyMat, [wordToDelete]);
       }).then(updatedMat => {
-        // console.log(updatedMat)
+        console.log("HERE!!!!!")
+        console.log(updatedMat.savedWords)
+        console.log(updatedMat.savedWords)
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
         // console.log("HEHHEH")
@@ -339,7 +345,6 @@ app.post('/document/:id/add', function(request, response, next) {
       let sourceLanguage;
       let targetLanguage;
       querydb.document.getDocument(documentID).then(doc => {
-        const studyMat = doc.studyMats[0];//TODO: I don't think we should have more than one. 
         return querydb.studyMat.addWords(studyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
@@ -354,6 +359,18 @@ app.post('/document/:id/add', function(request, response, next) {
       response.status(401).send()
     }
   })(request, response, next);
+});
+
+app.post('/settings', function(request, response, next){
+	passport.authenticate('jwt', {session : false}, (err, user, info) => {
+		if (err) {
+			response.status(500).send(err.message);
+		} else if (user) {
+      const onSuccess = () => { response.status(200).send() }
+      const onFailure = () => { response.status(500).send() }
+			querydb.user.updateUser(user._id, {password: request.body.password}, onSuccess, onFailure)
+		}
+	})(request, response, next);
 });
 
 function processAndSaveText(text, title, response, userId){

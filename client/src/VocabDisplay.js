@@ -9,31 +9,34 @@ class VocabDisplay extends React.Component {
     this.state = {
       vocabRows: this.props.vocabRows
     };
-    }
+  }
   
   removeVocab = (word) => (e) => {
-    const url = '/document/' + this.props.docId + '/delete'
-    console.log(this.props.docId)
-    console.log(word)
-    // this.setState({vocabRows: []})
-    fetch(url, {
-      method: "POST", // *GET, POST, PUT, DELETE, etc.
-      headers: {
-        "Content-Type": "application/json",
-        // "Authorization": this.props.user.token,
-      },
-      body: JSON.stringify({word}), // body data type must match "Content-Type" header
-    }).then( (res) => res.json()).then((res) => {
-      console.log(res)
-      this.setState({vocabRow: res})
-    // TODO: Would be nice to get in response new vocab_list.
-    }).catch((err) => {
-      console.error(err)
-      // this.props.history.push('/error')
-    })
+    if (this.props.editMode) {
+      const url = '/document/' + this.props.docId + '/delete'
+      console.log(this.props.docId)
+      console.log(word)
+      // this.setState({vocabRows: []})
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json",
+          // "Authorization": this.props.user.token,
+        },
+        body: JSON.stringify({word}), // body data type must match "Content-Type" header
+      }).then( (res) => res.json()).then((res) => {
+        console.log(res)
+        this.setState({vocabRow: res})
+      // TODO: Would be nice to get in response new vocab_list.
+      }).catch((err) => {
+        console.error(err)
+        // this.props.history.push('/error')
+      })
+    }
   }
 
     render() {
+      console.log(this.state.vocabRows)
       return (
         <Box pad="medium" size="fit">
           <Table size="fit">

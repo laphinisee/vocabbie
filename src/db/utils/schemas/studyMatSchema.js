@@ -7,6 +7,5 @@ const studyMatSchema = new mongoose.Schema({
 	savedWords: [String]
 })
 
-module.exports.studyMatEnums = studyMatEnums;
 module.exports.schema = studyMatSchema;
 module.exports.StudyMats = mongoose.model('StudyMats', studyMatSchema);
