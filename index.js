@@ -161,6 +161,7 @@ app.get('/document/:id', function(request, response, next){
             return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
           }).then(savedWords => {
               const dupes = {};
+              console.log(savedWords);
               savedWords = savedWords.filter(function(item){
                   const val = item['lemma'].toLowerCase();
                   const exists = dupes[val];
@@ -416,7 +417,7 @@ function processAndSaveText(text, title, response, userId){
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  const textElements = ['p', 'h1', 'h2'];
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);

@@ -8,7 +8,7 @@ const wordQuery = require('../queries/wordQueries');
 const StudyMats = studyMatSchema.StudyMats;
 const Documents = documentSchema.Documents;
 
-function createStudyMat(studyMatEnum, sourceLanguage, targetLanguage, savedWords) {
+function createStudyMat(sourceLanguage, targetLanguage, savedWords) {
 	const payload = {
 		sourceLanguage: sourceLanguage,
 		targetLanguage: targetLanguage,
