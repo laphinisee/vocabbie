@@ -49,6 +49,32 @@ function removeWords(studyMat, words) {
 	return removeWordsById(studyMat._id, words)
 }
 
+function addWordsById(studyMatId, userWords) {
+	return StudyMats.findByIdAndUpdate(
+		studyMatId,
+		{ $addToSet: {
+			userAddedWords: { $each: userWords }
+		}}
+	).exec();
+}
+
+function removeWordsById(studyMatId, userWords) {
+	return StudyMats.findByIdAndUpdate(
+		studyMatId,
+		{ $pullAll: {
+			userAddedWords: userWords
+		}}, {new: true}
+	).exec();
+}
+
+function addWords(studyMat, userWords) {
+	return addWordsById(studyMat._id, userWords)
+}
+
+function removeWords(studyMat, userWords) {
+	return removeWordsById(studyMat._id, userWords)
+}
+
 module.exports.createStudyMat = createStudyMat;
 module.exports.getStudyMat = getStudyMat;
 module.exports.addWords = addWords;
