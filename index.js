@@ -330,18 +330,17 @@ app.post('/document/:id/delete', function(request, response, next) {
         response.status(500).send()
       });
 });
-
 app.post('/document/:id/add', function(request, response, next) {
   // passport.authenticate('jwt', { session: false }, (err, user, info) => {
   //   if (err) {
   //     response.status(500).send(err.message);
   //   } else if (user) {
       const wordToAdd = request.body.word;
-      console.log(wordToAdd)
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
       let document;
+      let currStudyMat;
       querydb.document.getDocument(documentID).then(doc => {
         document = doc;
         const textId = mongoose.Types.ObjectId(doc.textId);
@@ -351,7 +350,12 @@ app.post('/document/:id/add', function(request, response, next) {
         targetLanguage = documentText.targetLanguage;
         return querydb.studyMat.getStudyMat(document.studyMat)
       }).then(studyMat => {
-        return querydb.studyMat.addWords(studyMat, [wordToAdd]);
+        currStudyMat = studyMat
+        return nlp.processTextWithSource(wordToAdd, sourceLanguage, targetLanguage);
+      }).then(resultantWord => {
+        return querydb.word.createWord(resultantWord, sourceLanguage, targetLanguage);
+      }).then(createWord => {
+        return querydb.studyMat.addWords(currStudyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
       }).then(savedWordObjs => {
@@ -367,7 +371,22 @@ app.post('/document/:id/add', function(request, response, next) {
     // }
   // })(request, response, next);
 });
-
+app.post('/sheet/:id/delete', function(request, response, next){
+    passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
+      const documentID = mongoose.Types.ObjectId(request.params.id);
+      querydb.document.deleteDocument(documentID).then(deleted => {
+        reponse.status(200).send()
+      }).catch( err => {
+        response.status(500).send()
+      });
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
+});
 app.post('/settings', function(request, response, next){
 	passport.authenticate('jwt', {session : false}, (err, user, info) => {
 		if (err) {
