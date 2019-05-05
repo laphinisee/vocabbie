@@ -4,8 +4,7 @@ const words = require('./wordSchema');
 const studyMatSchema = new mongoose.Schema({
 	sourceLanguage: { type: String, required: true },
 	targetLanguage: { type: String, required: true },
-	savedWords: [String],
-	userAddedWords: [Object]
+	savedWords: [String]
 })
 
 module.exports.schema = studyMatSchema;
