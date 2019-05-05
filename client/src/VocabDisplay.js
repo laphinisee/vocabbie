@@ -14,8 +14,6 @@ class VocabDisplay extends React.Component {
   removeVocab = (word) => (e) => {
     if (this.props.editMode) {
       const url = '/document/' + this.props.docId + '/delete'
-      console.log(this.props.docId)
-      console.log(word)
       // this.setState({vocabRows: []})
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -25,7 +23,6 @@ class VocabDisplay extends React.Component {
         },
         body: JSON.stringify({word}), // body data type must match "Content-Type" header
       }).then( (res) => res.json()).then((res) => {
-        console.log(res)
         this.setState({vocabRows: res})
       // TODO: Would be nice to get in response new vocab_list.
       }).catch((err) => {
@@ -58,7 +55,7 @@ class VocabDisplay extends React.Component {
               {Object.keys(this.state.vocabRows).map( (k) => {
                 const vocab = this.state.vocabRows[k]
                 return (
-                  <TableRow style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
+                  <TableRow key={k} style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
                       <strong>{vocab.text}</strong>
                     </TableCell>

@@ -79,7 +79,7 @@ app.post('/register', function(req, res) {
 app.post('/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
     if (!user) {
-      return response.status(200).json({ error: "Incorrect email and/or password." });
+      return res.status(200).json({ error: "Incorrect email and/or password." });
     }
 
     bcrypt.compare(req.body.password, user.password).then(isMatch => {

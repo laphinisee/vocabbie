@@ -1,8 +1,7 @@
 import React from "react";
 import Container from './Container';
-import {Form, FormField, Anchor, Box, Button} from 'grommet';
+import {Form, FormField, Button} from 'grommet';
 import AlertBox from './AlertBox';
-import axios from 'axios';
 import { withRouter } from "react-router";
 
 class Settings extends React.Component {
@@ -79,7 +78,7 @@ class Settings extends React.Component {
         }), // body data type must match "Content-Type" header
       })
     .then(res => {
-      if(res.status == 200) {
+      if(res.status === 200) {
         this.setState({
           success: 'Your password has been updated.',
         })

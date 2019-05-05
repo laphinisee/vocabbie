@@ -26,7 +26,7 @@ class Container extends React.Component {
             textColor='#676767'
             logoSrc={logo}
             text="Loading..."
-          />
+          ><p>Loading...</p></LoadingScreen>
         )
       }
     }

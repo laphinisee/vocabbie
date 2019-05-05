@@ -16,16 +16,12 @@ class VocabDisplay extends React.Component {
   }
 
   componentWillMount() {
-    // const userid = '5cbe5ca7c24928cdc7f0dfc2';
-    // const url = '/' + userid + '/vocab';
-    console.log("TOKEN:", this.props.user.token)
     fetch('/vocab', {
       headers: {
         "Content-Type": "application/json",
         "Authorization": this.props.user.token,
       },
     }).then( (res) => res.json()).then((res) => {
-      console.log(res)
       const getData = res
       this.setState({articles: getData, loading: false})
     }).catch(err => {

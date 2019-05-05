@@ -70,7 +70,6 @@ class Sheet extends React.Component {
         },
       }).then( (res) => res.json()).then((res) => {
         const getData = res
-        console.log("DATA:", getData)
         this.getArticle(getData.title, getData.plaintext, getData.article, getData.language);
         this.getVocabSheet(getData.vocab_list);
         this.setState({pdfReady: true, loading: false})
