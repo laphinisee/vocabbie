@@ -14,7 +14,6 @@ const multer = require('multer');
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "./uploads");
-    console.log("req.body:", req.body)
   },
   filename: function(req, file, callback) {
     callback(null, Date.now() + "_" + file.originalname);
@@ -119,8 +118,6 @@ app.post('/login', function(req, res){
 ////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
-  console.log('- request received:', request.method, request.url);
-  
 });
 
 app.get('/document/:id', function(request, response, next){
@@ -158,10 +155,8 @@ app.get('/document/:id', function(request, response, next){
             allWords = allwordsTemp;
             return querydb.studyMat.getStudyMat(document.studyMat)
           }).then(studyMat => {
-            return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
+            return querydb.word.getWords(studyMat.savedWords, srclanguage, targetlanguage)
           }).then(savedWords => {
-            console.log("SAVED WORDS:")
-            console.log(savedWords)
             allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
               article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
