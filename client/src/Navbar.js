@@ -45,7 +45,6 @@ class UserMenu extends React.Component {
   }
 
   render() {
-    console.log("props:", this.props.loggedIn)
     if(this.props.loggedIn) {
       return (
         <Box direction="row" gap="medium">

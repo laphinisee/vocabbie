@@ -14,7 +14,6 @@ const multer = require('multer');
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "./uploads");
-    console.log("req.body:", req.body)
   },
   filename: function(req, file, callback) {
     callback(null, Date.now() + "_" + file.originalname);
@@ -80,7 +79,7 @@ app.post('/register', function(req, res) {
 app.post('/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
     if (!user) {
-      return response.status(200).json({ error: "Incorrect email and/or password." });
+      return res.status(200).json({ error: "Incorrect email and/or password." });
     }
 
     bcrypt.compare(req.body.password, user.password).then(isMatch => {
@@ -119,8 +118,6 @@ app.post('/login', function(req, res){
 ////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
-  console.log('- request received:', request.method, request.url);
-  
 });
 
 app.get('/document/:id', function(request, response, next){
@@ -158,10 +155,9 @@ app.get('/document/:id', function(request, response, next){
             allWords = allwordsTemp;
             return querydb.studyMat.getStudyMat(document.studyMat)
           }).then(studyMat => {
-            return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
+            return querydb.word.getWords(studyMat.savedWords, srclanguage, targetlanguage)
           }).then(savedWords => {
               const dupes = {};
-              console.log(savedWords);
               savedWords = savedWords.filter(function(item){
                   const val = item['lemma'].toLowerCase();
                   const exists = dupes[val];
@@ -221,8 +217,7 @@ app.post('/generate-pdf', function(request, response, next){
     } else if (user) {
       // entry point for uploading a pdf file
       
-      upload(request, response, function(err){
-        console.log("IN UPLOAD:", Object.keys(request.body))
+      upload(request, response, function(err) {
         if (err) {
           return response.status(500).send();
         }
@@ -235,14 +230,12 @@ app.post('/generate-pdf', function(request, response, next){
           processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
-            console.log('deleted ' + request.file.filename);
           } catch (err) {
             console.log('error deleting ' + request.file.filename);
           }
         });
         pdfParser.loadPDF("./uploads/" + request.file.filename);
       }); 
-      console.log("request.body:", request.body.title)
     } else {
       response.status(401).send()
     }
@@ -343,7 +336,6 @@ app.post('/document/:id/add', function(request, response, next) {
       response.status(500).send(err.message);
     } else if (user) {
       const wordToAdd = request.body.word;
-      console.log(wordToAdd)
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
@@ -414,7 +406,6 @@ function processAndSaveText(text, title, response, userId){
     // TODO: error 400 means they did eng->eng, but it could mean other things.
     // error code 3 means unsupported language. We should probably not assume
     // that the error is an unsupported language. 
-    console.log('lmao')
     console.log(err)
     response.status(400).json({err: "The language you entered is not supported."});
   });

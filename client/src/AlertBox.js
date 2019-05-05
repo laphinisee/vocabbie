@@ -4,11 +4,10 @@ import {Box, Text} from 'grommet';
 
 
 const AlertBox = (props) => {
-    const Icon = props.type == 'error' ? Alert : Info;
+    const Icon = props.type === 'error' ? Alert : Info;
     return (
     <Box
       className='AlertBox'
-      direction='column'
       flex={true}
       direction='row'
       gap='medium'

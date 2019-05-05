@@ -36,7 +36,6 @@ class VocabDisplay extends React.Component {
   }
 
     render() {
-      console.log(this.state.vocabRows)
       return (
         <Box pad="medium" size="fit">
           <Table size="fit">
@@ -59,7 +58,7 @@ class VocabDisplay extends React.Component {
               {Object.keys(this.state.vocabRows).map( (k) => {
                 const vocab = this.state.vocabRows[k]
                 return (
-                  <TableRow className="vocabRow" style={k === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
+                  <TableRow className="vocabRow" key={k} style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
                       <strong>{vocab.text}</strong>
                     </TableCell>
