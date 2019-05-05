@@ -12,7 +12,9 @@ class VocabDisplay extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    return {vocabRows: props.vocabRows};
+    if (state.vocabRows.length === 0) {
+      return {vocabRows: props.vocabRows};
+    } 
   }
   
   removeVocab = (word) => (e) => {
@@ -24,12 +26,10 @@ class VocabDisplay extends React.Component {
           "Content-Type": "application/json",
           "Authorization": this.props.user.token,
         },
-        body: JSON.stringify({word}), // body data type must match "Content-Type" header
+        body: JSON.stringify({word}),
       }).then( (res) => res.json()).then((res) => {
         this.setState({vocabRows: res})
-      // TODO: Would be nice to get in response new vocab_list.
       }).catch((err) => {
-        console.error(err)
         this.props.history.push('/error')
       })
     }
