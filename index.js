@@ -294,10 +294,11 @@ app.get('/vocab', function(request, response, next){
 });
 
 app.post('/document/:id/delete', function(request, response, next) {
-  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
-  //   if (err) {
-  //     response.status(500).send(err.message);
-  //   } else if (user) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    // TODO: Check that the person adding is the owner of the sheet.
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
       const wordToDelete = request.body.word;
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
@@ -322,13 +323,18 @@ app.post('/document/:id/delete', function(request, response, next) {
         console.log(err)
         response.status(500).send()
       });
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 app.post('/document/:id/add', function(request, response, next) {
-  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
-  //   if (err) {
-  //     response.status(500).send(err.message);
-  //   } else if (user) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    // TODO: Check that the person adding is the owner of the sheet.
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
       const wordToAdd = request.body.word;
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
@@ -354,10 +360,10 @@ app.post('/document/:id/add', function(request, response, next) {
         response.status(500).send()
       });
       
-    // } else {
-    //   response.status(401).send()
-    // }
-  // })(request, response, next);
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 
 app.post('/settings', function(request, response, next){

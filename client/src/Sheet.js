@@ -75,7 +75,7 @@ class Sheet extends React.Component {
         this.setState({pdfReady: true, loading: false})
       }).catch((err) => {
         console.error(err)
-        // this.props.history.push('/error')
+        this.props.history.push('/error')
       })
     }
 
@@ -107,7 +107,7 @@ class Sheet extends React.Component {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
             "Content-Type": "application/json",
-            // "Authorization": this.props.user.token,
+            "Authorization": this.props.user.token,
           },
           body: JSON.stringify({word}), // body data type must match "Content-Type" header
         }).then( (res) => res.json()).then((res) => {
@@ -169,6 +169,7 @@ class Sheet extends React.Component {
                   selected={this.state.selected}
                   editMode={this.state.editMode}
                   docId={docId}
+                  user={this.props.user}
                   />
               </Box>
             </ Col>

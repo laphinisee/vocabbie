@@ -10,16 +10,19 @@ class VocabDisplay extends React.Component {
       vocabRows: this.props.vocabRows
     };
   }
+
+  static getDerivedStateFromProps(props, state) {
+    return {vocabRows: props.vocabRows};
+  }
   
   removeVocab = (word) => (e) => {
     if (this.props.editMode) {
       const url = '/document/' + this.props.docId + '/delete'
-      // this.setState({vocabRows: []})
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         headers: {
           "Content-Type": "application/json",
-          // "Authorization": this.props.user.token,
+          "Authorization": this.props.user.token,
         },
         body: JSON.stringify({word}), // body data type must match "Content-Type" header
       }).then( (res) => res.json()).then((res) => {
@@ -27,7 +30,7 @@ class VocabDisplay extends React.Component {
       // TODO: Would be nice to get in response new vocab_list.
       }).catch((err) => {
         console.error(err)
-        // this.props.history.push('/error')
+        this.props.history.push('/error')
       })
     }
   }
@@ -55,7 +58,7 @@ class VocabDisplay extends React.Component {
               {Object.keys(this.state.vocabRows).map( (k) => {
                 const vocab = this.state.vocabRows[k]
                 return (
-                  <TableRow key={k} style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
+                  <TableRow className="vocabRow" key={k} style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
                       <strong>{vocab.text}</strong>
                     </TableCell>
@@ -65,7 +68,7 @@ class VocabDisplay extends React.Component {
                     <TableCell scope="row" border="bottom">
                       {vocab.translation}
                     </TableCell>
-                    <TableCell className={!this.props.editMode ? "hide" : ""} scope="row" border="bottom">
+                    <TableCell className={(!this.props.editMode ? "hide" : "") + " manualPadding"} scope="row" border="bottom">
                       <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.str)}/>
                     </TableCell>
                   </TableRow>
