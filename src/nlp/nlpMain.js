@@ -13,11 +13,7 @@ var Promise = require('bluebird');
 
 const maxWords = 128;
 function processTextWithSource(text, sourceLanguage, targetLanguage='en') {
-	return detection.detectLanguage(text).then(result => {
-		const sourceLanguage = result[0]['language'];
-		return Promise.all([sourceLanguage, tokenize.tokenizeText(text, sourceLanguage)]);
-	}).then(result => {
-		const [ sourceLanguage, tokenizeResult ] = result;
+	return tokenize.tokenizeText(text, sourceLanguage).then(tokenizeResult => {
 		tokenizeResult[0]['language'] = sourceLanguage;
 		return tokenizeResult[0];
 	}).then(result => {
