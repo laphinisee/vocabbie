@@ -1,10 +1,55 @@
 import React from "react";
-import {Anchor, Button, Box, Heading, Table, TableBody, TableRow, TableCell} from 'grommet';
+import {Anchor, Button, Box, Heading, Text, Table, TableBody, TableRow, TableCell} from 'grommet';
 import {AddCircle} from 'grommet-icons'
 import './index.css';
 import Container from './Container';
 import TextTruncate from 'react-text-truncate'; 
 import { withRouter } from "react-router";
+
+const EmptySheet = () => {
+  return (
+    <Box
+      border={{
+        "color": "border",
+        "size": "small",
+        "style": "dashed",
+        "side": "all"
+      }}
+      margin={{
+        "vertical": "medium"
+      }}
+      pad={{
+        "horizontal": "xlarge"
+      }}
+      align="center"
+      >
+      <Heading
+        color="border"
+        textAlign="center"
+        margin={{
+          top: 'xlarge',
+          bottom: 'xsmall',
+        }}
+      >
+        You don't have any sheets yet!
+      </Heading>
+      <Text
+        color="border"
+        textAlign="center"
+        margin={{
+          top: 'xsmall',
+          bottom: 'xlarge',
+        }}
+        size="medium"
+        style={{
+          "maxWidth": "500px"
+        }}
+      >
+        With Vocabbie, you can learn from content you're interested in. To get started, click "New Sheet" and upload some content!
+      </Text>
+    </Box>
+  )
+}
 
 class VocabDisplay extends React.Component {
   constructor(props) {
@@ -16,16 +61,12 @@ class VocabDisplay extends React.Component {
   }
 
   componentWillMount() {
-    // const userid = '5cbe5ca7c24928cdc7f0dfc2';
-    // const url = '/' + userid + '/vocab';
-    console.log("TOKEN:", this.props.user.token)
     fetch('/vocab', {
       headers: {
         "Content-Type": "application/json",
         "Authorization": this.props.user.token,
       },
     }).then( (res) => res.json()).then((res) => {
-      console.log(res)
       const getData = res
       this.setState({articles: getData, loading: false})
     }).catch(err => {
@@ -39,6 +80,7 @@ class VocabDisplay extends React.Component {
       return (
         <Container loading={this.state.loading} title="Your Sheets" description="All the sheets you've generated in the past.">
           <Button icon={<AddCircle />} label="New Sheet" href="/create" alignSelf="end" color="white"/>
+          {this.state.articles.length > 0 ?
           <Table>
             <TableBody>
             {this.state.articles.map( (article, i) => (
@@ -54,7 +96,7 @@ class VocabDisplay extends React.Component {
               </TableRow>
             ))}
             </TableBody>
-          </Table>
+          </Table> : <EmptySheet/>}
         </Container>
       )
     }

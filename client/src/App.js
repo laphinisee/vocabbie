@@ -27,9 +27,7 @@ class App extends React.Component {
 
   onLogin = (token) => {
     const user = jwt_decode(token);
-    this.setState({token, user}, () => {
-      console.log("token updated:", this.state.token)
-    })
+    this.setState({token, user})
   }
 
   onLogout = () => {

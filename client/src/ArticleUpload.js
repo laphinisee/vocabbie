@@ -43,7 +43,6 @@ export class ArticleUpload extends React.Component {
   }
 
   handleUserInput = (e) => {
-    console.log("user input change!", e.target.name, e.target.value)
     const fieldName = e.target.name
     const fieldValue = e.target.value
     this.setState(prevState => ({
@@ -81,10 +80,6 @@ export class ArticleUpload extends React.Component {
   }
 
   isFormValid = (type) => {
-    if(type == 'plainText') {
-      console.log("is form valid?:",  this.state.errors[type] === '' && this.state.values[type] !== '' && this.state.values.title !== '')  
-    }
-    
     return this.state.errors[type] === '' && this.state.values[type] !== '' && this.state.values.title !== ''
   }
 
@@ -106,7 +101,7 @@ export class ArticleUpload extends React.Component {
             }), // body data type must match "Content-Type" header
         })
         .then(res => {
-          if(res.status == 200) {
+          if(res.status === 200) {
             return res.json()
           } else {
             throw new Error('You entered text from an unsupported language!');
@@ -142,7 +137,7 @@ export class ArticleUpload extends React.Component {
           }), // body data type must match "Content-Type" header
         })
         .then(res => {
-          if(res.status == 200) {
+          if(res.status === 200) {
             return res.json()
           } else {
             throw new Error('You entered text from an unsupported language!');
@@ -179,7 +174,7 @@ export class ArticleUpload extends React.Component {
           body: data, // body data type must match "Content-Type" header
         })
         .then(res => {
-          if(res.status == 200) {
+          if(res.status === 200) {
             return res.json()
           } else {
             throw new Error('You entered text from an unsupported language!');
@@ -196,7 +191,6 @@ export class ArticleUpload extends React.Component {
     }
 
     render() {
-      console.log("this.state.error:", this.state.error)
       return (
         <Box pad="medium">
           <Form>

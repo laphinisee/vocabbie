@@ -33,8 +33,7 @@ class Token extends React.Component {
         key={this.props.token_id}
         style={
           {
-            "font-weight": hovered ? "bold" : "normal",
-            "text-decoration": hovered ? "underline" : 'none',
+            "fontWeight": hovered ? "bold" : "normal",
             "whiteSpace": "pre-wrap"
           }
         }
@@ -64,7 +63,7 @@ class ArticleDisplay extends React.Component {
           <Token 
             str={currentToken.str} 
             token_id={currentToken.id} 
-            key={display}
+            key={display.length}
             translated={currentToken.def} 
             pronunciation={currentToken.pronunciation}
             isStopword={currentToken.isStopword}
@@ -79,6 +78,7 @@ class ArticleDisplay extends React.Component {
         const whitespace = currentText.substr(0, nextTokenLocation) 
         display.push(
           <Token 
+            key={display.length}
             str={whitespace}  
             onHover={this.props.onWordHover}
             offHover={this.props.offWordHover}

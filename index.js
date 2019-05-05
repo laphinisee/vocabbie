@@ -14,7 +14,6 @@ const multer = require('multer');
 let storage = multer.diskStorage({
   destination: function(req, file, callback) {
     callback(null, "./uploads");
-    console.log("req.body:", req.body)
   },
   filename: function(req, file, callback) {
     callback(null, Date.now() + "_" + file.originalname);
@@ -80,7 +79,7 @@ app.post('/register', function(req, res) {
 app.post('/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
     if (!user) {
-      return response.status(200).json({ error: "Incorrect email and/or password." });
+      return res.status(200).json({ error: "Incorrect email and/or password." });
     }
 
     bcrypt.compare(req.body.password, user.password).then(isMatch => {
@@ -119,8 +118,6 @@ app.post('/login', function(req, res){
 ////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
   response.status(200).type('html');
-  console.log('- request received:', request.method, request.url);
-  
 });
 
 app.get('/document/:id', function(request, response, next){
@@ -158,7 +155,7 @@ app.get('/document/:id', function(request, response, next){
             allWords = allwordsTemp;
             return querydb.studyMat.getStudyMat(document.studyMat)
           }).then(studyMat => {
-            return querydb.word.getWords(studyMat.savedWords,  srclanguage, targetlanguage)
+            return querydb.word.getWords(studyMat.savedWords, srclanguage, targetlanguage)
           }).then(savedWords => {
               const dupes = {};
               savedWords = savedWords.filter(function(item){
@@ -220,8 +217,7 @@ app.post('/generate-pdf', function(request, response, next){
     } else if (user) {
       // entry point for uploading a pdf file
       
-      upload(request, response, function(err){
-        console.log("IN UPLOAD:", Object.keys(request.body))
+      upload(request, response, function(err) {
         if (err) {
           return response.status(500).send();
         }
@@ -234,14 +230,12 @@ app.post('/generate-pdf', function(request, response, next){
           processAndSaveText(scrapedText, title, response, user._id);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
-            console.log('deleted ' + request.file.filename);
           } catch (err) {
             console.log('error deleting ' + request.file.filename);
           }
         });
         pdfParser.loadPDF("./uploads/" + request.file.filename);
       }); 
-      console.log("request.body:", request.body.title)
     } else {
       response.status(401).send()
     }
@@ -300,16 +294,16 @@ app.get('/vocab', function(request, response, next){
 });
 
 app.post('/document/:id/delete', function(request, response, next) {
-  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
-  //   if (err) {
-  //     response.status(500).send(err.message);
-  //   } else if (user) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    // TODO: Check that the person adding is the owner of the sheet.
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
       const wordToDelete = request.body.word;
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
       let targetLanguage;
       let document;
-      console.log("in delete with doc id", documentID, " and word", wordToDelete)
       querydb.document.getDocument(documentID).then(doc => {
         document = doc
         const textId = mongoose.Types.ObjectId(doc.textId);
@@ -329,12 +323,17 @@ app.post('/document/:id/delete', function(request, response, next) {
         console.log(err)
         response.status(500).send()
       });
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 app.post('/document/:id/add', function(request, response, next) {
-  // passport.authenticate('jwt', { session: false }, (err, user, info) => {
-  //   if (err) {
-  //     response.status(500).send(err.message);
-  //   } else if (user) {
+  passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    // TODO: Check that the person adding is the owner of the sheet.
+    if (err) {
+      response.status(500).send(err.message);
+    } else if (user) {
       const wordToAdd = request.body.word;
       const documentID = mongoose.Types.ObjectId(request.params.id);
       let sourceLanguage;
@@ -366,10 +365,10 @@ app.post('/document/:id/add', function(request, response, next) {
         response.status(500).send()
       });
       
-    // } else {
-    //   response.status(401).send()
-    // }
-  // })(request, response, next);
+    } else {
+      response.status(401).send()
+    }
+  })(request, response, next);
 });
 app.post('/sheet/:id/delete', function(request, response, next){
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
@@ -427,7 +426,6 @@ function processAndSaveText(text, title, response, userId){
     // TODO: error 400 means they did eng->eng, but it could mean other things.
     // error code 3 means unsupported language. We should probably not assume
     // that the error is an unsupported language. 
-    console.log('lmao')
     console.log(err)
     response.status(400).json({err: "The language you entered is not supported."});
   });
@@ -435,7 +433,7 @@ function processAndSaveText(text, title, response, userId){
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  const textElements = ['p', 'h1', 'h2'];
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
