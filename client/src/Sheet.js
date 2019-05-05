@@ -56,7 +56,7 @@ class Sheet extends React.Component {
   }
 
     componentWillMount() {
-      const url = '/document/' + this.props.match.params.id
+      const url = '/api/document/' + this.props.match.params.id
       fetch(url, {
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +96,7 @@ class Sheet extends React.Component {
       // console.log(this.props.match.params.id)
       const word = {lemma: this.state.values.newWord}
       if (this.state.editMode) {
-        const url = '/document/' + this.props.match.params.id + '/add'
+        const url = '/api/document/' + this.props.match.params.id + '/add'
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
@@ -129,7 +129,7 @@ class Sheet extends React.Component {
     handleDelete = (e) => {
       console.log("delete this sheet")
       console.log(this.props.match.params.id)
-      const url = '/sheet/' + this.props.match.params.id + '/delete'
+      const url = '/api/sheet/' + this.props.match.params.id + '/delete'
       fetch(url, {
         method: "POST",
         headers: {

@@ -66,7 +66,7 @@ class Settings extends React.Component {
     this.setState({
       loading: true
     }, () => {
-      fetch('/settings', {
+      fetch('/api/settings', {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         headers: {
           "Content-Type": "application/json",
