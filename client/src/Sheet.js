@@ -19,13 +19,7 @@ const EditMenu = (props) => {
         <TableBody>
         <TableRow>
           <TableCell scope="col">
-            <TextInput name="newWord" size="small" value={props.newWord} onChange={props.handleWordInput} placeholder="Word" />
-          </TableCell>
-          <TableCell scope="col">
-            <TextInput name="newPOS" size="small" value={props.newPOS} onChange={props.handleWordInput} placeholder="Part of Speech" />
-          </TableCell>
-          <TableCell scope="col">
-            <TextInput name="newTranslation" size="small" value={props.newTranslation} onChange={props.handleWordInput} placeholder="Translation" />
+            <TextInput name="newWord" value={props.newWord} onChange={props.handleWordInput} placeholder="Word" />
           </TableCell>
           <TableCell scope="col">
           </TableCell>
