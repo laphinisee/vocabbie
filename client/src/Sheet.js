@@ -76,7 +76,7 @@ class Sheet extends React.Component {
         this.setState({pdfReady: true, loading: false})
       }).catch((err) => {
         console.error(err)
-        // this.props.history.push('/error')
+        this.props.history.push('/error')
       })
     }
 
@@ -108,7 +108,7 @@ class Sheet extends React.Component {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
             "Content-Type": "application/json",
-            // "Authorization": this.props.user.token,
+            "Authorization": this.props.user.token,
           },
           body: JSON.stringify({word}), // body data type must match "Content-Type" header
         }).then( (res) => res.json()).then((res) => {
@@ -141,7 +141,6 @@ class Sheet extends React.Component {
 
     render() {
       const docId = this.props.match.params.id
-      console.log(docId)
       return (
         <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
           <GridContainer>
@@ -171,6 +170,7 @@ class Sheet extends React.Component {
                   selected={this.state.selected}
                   editMode={this.state.editMode}
                   docId={docId}
+                  user={this.props.user}
                   />
               </Box>
             </ Col>
