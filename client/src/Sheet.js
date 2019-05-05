@@ -135,7 +135,16 @@ class Sheet extends React.Component {
     handleDelete = (e) => {
       console.log("delete this sheet")
       console.log(this.props.match.params.id)
-      // Do a modal to confirm choice
+      const url = '/sheet/' + this.props.match.params.id + '/delete'
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+      }).then(() => {
+        this.props.history.push('/sheets')
+      })
     }
 
     render() {

@@ -14,7 +14,8 @@ class VocabDisplay extends React.Component {
   static getDerivedStateFromProps(props, state) {
     if (state.vocabRows.length === 0) {
       return {vocabRows: props.vocabRows};
-    } 
+    }
+    return state;
   }
   
   removeVocab = (word) => (e) => {
