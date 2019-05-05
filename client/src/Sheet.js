@@ -141,7 +141,6 @@ class Sheet extends React.Component {
 
     render() {
       const docId = this.props.match.params.id
-      console.log(docId)
       return (
         <Container loading={this.state.loading} title={this.state.title} description="Your generated vocab sheet">
           <GridContainer>
