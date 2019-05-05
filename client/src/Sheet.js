@@ -19,13 +19,7 @@ const EditMenu = (props) => {
         <TableBody>
         <TableRow>
           <TableCell scope="col">
-            <TextInput name="newWord" size="small" value={props.newWord} onChange={props.handleWordInput} placeholder="Word" />
-          </TableCell>
-          <TableCell scope="col">
-            <TextInput name="newPOS" size="small" value={props.newPOS} onChange={props.handleWordInput} placeholder="Part of Speech" />
-          </TableCell>
-          <TableCell scope="col">
-            <TextInput name="newTranslation" size="small" value={props.newTranslation} onChange={props.handleWordInput} placeholder="Translation" />
+            <TextInput name="newWord" value={props.newWord} onChange={props.handleWordInput} placeholder="Word" />
           </TableCell>
           <TableCell scope="col">
           </TableCell>
@@ -135,7 +129,16 @@ class Sheet extends React.Component {
     handleDelete = (e) => {
       console.log("delete this sheet")
       console.log(this.props.match.params.id)
-      // Do a modal to confirm choice
+      const url = '/sheet/' + this.props.match.params.id + '/delete'
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+      }).then(() => {
+        this.props.history.push('/sheets')
+      })
     }
 
     render() {

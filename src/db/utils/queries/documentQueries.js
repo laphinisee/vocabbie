@@ -55,6 +55,7 @@ function getStudyMat(document) {
 module.exports.createDocument = createDocument;
 module.exports.getUserDocuments = getUserDocuments;
 module.exports.getDocument = getDocument;
+module.exports.deleteDocument = deleteDocument;
 module.exports.hasPermission = hasPermission;
 module.exports.addStudyMat = addStudyMat;
 module.exports.getStudyMat = getStudyMat;

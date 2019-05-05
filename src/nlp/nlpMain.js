@@ -196,6 +196,7 @@ function processText(text, targetLanguage='en') {
 }
 
 module.exports.processText = processText;
+module.exports.processTextWithSource = processTextWithSource;
 module.exports.getKeywords = keywords.getKeywords;
 
 let text
