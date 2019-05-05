@@ -12,6 +12,99 @@ const _ = require('lodash');
 var Promise = require('bluebird');
 
 const maxWords = 128;
+function processTextWithSource(text, sourceLanguage, targetLanguage='en') {
+	return detection.detectLanguage(text).then(result => {
+		const sourceLanguage = result[0]['language'];
+		return Promise.all([sourceLanguage, tokenize.tokenizeText(text, sourceLanguage)]);
+	}).then(result => {
+		const [ sourceLanguage, tokenizeResult ] = result;
+		tokenizeResult[0]['language'] = sourceLanguage;
+		return tokenizeResult[0];
+	}).then(result => {
+		const sourceLanguage = result['language'],
+			tokens = result['tokens'],
+			cachedTranslations = query.word.getTranslations(tokens, sourceLanguage, targetLanguage);
+
+		return Promise.all([sourceLanguage, tokens, cachedTranslations]);
+	}).then(result => {
+		const [ sourceLanguage, tokens, cachedTranslations ] = result;
+
+		const untranslatedWordList = [];
+		let token, translation;
+		for (i = 0; i < tokens.length; i++) {
+			token = tokens[i]
+			translation = cachedTranslations[i];
+
+			if (translation) {
+				token['translation'] = translation;
+			} else {
+				untranslatedWordList.push(token['text']['content']);
+			}
+		}
+
+		const translations = [];
+		let batch;
+		for (i = 0; i < Math.ceil(untranslatedWordList.length / maxWords); i++) {
+			batch = untranslatedWordList.slice(maxWords * i, maxWords * (i + 1));
+			translations.push(translate.translateText(batch, sourceLanguage))
+		}
+
+		return Promise.all([sourceLanguage, tokens, Promise.all(translations)])
+	}).then(result => {
+		const [ sourceLanguage, tokens, translationResult ] = result;
+
+		const translations = _.flattenDeep(translationResult.map(t => t[0]));
+		const pronunciations = [];
+
+		let token, word, isPunctuation;
+		let translationIndex = 0;
+		for (i = 0; i < tokens.length; i++) {
+			token = tokens[i];
+			word = token['text']['content'];
+
+			if (!token['translation']) {
+				token['translation'] = translations[translationIndex++];
+			}
+
+			if (stopwords.languageSupported(sourceLanguage)) {
+				token['isStopword'] = stopwords.isStopword(token, sourceLanguage);
+			}
+
+			if (pronunciation.languageSupported(sourceLanguage)) {
+				pronunciations.push(pronunciation.getPronunciation(word, sourceLanguage));
+			}
+		}
+
+		return Promise.all([sourceLanguage, tokens, Promise.all(pronunciations)]);
+	}).then(result => {
+		const [ sourceLanguage, tokens, pronunciations ] = result;
+
+		if (pronunciation.languageSupported(sourceLanguage)) {
+			for (i = 0; i < tokens.length; i++) {
+				tokens[i]['pronunciation'] = pronunciations[i];
+			}
+		}
+
+		const mongoWords = tokens.map(token => query.word.createWord(token, sourceLanguage, targetLanguage));
+
+		return Promise.all([sourceLanguage, tokens, Promise.all(mongoWords)]);
+	}).then(result => {
+		const [ sourceLanguage, tokens, mongoWords ] = result;
+
+		const tokenMongoWordMap = mongoWords.reduce((map, word) => {
+			map[word.value['id']] = word.value;
+			return map;
+		}, {});
+
+		let wordId;
+		const orderedMongoWords = tokens.map(token => {
+			wordId = [sourceLanguage, targetLanguage, token['text']['content']].join('_');
+			return tokenMongoWordMap[wordId];
+		});
+
+		return Promise.all([sourceLanguage, tokens, orderedMongoWords]);
+	})
+}
 function processText(text, targetLanguage='en') {
 	return detection.detectLanguage(text).then(result => {
 		const sourceLanguage = result[0]['language'];
