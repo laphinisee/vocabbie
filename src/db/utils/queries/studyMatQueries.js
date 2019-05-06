@@ -28,7 +28,7 @@ function addWordsById(studyMatId, words) {
 		studyMatId,
 		{ $addToSet: {
 			savedWords: { $each: words }
-		}}
+		}}, {new: true}
 	).exec();
 }
 

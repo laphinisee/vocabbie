@@ -17,24 +17,6 @@ class VocabDisplay extends React.Component {
     }
     return state;
   }
-  
-  removeVocab = (word) => (e) => {
-    if (this.props.editMode) {
-      const url = '/api/document/' + this.props.docId + '/delete'
-      fetch(url, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": this.props.user.token,
-        },
-        body: JSON.stringify({word}),
-      }).then( (res) => res.json()).then((res) => {
-        this.setState({vocabRows: res})
-      }).catch((err) => {
-        this.props.history.push('/error')
-      })
-    }
-  }
 
     render() {
       return (
@@ -56,8 +38,8 @@ class VocabDisplay extends React.Component {
             </TableRow>
           </TableHeader>
             <TableBody>
-              {Object.keys(this.state.vocabRows).map( (k) => {
-                const vocab = this.state.vocabRows[k]
+              {Object.keys(this.props.vocabRows).map((k) => {
+                const vocab = this.props.vocabRows[k]
                 return (
                   <TableRow className="vocabRow" key={k} style={parseInt(k) === this.props.selected ? {backgroundColor: "#ffffff"} : {}}>
                     <TableCell scope="row" border="bottom">
@@ -70,7 +52,7 @@ class VocabDisplay extends React.Component {
                       {vocab.translation}
                     </TableCell>
                     <TableCell className={(!this.props.editMode ? "hide" : "") + " manualPadding"} scope="row" border="bottom">
-                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.removeVocab(vocab.str)}/>
+                      <Button disabled={!this.props.editMode} icon={<FormClose/>} margin="xsmall" size="xxsmall" plain={true} focusIndicator={false} onClick={this.props.removeVocab(vocab.str)}/>
                     </TableCell>
                   </TableRow>
                 )

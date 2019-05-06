@@ -183,7 +183,6 @@ class Flashcards extends React.Component {
     }
 
     render() {
-        console.log("this.state.cards", this.state.cards)
         return (
               <Container style={{
                   background: "#F1F1F1",
