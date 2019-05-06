@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 const path = require('path'); //for pathing
-app.use(express.static('client/public')); 
+app.use(express.static(path.join(__dirname, '/build')); 
 app.set('view engine', 'html');
 
 const bodyParser = require('body-parser')
@@ -117,6 +117,7 @@ app.post('/login', function(req, res){
 
 ////////////////////// ENDPOINTS //////////////////////
 app.get('/', function(request, response){
+  response.sendFile(path.join(__dirname, 'build', 'index.html'));
   response.status(200).type('html');
 });
 
