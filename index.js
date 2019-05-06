@@ -147,7 +147,7 @@ app.get('/api/document/:id', function(request, response, next){
             srclanguage = result.sourceLanguage;
             plaintext = result.plaintext;
             targetlanguage = result.targetLanguage;
-            return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
+            return querydb.word.getWords(result.allWords, srclanguage, targetlanguage);
           }).then(allwordsTemp => {
             allWords = allwordsTemp;
             return querydb.studyMat.getStudyMat(document.studyMat)

@@ -5,9 +5,10 @@ const studyMatQueries = require('./studyMatQueries');
 const Documents = documentSchema.Documents;
 
 function createDocument(documentTitle, owner, text, sourceLanguage, targetLanguage, allWords, keyWords) {
-	return documentTextQueries.createDocumentText(text, sourceLanguage, targetLanguage, allWords, keyWords).then(result => {
+	return documentTextQueries.createDocumentText(text, sourceLanguage, allWords, keyWords).then(result => {
 			const payload = {
 				textId: result['_id'],
+				targetLanguage: targetLanguage,
 				name: documentTitle,
 				owner: owner
 			}

@@ -5,7 +5,6 @@ const words = require('./wordSchema');
 const documentTextSchema = new mongoose.Schema({
 	plaintext: { type: String, required: true, index: 'text', unique: true },
 	sourceLanguage: { type: String, required: true },
-	targetLanguage: { type: String, required: true },
 	allWords: [String],
 	keyWords: [String]
 });

@@ -2,11 +2,10 @@ const documentTextSchema = require('../schemas/documentTextSchema');
 
 const DocumentTexts = documentTextSchema.DocumentTexts;
 
-function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords, keyWords) {
+function createDocumentText(plaintext, sourceLanguage, allWords, keyWords) {
 	const payload = {
 		plaintext: plaintext,
 		sourceLanguage: sourceLanguage,
-		targetLanguage: targetLanguage,
 		allWords: allWords,
 		keyWords: keyWords
 	}

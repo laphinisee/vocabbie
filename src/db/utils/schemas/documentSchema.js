@@ -7,6 +7,7 @@ const documentText = require('./documentTextSchema');
 
 const documentSchema = new mongoose.Schema({
 	textId: { type: mongoose.Schema.Types.ObjectId, required: true },
+	targetLanguage: { type: String, required: true },
 	name: { type: String, required: true },
 	owner: { type: mongoose.Schema.Types.ObjectId, required: true },
 	sharedUsers: [mongoose.Schema.Types.ObjectId],
