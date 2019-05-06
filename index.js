@@ -356,7 +356,7 @@ app.post('/api/document/:id/add', function(request, response, next) {
         response.status(200).type('application/json');
         response.json(savedWordObjs.map(word => {return {"str": word.originalText,"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
-        console.err(err)
+        console.error(err)
         response.status(500).send()
       });
       
@@ -372,9 +372,9 @@ app.post('/api/sheet/:id/delete', function(request, response, next){
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
       querydb.document.deleteDocument(documentID).then(deleted => {
-        reponse.status(200).send()
+        response.status(200).send()
       }).catch( err => {
-        console.err(err)
+        console.error(err)
         response.status(500).send()
       });
     } else {

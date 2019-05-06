@@ -80,8 +80,6 @@ class Sheet extends React.Component {
         tokens: tokens,
         language: language
       })
-      // Should set this up mad lib style so that we can connect words in article with
-      // vocab row entries.
     }
 
     getVocabSheet(vocabRows) {
