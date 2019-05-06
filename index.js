@@ -141,19 +141,22 @@ app.get('/api/document/:id', function(request, response, next){
           .then(doc => {
             document = doc;
             title = doc.name;
+            targetLanguage = doc.targetLanguage;
             const textId = mongoose.Types.ObjectId(doc.textId);
             return querydb.documentText.getDocumentText(textId);
           }).then(result => {
             srclanguage = result.sourceLanguage;
             plaintext = result.plaintext;
-            targetlanguage = result.targetLanguage;
-            return querydb.word.getWords(result.allWords, srclanguage, targetlanguage);
+            return querydb.word.getWords(result.allWords,  srclanguage, targetlanguage);
           }).then(allwordsTemp => {
             allWords = allwordsTemp;
             return querydb.studyMat.getStudyMat(document.studyMat)
           }).then(studyMat => {
             return querydb.word.getWords(studyMat.savedWords, srclanguage, targetlanguage)
           }).then(savedWords => {
+              savedWords = savedWords.filter(function (i) {
+                return i != undefined;
+              });
               const dupes = {};
               savedWords = savedWords.filter(function(item){
                   const val = item['lemma'].toLowerCase();
@@ -200,7 +203,7 @@ app.post('/api/generate-text', function(request, response, next) {
     } else if (user) {
       const title = request.body.title;
       const text = request.body.plainText
-      return processAndSaveText(text, title, response, user._id);
+      return processAndSaveText(text, title, response, user._id, request.targetLanguage);
     } else {
       response.status(401).send()
     }
@@ -224,7 +227,7 @@ app.post('/api/generate-pdf', function(request, response, next){
         pdfParser.on("pdfParser_dataReady", pdfData => {
           scrapedText = pdfParser.getRawTextContent();
           const title = request.body.title;
-          processAndSaveText(scrapedText, title, response, user._id);
+          processAndSaveText(scrapedText, title, response, user._id, request.targetLanguage);
           try {
             fs.unlinkSync('./uploads/' + request.file.filename);
           } catch (err) {
@@ -250,7 +253,7 @@ app.post('/api/generate-url', function(request, response, next){
           return;
         }
         const title = request.body.title;
-        return processAndSaveText(allText, title, response, user._id);
+        return processAndSaveText(allText, title, response, user._id, request.targetLanguage);
       }).catch(err => {
         response.status(500).send()
       });
@@ -302,12 +305,12 @@ app.post('/api/document/:id/delete', function(request, response, next) {
       let targetLanguage;
       let document;
       querydb.document.getDocument(documentID).then(doc => {
-        document = doc
+        document = doc;
+        targetLanguage = doc.targetLanguage;
         const textId = mongoose.Types.ObjectId(doc.textId);
         return querydb.documentText.getDocumentText(textId);
       }).then(documentText => {
         sourceLanguage = documentText.sourceLanguage
-        targetLanguage = documentText.targetLanguage
         return querydb.studyMat.getStudyMat(document.studyMat)
       }).then(studyMat => {
         return querydb.studyMat.removeWords(studyMat, [wordToDelete]);
@@ -339,11 +342,11 @@ app.post('/api/document/:id/add', function(request, response, next) {
       let currStudyMat;
       querydb.document.getDocument(documentID).then(doc => {
         document = doc;
+        targetLanguage = doc.targetLanguage;
         const textId = mongoose.Types.ObjectId(doc.textId);
         return querydb.documentText.getDocumentText(textId);
       }).then(documentText => {
         sourceLanguage = documentText.sourceLanguage;
-        targetLanguage = documentText.targetLanguage;
         return querydb.studyMat.getStudyMat(document.studyMat)
       }).then(studyMat => {
         currStudyMat = studyMat
@@ -395,7 +398,7 @@ app.post('/api/settings', function(request, response, next){
 	})(request, response, next);
 });
 
-function processAndSaveText(text, title, response, userId){
+function processAndSaveText(text, title, response, userId, targetLanguage){
   let keywords;
   let id;
   let keyWords;
@@ -403,17 +406,17 @@ function processAndSaveText(text, title, response, userId){
   let translatedWords;
   let allWords;
   let keywordsPlaintext
-  nlp.processText(text)
+  nlp.processText(text, targetLanguage=targetLanguage)
   .then(result => {
     [ srcLanguage, translatedWords, allWords ] = result;
 
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
     keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     // call db function to save all words.
-    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext);
+    return querydb.document.createDocument(title, userId, text, srcLanguage, targetLanguage, allWords.map(word => word['originalText']), keywordsPlaintext);
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
-    return querydb.studyMat.createStudyMat(srcLanguage, "en", keywordsPlaintext); 
+    return querydb.studyMat.createStudyMat(srcLanguage, targetLanguage, keywordsPlaintext); 
   }).then(studyMat => {
     return querydb.document.addStudyMat(id, studyMat);
   }).then(result =>{

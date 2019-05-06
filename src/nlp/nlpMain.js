@@ -42,7 +42,7 @@ function processTextWithSource(text, sourceLanguage, targetLanguage='en') {
 		let batch;
 		for (i = 0; i < Math.ceil(untranslatedWordList.length / maxWords); i++) {
 			batch = untranslatedWordList.slice(maxWords * i, maxWords * (i + 1));
-			translations.push(translate.translateText(batch, sourceLanguage))
+			translations.push(translate.translateText(batch, sourceLanguage, targetLanguage))
 		}
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(translations)])
@@ -135,7 +135,7 @@ function processText(text, targetLanguage='en') {
 		let batch;
 		for (i = 0; i < Math.ceil(untranslatedWordList.length / maxWords); i++) {
 			batch = untranslatedWordList.slice(maxWords * i, maxWords * (i + 1));
-			translations.push(translate.translateText(batch, sourceLanguage))
+			translations.push(translate.translateText(batch, sourceLanguage, targetLanguage))
 		}
 
 		return Promise.all([sourceLanguage, tokens, Promise.all(translations)])
