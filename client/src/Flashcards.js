@@ -82,13 +82,13 @@ class Card extends React.Component {
     
     showNextCard() {
       if ((this.state.cardNumber + 1) !== this.props.cards.length) {
-        this.setState({cardNumber: this.state.cardNumber += 1});
+        this.setState({cardNumber: this.state.cardNumber + 1});
       }
     }
     
     showPrevCard() {
       if (this.state.cardNumber !== 0) {
-        this.setState({cardNumber: this.state.cardNumber -= 1});
+        this.setState({cardNumber: this.state.cardNumber - 1});
       }
     }
     
@@ -164,7 +164,7 @@ class Flashcards extends React.Component {
     }
 
     componentWillMount() {
-        const url = '/document/' + this.props.match.params.id
+        const url = '/api/document/' + this.props.match.params.id
         fetch(url, {
           headers: {
             "Content-Type": "application/json",
@@ -183,7 +183,6 @@ class Flashcards extends React.Component {
     }
 
     render() {
-        console.log("this.state.cards", this.state.cards)
         return (
               <Container style={{
                   background: "#F1F1F1",

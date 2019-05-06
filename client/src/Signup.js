@@ -75,7 +75,7 @@ class Signup extends React.Component {
     }
 
     onSignup = () => {
-        axios.post('/register', {
+        axios.post('/api/register', {
             email: this.state.values.email,
             name: this.state.values.name,
             password: this.state.values.password,

@@ -56,7 +56,7 @@ class Sheet extends React.Component {
   }
 
     componentWillMount() {
-      const url = '/document/' + this.props.match.params.id
+      const url = '/api/document/' + this.props.match.params.id
       fetch(url, {
         headers: {
           "Content-Type": "application/json",
@@ -93,10 +93,9 @@ class Sheet extends React.Component {
     }
 
     addWord = (e) => {
-      // console.log(this.props.match.params.id)
-      const word = {lemma: this.state.values.newWord}
+      const word = this.state.values.newWord
       if (this.state.editMode) {
-        const url = '/document/' + this.props.match.params.id + '/add'
+        const url = '/api/document/' + this.props.match.params.id + '/add'
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
@@ -105,15 +104,31 @@ class Sheet extends React.Component {
           },
           body: JSON.stringify({word}), // body data type must match "Content-Type" header
         }).then( (res) => res.json()).then((res) => {
-          console.log(res)
-          this.setState({vocabRow: res})
-        // TODO: Would be nice to get in response new vocab_list.
+          this.setState({vocabRows: res})
         }).catch((err) => {
           console.error(err)
-          // this.props.history.push('/error')
+          this.props.history.push('/error')
         })
       }
     }
+
+  removeVocab = (word) => (e) => {
+    if (this.state.editMode) {
+      const url = '/api/document/' + this.props.match.params.id + '/delete'
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+        body: JSON.stringify({word}),
+      }).then( (res) => res.json()).then((res) => {
+        this.setState({vocabRows: res})
+      }).catch((err) => {
+        this.props.history.push('/error')
+      })
+    }
+  }
 
     handleWordInput = (e) => {
       const fieldName = e.target.name
@@ -127,9 +142,7 @@ class Sheet extends React.Component {
     }
 
     handleDelete = (e) => {
-      console.log("delete this sheet")
-      console.log(this.props.match.params.id)
-      const url = '/sheet/' + this.props.match.params.id + '/delete'
+      const url = '/api/sheet/' + this.props.match.params.id + '/delete'
       fetch(url, {
         method: "POST",
         headers: {
@@ -171,6 +184,7 @@ class Sheet extends React.Component {
                   vocabRows={this.state.vocabRows} 
                   selected={this.state.selected}
                   editMode={this.state.editMode}
+                  removeVocab={this.removeVocab}
                   docId={docId}
                   user={this.props.user}
                   />

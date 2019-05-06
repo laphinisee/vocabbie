@@ -71,7 +71,7 @@ class Login extends React.Component {
     this.setState({
       loading: true
     }, () => {
-    axios.post('/login', {
+    axios.post('/api/login', {
       email: this.state.values.email,
       password: this.state.values.password,
     })
