@@ -82,13 +82,13 @@ class Card extends React.Component {
     
     showNextCard() {
       if ((this.state.cardNumber + 1) !== this.props.cards.length) {
-        this.setState({cardNumber: this.state.cardNumber += 1});
+        this.setState({cardNumber: this.state.cardNumber + 1});
       }
     }
     
     showPrevCard() {
       if (this.state.cardNumber !== 0) {
-        this.setState({cardNumber: this.state.cardNumber -= 1});
+        this.setState({cardNumber: this.state.cardNumber - 1});
       }
     }
     

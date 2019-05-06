@@ -1,7 +1,7 @@
 const rake = require('./rake')
 
 function getKeywords(text) {
-  const maxWords = Math.min(Math.floor(text.length * 0.2), 30);
+  const maxWords = Math.min(Math.floor(text.length * 0.10), 20);
   return rake.rake(text).slice(0, maxWords);
 }
 

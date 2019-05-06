@@ -18,7 +18,8 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 			return result;
 		} else {
 			const mongoDocumentText = new DocumentTexts(payload);
-			return mongoDocumentText.save();
+			mongoDocumentText.save()
+			return mongoDocumentText;
 		}
 	});
 }
