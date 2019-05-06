@@ -41,6 +41,8 @@
     "passport-jwt": "^4.0.0",
     "pdf2json": "^1.1.8",
     "pinyin": "^2.8.3",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
     "stopword": "^0.2.4",
     "storybook": "^1.0.0",

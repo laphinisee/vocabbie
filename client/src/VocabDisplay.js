@@ -20,7 +20,7 @@ class VocabDisplay extends React.Component {
   
   removeVocab = (word) => (e) => {
     if (this.props.editMode) {
-      const url = '/document/' + this.props.docId + '/delete'
+      const url = '/api/document/' + this.props.docId + '/delete'
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         headers: {

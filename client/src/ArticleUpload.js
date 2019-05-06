@@ -88,7 +88,7 @@ export class ArticleUpload extends React.Component {
         loading: true,
         error: '',
       }, () => {
-        fetch('/generate-text', {
+        fetch('/api/generate-text', {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
             headers: {
               "Content-Type": "application/json",
@@ -124,7 +124,7 @@ export class ArticleUpload extends React.Component {
       this.setState({
         loading: true,
       }, () => {
-        fetch('/generate-url', {
+        fetch('/api/generate-url', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
             "Content-Type": "application/json",
@@ -164,7 +164,7 @@ export class ArticleUpload extends React.Component {
         data.append('title', this.state.values.title)
         data.append('file', this.state.values.file)
 
-        fetch('/generate-pdf', {
+        fetch('/api/generate-pdf', {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           headers: {
             // "Content-Type": "multipart/form-data",

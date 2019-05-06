@@ -33,7 +33,8 @@ class Token extends React.Component {
         key={this.props.token_id}
         style={
           {
-            "fontWeight": hovered ? "bold" : "normal",
+            // "fontWeight": hovered ? "bold" : "normal",
+            "font-color": hovered ? '#3498db' : 'black',
             "whiteSpace": "pre-wrap"
           }
         }

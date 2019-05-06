@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 const path = require('path'); //for pathing
-app.use(express.static('client/public')); 
+app.use(express.static(path.join(__dirname, 'client', 'build'))); 
 app.set('view engine', 'html');
 
 const bodyParser = require('body-parser')
@@ -44,7 +44,7 @@ const passport = require('passport');
 require('./passport')(passport)
 app.use(passport.initialize());
 
-app.post('/register', function(req, res) {
+app.post('/api/register', function(req, res) {
   querydb.user.getUserByEmail(req.body.email).then(user => {
     if (user) {
       return res.status(200).json({ error: "Email already exists" });
@@ -76,7 +76,7 @@ app.post('/register', function(req, res) {
   });
 });
 
-app.post('/login', function(req, res){
+app.post('/api/login', function(req, res){
   Users.findOne({ email: req.body.email }).then(user => {
     if (!user) {
       return res.status(200).json({ error: "Incorrect email and/or password." });
@@ -116,11 +116,8 @@ app.post('/login', function(req, res){
 })
 
 ////////////////////// ENDPOINTS //////////////////////
-app.get('/', function(request, response){
-  response.status(200).type('html');
-});
 
-app.get('/document/:id', function(request, response, next){
+app.get('/api/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -166,7 +163,7 @@ app.get('/document/:id', function(request, response, next){
               });
             allWords.forEach(function(w) {
               let hardId = savedWords.findIndex(word => word.lemma == w.lemma);
-              article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, id : hardId});
+              article.push({str : w.originalText, lemma: w.lemma, def : w.translatedText, isStopword : w.isStopword, pronunciation : w.pronunciation, id : hardId});
             });
             for(let i = 0 ; i < savedWords.length; i++){
               vocab_list[i] = {"str": savedWords[i].originalText, "text": savedWords[i].lemma, "pos": savedWords[i].partOfSpeech, "translation": savedWords[i].translatedText};
@@ -196,7 +193,7 @@ app.get('/document/:id', function(request, response, next){
 });
 
 
-app.post('/generate-text', function(request, response, next) {
+app.post('/api/generate-text', function(request, response, next) {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -210,7 +207,7 @@ app.post('/generate-text', function(request, response, next) {
   })(request, response, next);
 });
 
-app.post('/generate-pdf', function(request, response, next){
+app.post('/api/generate-pdf', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -242,7 +239,7 @@ app.post('/generate-pdf', function(request, response, next){
   })(request, response, next); 
 });
 
-app.post('/generate-url', function(request, response, next){
+app.post('/api/generate-url', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -263,7 +260,7 @@ app.post('/generate-url', function(request, response, next){
   })(request, response, next);  
 });
 
-app.get('/vocab', function(request, response, next){
+app.get('/api/vocab', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -293,7 +290,7 @@ app.get('/vocab', function(request, response, next){
   })(request, response, next);
 });
 
-app.post('/document/:id/delete', function(request, response, next) {
+app.post('/api/document/:id/delete', function(request, response, next) {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     // TODO: Check that the person adding is the owner of the sheet.
     if (err) {
@@ -328,7 +325,7 @@ app.post('/document/:id/delete', function(request, response, next) {
     }
   })(request, response, next);
 });
-app.post('/document/:id/add', function(request, response, next) {
+app.post('/api/document/:id/add', function(request, response, next) {
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     // TODO: Check that the person adding is the owner of the sheet.
     if (err) {
@@ -370,7 +367,7 @@ app.post('/document/:id/add', function(request, response, next) {
     }
   })(request, response, next);
 });
-app.post('/sheet/:id/delete', function(request, response, next){
+app.post('/api/sheet/:id/delete', function(request, response, next){
     passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       response.status(500).send(err.message);
@@ -386,7 +383,7 @@ app.post('/sheet/:id/delete', function(request, response, next){
     }
   })(request, response, next);
 });
-app.post('/settings', function(request, response, next){
+app.post('/api/settings', function(request, response, next){
 	passport.authenticate('jwt', {session : false}, (err, user, info) => {
 		if (err) {
 			response.status(500).send(err.message);
@@ -431,6 +428,12 @@ function processAndSaveText(text, title, response, userId){
   });
 }
 
+app.get('*', function(request, response){
+  // response.status(200).type('html');
+  response.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
+});
+
+
 function scrapeURL(url){
   let allText = "";
   const textElements = ['p', 'h1', 'h2'];
@@ -444,4 +447,6 @@ function scrapeURL(url){
   });
 }
 
-app.listen(8080);
+const port = process.env.VOCABBIE_PORT || 8080
+console.log("Listening on...", port)
+app.listen(port);

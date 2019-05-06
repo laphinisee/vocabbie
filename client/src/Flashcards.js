@@ -164,7 +164,7 @@ class Flashcards extends React.Component {
     }
 
     componentWillMount() {
-        const url = '/document/' + this.props.match.params.id
+        const url = '/api/document/' + this.props.match.params.id
         fetch(url, {
           headers: {
             "Content-Type": "application/json",

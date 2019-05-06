@@ -61,7 +61,7 @@ class VocabDisplay extends React.Component {
   }
 
   componentWillMount() {
-    fetch('/vocab', {
+    fetch('/api/vocab', {
       headers: {
         "Content-Type": "application/json",
         "Authorization": this.props.user.token,
