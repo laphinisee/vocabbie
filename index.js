@@ -447,4 +447,6 @@ function scrapeURL(url){
   });
 }
 
-app.listen(80);
+const port = process.env.VOCABBIE_PORT || 8080
+console.log("Listening on...", port)
+app.listen(port);
