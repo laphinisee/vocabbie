@@ -45,6 +45,10 @@ function _rankWords(scores) {
 	return _.sortBy(Object.keys(scores), [(word) => { return -1 * (scores[word] + (word.length / 100.0)) }])
 }
 
+function _sortByOrder(keywords, words) {
+	return _.sortBy(keywords, [(kw => { return words.indexOf(kw) })])
+}
+
 function rake(document) {
 	const words = document.split(' ');
 
@@ -52,7 +56,7 @@ function rake(document) {
 	const scores = _wordScores(matrix);
 	const topWords = _rankWords(scores);
 
-	return topWords;
+	return _sortByOrder(topWords, words);
 }
 
 module.exports = {
