@@ -34,7 +34,7 @@ class Token extends React.Component {
         style={
           {
             // "fontWeight": hovered ? "bold" : "normal",
-            "font-color": hovered ? '#3498db' : 'black',
+            "color": hovered ? '#3498db' : 'black',
             "whiteSpace": "pre-wrap"
           }
         }
