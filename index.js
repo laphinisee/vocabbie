@@ -439,11 +439,11 @@ app.get('*', function(request, response){
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2'];
+  const textElements = ['p'];
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    allText = textElements.map(element => $(element).text()).join(' ');
+    allText = textElements.map(element => $(element).text()).join('\n');
     return allText;
   }).catch(err => {
     return "ERR: Invalid URL";
