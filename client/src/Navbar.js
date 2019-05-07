@@ -18,7 +18,7 @@ const Bar = (props) => (
 
 const MenuBar = (props) => (
   <Box direction="row" gap="medium">
-    <Box><Anchor color="neutral-2" href="/sheets" primary label="My Articles" /></Box>
+    <Box><Anchor color="neutral-2" href="/sheets" primary label="My Sheets" /></Box>
     <Box><Anchor color="neutral-2" href="/create" primary label="Upload" /></Box>
   </Box>
 )
