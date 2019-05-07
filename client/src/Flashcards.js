@@ -190,7 +190,7 @@ class Flashcards extends React.Component {
               }} loading={this.state.loading} title={"Flashcards"} description="Your generated vocab sheet">
                 <Box background="light-2" height="large">
                   <CardContainer cards={this.state.cards} />
-                  <VocabDisplay vocabRows={this.state.cards} />
+                  <VocabDisplay vocabRows={this.state.cards} removeVocab={() => {}}/>
                 </Box>
               </Container>
             
