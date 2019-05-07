@@ -443,8 +443,7 @@ function scrapeURL(url){
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    allText = textElements.map(element => $(element).text()).join('\n');
-    return allText;
+    return $('p').text();
   }).catch(err => {
     return "ERR: Invalid URL";
   });
