@@ -105,13 +105,7 @@ class Signup extends React.Component {
                         <Heading textAlign='start' color='neutral-2' level={1}>
                             <TypeOut caret words={words} />
                         </Heading>
-                        <Paragraph>Lorem ipsum dolor sit amet, consectetur adipiscing 
-                            elit. Praesent sed metus feugiat, bibendum arcu sit amet, 
-                            ultricies tellus. Nulla ac consequat eros. Nunc placerat 
-                            elementum iaculis. Ut auctor congue mauris, a lacinia leo 
-                            maximus id. Vivamus eleifend orci quis imperdiet convallis. 
-                            Nam volutpat eget lorem et elementum. Sed condimentum 
-                            rhoncus mi, eget vulputate lorem luctus quis.</Paragraph>
+                        <Paragraph>Spend less time looking for study materials online. Make your own in no time at all. Export your vocab sheets into PDFs and flash cards for on-the-go studying.</Paragraph>
                     </Col>
                 </Hidden>
                 <Col sm={12} md={6}>

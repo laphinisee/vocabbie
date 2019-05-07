@@ -33,7 +33,7 @@ function _wordScores(matrix) {
 
 	let degree, frequency;
 	Object.keys(matrix).forEach(key => {
-		frequency = matrix[key][key]
+		frequency = matrix[key][key] * 1.0
 		degree = Object.values(matrix[key]).reduce((a, b) => a + b) - frequency
 		scores[key] = degree / frequency
 	})
@@ -52,11 +52,14 @@ function _sortByOrder(keywords, words) {
 function rake(document) {
 	const words = document.split(' ');
 
+	const maxWords = Math.min(Math.floor(words.length * 0.15), 25);
+
 	const matrix = _cooccurranceMatrix(words);
 	const scores = _wordScores(matrix);
-	const topWords = _rankWords(scores);
+	const keywords = _rankWords(scores).slice(0, maxWords);
+	const sortedKeywords = _sortByOrder(keywords, words);
 
-	return _sortByOrder(topWords, words);
+	return sortedKeywords;
 }
 
 module.exports = {

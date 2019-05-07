@@ -2,6 +2,7 @@ import React from "react";
 import {Form, FormField, Tabs, Tab, Box, Button, TextArea} from 'grommet';
 import { withRouter } from "react-router";
 import AlertBox from './AlertBox';
+import './App.css'
 
 export class ArticleUpload extends React.Component {
 
@@ -214,6 +215,7 @@ export class ArticleUpload extends React.Component {
                     onChange={this.handleUserInput} 
                     onBlur={this.handleBlur} 
                     value={this.state.values.plainText} 
+                    className="plainTextInput"
                     placeholder="Type your article here" /><br/>
                   <Button name="plainTextGenerate" disabled={!this.isFormValid('plainText') || this.state.loading} onClick={this.submitPlainText} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
                 </Box>
@@ -230,14 +232,17 @@ export class ArticleUpload extends React.Component {
                   <Button name="urlGenerate" disabled={!this.isFormValid('url') || this.state.loading} onClick={this.submitUrl} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
               <Tab title="File Upload">
-                <input 
-                    // error={this.state.touched.title && this.state.errors.title} 
-                    onChange={this.handleUserFileInput} 
-                    // onBlur={this.handleBlur} 
-                    name="file" 
-                    type="file" 
-                    // label="File Upload"
-                />
+                <Box pad="medium">
+                  <input 
+                      className="fileUpload"
+                      // error={this.state.touched.title && this.state.errors.title} 
+                      onChange={this.handleUserFileInput} 
+                      // onBlur={this.handleBlur} 
+                      name="file" 
+                      type="file" 
+                      // label="File Upload"
+                  />
+                </Box>
                 <Button name="pdfGenerate" disabled={!this.isFormValid('file') || this.state.loading} onClick={this.submitPdf} type="submit" fill={true} primary color="accent-1" label={this.state.loading ? 'Loading...' : "Generate"} />
               </Tab>
             </Tabs>

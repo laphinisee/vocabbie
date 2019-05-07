@@ -2,11 +2,9 @@ import React from "react";
 import ArticleDisplay from './ArticleDisplay';
 import Container from './Container';
 import VocabDisplay from './VocabDisplay';
-import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
 import {Button, TextInput, Table, TableBody, TableRow, TableCell, Box} from 'grommet';
 import {Download, Trash, Edit, Iteration} from 'grommet-icons'
-import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
 import {Container as GridContainer, Row, Col } from 'react-grid-system';
 
@@ -163,12 +161,20 @@ class Sheet extends React.Component {
                   <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
                   <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
                   <Button data-tip="View as Flashcards" icon={<Iteration />} color="black" href={`/flashcards/${this.props.match.params.id}`}/>
-                  <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
+                  <Button disabled={!this.state.pdfReady} data-tip="Export to PDF" icon={<Download />} color="black" onClick={() => {
+                    this.props.history.push({
+                      pathname:"/pdf",
+                      state:{
+                          title: this.state.title, 
+                          vocabRows: this.state.vocabRows
+                       }
+                     });         
+                  }}/>
                 </Box>
               </Col>
             </Row>
             <Row>
-            < Col sm={12} push={{ md: 6 }} md={6}>
+            <Col sm={12} push={{ md: 6 }} md={6}>
               <Box gridArea="vocab" background="light-2">
                 <EditMenu 
                   addWord={this.addWord}
@@ -187,7 +193,7 @@ class Sheet extends React.Component {
                   user={this.props.user}
                   />
               </Box>
-            </ Col>
+            </Col>
               <Col sm={12} pull={{ md: 6 }} md={6}>
                 <Box gridArea="article">
                   <ArticleDisplay 
@@ -200,9 +206,6 @@ class Sheet extends React.Component {
             </Row>
           </GridContainer>
           <ReactTooltip />
-          {/* {this.state.pdfReady ? <PDFViewer>
-            <PDFSheet title={this.state.title} tokens={this.state.tokens}/>
-          </PDFViewer> : null} */}
          </Container>
       )
     }
