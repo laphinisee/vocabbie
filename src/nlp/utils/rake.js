@@ -52,7 +52,7 @@ function _sortByOrder(keywords, words) {
 function rake(document) {
 	const words = document.split(' ');
 
-	const maxWords = Math.min(Math.floor(words.length * 0.10), 20);
+	const maxWords = Math.min(Math.floor(words.length * 0.15), 25);
 
 	const matrix = _cooccurranceMatrix(words);
 	const scores = _wordScores(matrix);
