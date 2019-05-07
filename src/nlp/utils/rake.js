@@ -50,7 +50,7 @@ function _sortByOrder(keywords, words) {
 }
 
 function rake(document) {
-	const words = document.split(' ');
+	const words = document.split(' ').filter(word => isNaN(word));
 
 	const maxWords = Math.min(Math.floor(words.length * 0.15), 25);
 
