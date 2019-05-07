@@ -116,6 +116,10 @@ app.post('/api/login', function(req, res){
 })
 
 ////////////////////// ENDPOINTS //////////////////////
+app.get('/', function(request, response){
+  response.sendFile(path.join(__dirname, 'build', 'index.html'));
+  response.status(200).type('html');
+});
 
 app.get('/api/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
