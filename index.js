@@ -413,7 +413,7 @@ function processAndSaveText(text, title, response, userId){
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
     keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     // call db function to save all words.
-    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext)
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext);
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
     return querydb.studyMat.createStudyMat(srcLanguage, "en", keywordsPlaintext); 
@@ -443,8 +443,7 @@ function scrapeURL(url){
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    allText = textElements.map(element => $(element).text()).join('\n');
-    return allText;
+    return $('p').text();
   }).catch(err => {
     return "ERR: Invalid URL";
   });
