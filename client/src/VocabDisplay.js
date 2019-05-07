@@ -23,7 +23,7 @@ class VocabDisplay extends React.Component {
         <Box pad="medium" size="fit">
           <Table size="fit">
           <TableHeader>
-            <TableRow>
+            <TableRow className="vocabHeader">
               <TableCell scope="col" border="bottom">
                 Word
               </TableCell>

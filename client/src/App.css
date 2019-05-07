@@ -23,7 +23,8 @@
   color: #61dafb;
 }
 
-.hide {
+.vocabHeader .hide,
+.vocabRow .hide {
   display: none;
 }
 
