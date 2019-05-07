@@ -116,6 +116,10 @@ app.post('/api/login', function(req, res){
 })
 
 ////////////////////// ENDPOINTS //////////////////////
+app.get('/', function(request, response){
+  response.sendFile(path.join(__dirname, 'build', 'index.html'));
+  response.status(200).type('html');
+});
 
 app.get('/api/document/:id', function(request, response, next){
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
@@ -348,9 +352,7 @@ app.post('/api/document/:id/add', function(request, response, next) {
       }).then(studyMat => {
         currStudyMat = studyMat
         return nlp.processTextWithSource(wordToAdd, sourceLanguage, targetLanguage);
-      }).then(resultantWord => {
-        return querydb.word.createWord(resultantWord, sourceLanguage, targetLanguage);
-      }).then(createWord => {
+      }).then(() => {
         return querydb.studyMat.addWords(currStudyMat, [wordToAdd]);
       }).then(updatedMat => {
         return querydb.word.getWords(updatedMat.savedWords,  sourceLanguage, targetLanguage);
@@ -358,7 +360,7 @@ app.post('/api/document/:id/add', function(request, response, next) {
         response.status(200).type('application/json');
         response.json(savedWordObjs.map(word => {return {"str": word.originalText,"text": word.lemma, "pos": word.partOfSpeech, "translation": word.translatedText}}));
       }).catch(err => {
-        console.log(err)
+        console.error(err)
         response.status(500).send()
       });
       
@@ -374,8 +376,9 @@ app.post('/api/sheet/:id/delete', function(request, response, next){
     } else if (user) {
       const documentID = mongoose.Types.ObjectId(request.params.id);
       querydb.document.deleteDocument(documentID).then(deleted => {
-        reponse.status(200).send()
+        response.status(200).send()
       }).catch( err => {
+        console.error(err)
         response.status(500).send()
       });
     } else {
@@ -410,7 +413,7 @@ function processAndSaveText(text, title, response, userId){
     const whitespaceSeparatedWords = allWords.filter(word => !word['isStopword']).map(word => word['originalText']).join(' ')
     keywordsPlaintext = nlp.getKeywords(whitespaceSeparatedWords);
     // call db function to save all words.
-    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext);
+    return querydb.document.createDocument(title, userId, text, srcLanguage, "en", allWords.map(word => word['originalText']), keywordsPlaintext)
   }).then(doc => {
     id = doc['_id']; //TODO: filter down keyWords here.
     return querydb.studyMat.createStudyMat(srcLanguage, "en", keywordsPlaintext); 
@@ -436,11 +439,11 @@ app.get('*', function(request, response){
 
 function scrapeURL(url){
   let allText = "";
-  const textElements = ['p', 'h1', 'h2'];
+  const textElements = ['p'];
   return axios.get(url).then((response) => {
     // Load the web page source code into a cheerio instance
     const $ = cheerio.load(response.data);
-    allText = textElements.map(element => $(element).text()).join(' ');
+    allText = textElements.map(element => $(element).text()).join('\n');
     return allText;
   }).catch(err => {
     return "ERR: Invalid URL";

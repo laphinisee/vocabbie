@@ -11,17 +11,22 @@ function createDocumentText(plaintext, sourceLanguage, targetLanguage, allWords,
 		keyWords: keyWords
 	}
 
-	const query = DocumentTexts.findOne({ plaintext: plaintext });
+	// const query = DocumentTexts.findOne({ plaintext: plaintext });
 
-	return query.then(result => {
-		if (result) {
-			return result;
-		} else {
-			const mongoDocumentText = new DocumentTexts(payload);
-			mongoDocumentText.save()
-			return mongoDocumentText;
-		}
+	const query = {plaintext: plaintext};
+	return DocumentTexts.findOneAndUpdate(query, payload, {upsert:true}, function(err, doc){
+		return doc
 	});
+
+	// return query.then(result => {
+	// 	if (result) {
+	// 		return result;
+	// 	} else {
+	// 		const mongoDocumentText = new DocumentTexts(payload);
+	// 		mongoDocumentText.save()
+	// 		return mongoDocumentText;
+	// 	}
+	// });
 }
 
 function getDocumentText(documentTextId) {

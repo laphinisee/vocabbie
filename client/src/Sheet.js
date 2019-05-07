@@ -2,11 +2,9 @@ import React from "react";
 import ArticleDisplay from './ArticleDisplay';
 import Container from './Container';
 import VocabDisplay from './VocabDisplay';
-import PDFSheet from './PDFSheet'
 import ReactTooltip from 'react-tooltip'
 import {Button, TextInput, Table, TableBody, TableRow, TableCell, Box} from 'grommet';
 import {Download, Trash, Edit, Iteration} from 'grommet-icons'
-import {PDFViewer} from '@react-pdf/renderer';
 import { withRouter } from "react-router";
 import {Container as GridContainer, Row, Col } from 'react-grid-system';
 
@@ -80,8 +78,6 @@ class Sheet extends React.Component {
         tokens: tokens,
         language: language
       })
-      // Should set this up mad lib style so that we can connect words in article with
-      // vocab row entries.
     }
 
     getVocabSheet(vocabRows) {
@@ -93,8 +89,7 @@ class Sheet extends React.Component {
     }
 
     addWord = (e) => {
-      // console.log(this.props.match.params.id)
-      const word = {lemma: this.state.values.newWord}
+      const word = this.state.values.newWord
       if (this.state.editMode) {
         const url = '/api/document/' + this.props.match.params.id + '/add'
         fetch(url, {
@@ -105,15 +100,31 @@ class Sheet extends React.Component {
           },
           body: JSON.stringify({word}), // body data type must match "Content-Type" header
         }).then( (res) => res.json()).then((res) => {
-          console.log(res)
-          this.setState({vocabRow: res})
-        // TODO: Would be nice to get in response new vocab_list.
+          this.setState({vocabRows: res})
         }).catch((err) => {
           console.error(err)
-          // this.props.history.push('/error')
+          this.props.history.push('/error')
         })
       }
     }
+
+  removeVocab = (word) => (e) => {
+    if (this.state.editMode) {
+      const url = '/api/document/' + this.props.match.params.id + '/delete'
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": this.props.user.token,
+        },
+        body: JSON.stringify({word}),
+      }).then( (res) => res.json()).then((res) => {
+        this.setState({vocabRows: res})
+      }).catch((err) => {
+        this.props.history.push('/error')
+      })
+    }
+  }
 
     handleWordInput = (e) => {
       const fieldName = e.target.name
@@ -127,8 +138,6 @@ class Sheet extends React.Component {
     }
 
     handleDelete = (e) => {
-      console.log("delete this sheet")
-      console.log(this.props.match.params.id)
       const url = '/api/sheet/' + this.props.match.params.id + '/delete'
       fetch(url, {
         method: "POST",
@@ -152,12 +161,20 @@ class Sheet extends React.Component {
                   <Button data-tip="Delete Sheet" icon={<Trash />} color="black"onClick={this.handleDelete}/>
                   <Button data-tip="Edit Sheet" icon={<Edit />} color="black" onClick={this.toggleEditMode}/>
                   <Button data-tip="View as Flashcards" icon={<Iteration />} color="black" href={`/flashcards/${this.props.match.params.id}`}/>
-                  <Button data-tip="Export to PDF" icon={<Download />} color="black"/>
+                  <Button disabled={!this.state.pdfReady} data-tip="Export to PDF" icon={<Download />} color="black" onClick={() => {
+                    this.props.history.push({
+                      pathname:"/pdf",
+                      state:{
+                          title: this.state.title, 
+                          vocabRows: this.state.vocabRows
+                       }
+                     });         
+                  }}/>
                 </Box>
               </Col>
             </Row>
             <Row>
-            < Col sm={12} push={{ md: 6 }} md={6}>
+            <Col sm={12} push={{ md: 6 }} md={6}>
               <Box gridArea="vocab" background="light-2">
                 <EditMenu 
                   addWord={this.addWord}
@@ -171,11 +188,12 @@ class Sheet extends React.Component {
                   vocabRows={this.state.vocabRows} 
                   selected={this.state.selected}
                   editMode={this.state.editMode}
+                  removeVocab={this.removeVocab}
                   docId={docId}
                   user={this.props.user}
                   />
               </Box>
-            </ Col>
+            </Col>
               <Col sm={12} pull={{ md: 6 }} md={6}>
                 <Box gridArea="article">
                   <ArticleDisplay 
@@ -188,9 +206,6 @@ class Sheet extends React.Component {
             </Row>
           </GridContainer>
           <ReactTooltip />
-          {/* {this.state.pdfReady ? <PDFViewer>
-            <PDFSheet title={this.state.title} tokens={this.state.tokens}/>
-          </PDFViewer> : null} */}
          </Container>
       )
     }
