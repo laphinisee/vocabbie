@@ -13,6 +13,7 @@ import Settings from "./Settings";
 import Error from "./Error";
 import jwt_decode from 'jwt-decode';
 import Flashcards from './Flashcards';
+import Export from './Export'
 
 class App extends React.Component {
 
@@ -86,6 +87,7 @@ class App extends React.Component {
                 <PrivateRoute path='/display/:id' component={Sheet} />
                 <PrivateRoute path='/flashcards/:id' component={Flashcards} />
                 <PrivateRoute path='/error' component={Error} />
+                <PrivateRoute path='/pdf' component={Export} />
               </Switch>
             </Box>
           </Box>
