@@ -5,6 +5,9 @@ We built our application using React & Express. Our server can be ran by running
 
 For actual deployment, we compile  our React project by running `npm run build` in the `client` folder. Then, we simply need to run `node index.js`.
 
+Be sure to run the following command before running the Node/Express server:
+`export GOOGLE_APPLICATION_CREDENTIALS="/path/to/google/keys/file.json"`
+
 We have currently deployed our server to AWS EC2 and are running it here: (http://ec2-3-88-66-199.compute-1.amazonaws.com/). We used a free service to also serve the site from http://vocabbie.tk
 
 ## Acknowledgements
